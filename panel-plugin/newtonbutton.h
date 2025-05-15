@@ -17,8 +17,8 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __SAMPLE_H__
-#define __SAMPLE_H__
+#ifndef __NEWTONBUTTON_H__
+#define __NEWTONBUTTON_H__
 
 G_BEGIN_DECLS
 
@@ -32,19 +32,19 @@ typedef struct
     GtkWidget       *hvbox;
     GtkWidget       *label;
 
-    /* sample settings */
+    /* newtonbutton settings */
     gchar           *setting1;
     gint             setting2;
     gboolean         setting3;
 }
-SamplePlugin;
+NewtonbuttonPlugin;
 
 
 
 void
-sample_save (XfcePanelPlugin *plugin,
-             SamplePlugin    *sample);
+newtonbutton_save (XfcePanelPlugin *plugin,
+             NewtonbuttonPlugin    *newtonbutton);
 
 G_END_DECLS
 
-#endif /* !__SAMPLE_H__ */
+#endif /* !__NEWTONBUTTON_H__ */

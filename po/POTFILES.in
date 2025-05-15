@@ -1,3 +1,3 @@
-panel-plugin/sample.c
-panel-plugin/sample-dialogs.c
-panel-plugin/sample.desktop.in
+panel-plugin/newtonbutton.c
+panel-plugin/newtonbutton-dialogs.c
+panel-plugin/newtonbutton.desktop.in

@@ -30,18 +30,18 @@
 #include <libxfce4ui/libxfce4ui.h>
 #include <libxfce4panel/libxfce4panel.h>
 
-#include "sample.h"
-#include "sample-dialogs.h"
+#include "newtonbutton.h"
+#include "newtonbutton-dialogs.h"
 
 /* the website url */
-#define PLUGIN_WEBSITE "https://docs.xfce.org/panel-plugins/xfce4-sample-plugin"
+#define PLUGIN_WEBSITE "https://docs.xfce.org/panel-plugins/xfce4-newtonbutton-plugin"
 
 
 
 static void
-sample_configure_response (GtkWidget    *dialog,
+newtonbutton_configure_response (GtkWidget    *dialog,
                            gint          response,
-                           SamplePlugin *sample)
+                           NewtonbuttonPlugin *newtonbutton)
 {
   gboolean result;
 
@@ -59,13 +59,13 @@ sample_configure_response (GtkWidget    *dialog,
   else
     {
       /* remove the dialog data from the plugin */
-      g_object_set_data (G_OBJECT (sample->plugin), "dialog", NULL);
+      g_object_set_data (G_OBJECT (newtonbutton->plugin), "dialog", NULL);
 
       /* unlock the panel menu */
-      xfce_panel_plugin_unblock_menu (sample->plugin);
+      xfce_panel_plugin_unblock_menu (newtonbutton->plugin);
 
       /* save the plugin */
-      sample_save (sample->plugin, sample);
+      newtonbutton_save (newtonbutton->plugin, newtonbutton);
 
       /* destroy the properties dialog */
       gtk_widget_destroy (dialog);
@@ -75,8 +75,8 @@ sample_configure_response (GtkWidget    *dialog,
 
 
 void
-sample_configure (XfcePanelPlugin *plugin,
-                  SamplePlugin    *sample)
+newtonbutton_configure (XfcePanelPlugin *plugin,
+                  NewtonbuttonPlugin    *newtonbutton)
 {
   GtkWidget *dialog;
 
@@ -84,7 +84,7 @@ sample_configure (XfcePanelPlugin *plugin,
   xfce_panel_plugin_block_menu (plugin);
 
   /* create the dialog */
-  dialog = xfce_titled_dialog_new_with_mixed_buttons (_("Sample Plugin"),
+  dialog = xfce_titled_dialog_new_with_mixed_buttons (_("Newtonbutton Plugin"),
                                                       GTK_WINDOW (gtk_widget_get_toplevel (GTK_WIDGET (plugin))),
                                                       GTK_DIALOG_DESTROY_WITH_PARENT,
                                                       "help-browser-symbolic", _("_Help"), GTK_RESPONSE_HELP,
@@ -103,7 +103,7 @@ sample_configure (XfcePanelPlugin *plugin,
 
   /* connect the response signal to the dialog */
   g_signal_connect (G_OBJECT (dialog), "response",
-                    G_CALLBACK(sample_configure_response), sample);
+                    G_CALLBACK(newtonbutton_configure_response), newtonbutton);
 
   /* show the entire dialog */
   gtk_widget_show (dialog);
@@ -112,7 +112,7 @@ sample_configure (XfcePanelPlugin *plugin,
 
 
 void
-sample_about (XfcePanelPlugin *plugin)
+newtonbutton_about (XfcePanelPlugin *plugin)
 {
   /* about dialog code. you can use the GtkAboutDialog
    * or the XfceAboutInfo widget */
@@ -123,11 +123,11 @@ sample_about (XfcePanelPlugin *plugin)
     };
 
   gtk_show_about_dialog (NULL,
-                         "logo-icon-name", "xfce4-sample-plugin",
+                         "logo-icon-name", "xfce4-newtonbutton-plugin",
                          "license",        xfce_get_license_text (XFCE_LICENSE_TEXT_GPL),
                          "version",        VERSION_FULL,
                          "program-name",   PACKAGE_NAME,
-                         "comments",       _("This is a sample plugin"),
+                         "comments",       _("This is a newtonbutton plugin"),
                          "website",        PLUGIN_WEBSITE,
                          "copyright",      "Copyright \xc2\xa9 2006-" COPYRIGHT_YEAR " The Xfce development team",
                          "authors",        auth,

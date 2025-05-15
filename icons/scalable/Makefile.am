@@ -2,7 +2,7 @@
 
 iconsdir = $(datadir)/icons/hicolor/scalable/apps
 icons_DATA =								\
-	xfce4-sample-plugin.svg
+	xfce4-newtonbutton-plugin.svg
 
 EXTRA_DIST =								\
 	$(icons_DATA)

@@ -17,17 +17,17 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __SAMPLE_DIALOGS_H__
-#define __SAMPLE_DIALOGS_H__
+#ifndef __NEWTONBUTTON_DIALOGS_H__
+#define __NEWTONBUTTON_DIALOGS_H__
 
 G_BEGIN_DECLS
 
 void
-sample_configure    (XfcePanelPlugin *plugin,
-                     SamplePlugin    *sample);
+newtonbutton_configure    (XfcePanelPlugin *plugin,
+                     NewtonbuttonPlugin    *newtonbutton);
 
 void
-sample_about        (XfcePanelPlugin *plugin);
+newtonbutton_about        (XfcePanelPlugin *plugin);
 
 G_END_DECLS
 

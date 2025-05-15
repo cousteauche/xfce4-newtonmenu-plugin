@@ -1,19 +1,19 @@
 plugin_sources = [
-  'sample-dialogs.c',
-  'sample-dialogs.h',
-  'sample.c',
-  'sample.h',
+  'newtonbutton-dialogs.c',
+  'newtonbutton-dialogs.h',
+  'newtonbutton.c',
+  'newtonbutton.h',
   xfce_revision_h,
 ]
 
 plugin_install_subdir = 'xfce4' / 'panel' / 'plugins'
 
 plugin_lib = shared_module(
-  'sample',
+  'newtonbutton',
   plugin_sources,
   gnu_symbol_visibility: 'hidden',
   c_args: [
-    '-DG_LOG_DOMAIN="@0@"'.format('xfce4-sample-plugin'),
+    '-DG_LOG_DOMAIN="@0@"'.format('xfce4-newtonbutton-plugin'),
   ],
   include_directories: [
     include_directories('..'),
@@ -30,8 +30,8 @@ plugin_lib = shared_module(
 )
 
 i18n.merge_file(
-  input: 'sample.desktop.in',
-  output: 'sample.desktop',
+  input: 'newtonbutton.desktop.in',
+  output: 'newtonbutton.desktop',
   po_dir: '..' / 'po',
   type: 'desktop',
   install: true,
