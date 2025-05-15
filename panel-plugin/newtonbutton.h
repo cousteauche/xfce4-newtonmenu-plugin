@@ -23,19 +23,28 @@
 G_BEGIN_DECLS
 
 /* plugin structure */
+// SEED:ConsiderAdvancedStyling - Explore options for more advanced button styling (padding, margins, custom CSS).
+
 typedef struct
 {
     XfcePanelPlugin *plugin;
 
     /* panel widgets */
-    GtkWidget       *ebox;
-    GtkWidget       *hvbox;
-    GtkWidget       *label;
+    GtkWidget       *event_box;     /* Main clickable area, might contain the button */
+    GtkWidget       *button;        /* The actual button widget displayed on the panel */
+    GtkWidget       *button_box;    /* A GtkBox inside the button to hold icon and/or label */
+    GtkWidget       *icon_image;    /* GtkImage to display the icon */
+    GtkWidget       *label_widget;  /* GtkLabel to display the text */
 
     /* newtonbutton settings */
-    gchar           *setting1;
-    gint             setting2;
-    gboolean         setting3;
+    gboolean         display_icon_prop; /* TRUE to display icon, FALSE to display text label */
+    gchar           *icon_name_prop;   /* Icon name (from theme) or path to an image file */
+    gchar           *label_text_prop;  /* Text to display if not using an icon */
+    // SEED:AddIconSizeConfig - Add settings for icon size (e.g., small, panel-relative, custom px).
+    // SEED:AddLabelFontConfig - Add settings for label font and color.
+
+    /* Internal state */
+    // SEED:AddMenuCache - Cache the main menu if it's static or doesn't change often.
 }
 NewtonbuttonPlugin;
 
