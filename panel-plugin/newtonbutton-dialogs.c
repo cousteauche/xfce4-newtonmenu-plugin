@@ -1,22 +1,3 @@
-/*  $Id$
- *
- *  Copyright (C) 2019 John Doo <john@foo.org>
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc.,
- *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- */
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -29,107 +10,233 @@
 
 #include <libxfce4ui/libxfce4ui.h>
 #include <libxfce4panel/libxfce4panel.h>
+#include <exo/exo.h>
 
 #include "newtonbutton.h"
 #include "newtonbutton-dialogs.h"
 
-/* the website url */
-#define PLUGIN_WEBSITE "https://docs.xfce.org/panel-plugins/xfce4-newtonbutton-plugin"
+#define PLUGIN_WEBSITE "https://gitlab.xfce.org/panel-plugins/xfce4-sample-plugin"
 
-
+static void on_display_icon_checkbutton_toggled (GtkToggleButton *togglebutton, gpointer user_data);
+static void on_icon_choose_button_clicked (GtkButton *button, gpointer user_data);
+static void dialog_save_settings_and_update (GtkDialog *dialog, NewtonbuttonPlugin *newtonbutton, GtkBuilder *builder);
+static void newtonbutton_configure_response_cb (GtkWidget *dialog_widget, gint response, NewtonbuttonPlugin *newtonbutton);
 
 static void
-newtonbutton_configure_response (GtkWidget    *dialog,
-                           gint          response,
-                           NewtonbuttonPlugin *newtonbutton)
+on_display_icon_checkbutton_toggled (GtkToggleButton *togglebutton, gpointer user_data)
 {
-  gboolean result;
+    GtkBuilder *builder = GTK_BUILDER(user_data);
+    gboolean display_icon = gtk_toggle_button_get_active (togglebutton);
+    GtkWidget *icon_settings_box, *label_settings_box;
 
-  if (response == GTK_RESPONSE_HELP)
-    {
-      /* show help */
-#if LIBXFCE4UI_CHECK_VERSION(4, 21, 0)
-      result = g_spawn_command_line_async ("xfce-open --launch WebBrowser " PLUGIN_WEBSITE, NULL);
-#else
-      result = g_spawn_command_line_async ("exo-open --launch WebBrowser " PLUGIN_WEBSITE, NULL);
-#endif
-      if (G_UNLIKELY (result == FALSE))
-        g_warning (_("Unable to open the following url: %s"), PLUGIN_WEBSITE);
-    }
-  else
-    {
-      /* remove the dialog data from the plugin */
-      g_object_set_data (G_OBJECT (newtonbutton->plugin), "dialog", NULL);
+    g_return_if_fail(builder != NULL);
 
-      /* unlock the panel menu */
-      xfce_panel_plugin_unblock_menu (newtonbutton->plugin);
+    icon_settings_box = GTK_WIDGET(gtk_builder_get_object (builder, "icon_settings_box"));
+    label_settings_box = GTK_WIDGET(gtk_builder_get_object (builder, "label_settings_box"));
 
-      /* save the plugin */
-      newtonbutton_save (newtonbutton->plugin, newtonbutton);
-
-      /* destroy the properties dialog */
-      gtk_widget_destroy (dialog);
-    }
+    if(icon_settings_box) gtk_widget_set_visible (icon_settings_box, display_icon);
+    if(label_settings_box) gtk_widget_set_visible (label_settings_box, !display_icon);
 }
 
+static void
+on_icon_choose_button_clicked (GtkButton *button, gpointer user_data)
+{
+    GtkWidget *parent_dialog = GTK_WIDGET(user_data);
+    GtkBuilder *builder = GTK_BUILDER(g_object_get_data(G_OBJECT(parent_dialog), "builder"));
+    GtkWidget *icon_chooser_dialog;
+    gchar *selected_icon_name = NULL;
+    GtkWindow *parent_window = GTK_WINDOW(parent_dialog);
+    GtkWidget *icon_name_entry_widget;
 
+    g_return_if_fail(builder != NULL);
+    icon_name_entry_widget = GTK_WIDGET(gtk_builder_get_object(builder, "icon_name_entry"));
+    g_return_if_fail(GTK_IS_ENTRY(icon_name_entry_widget));
+
+
+    icon_chooser_dialog = exo_icon_chooser_dialog_new (
+        _("Choose an Icon"),
+        parent_window,
+        _("_Cancel"), GTK_RESPONSE_CANCEL,
+        _("_OK"), GTK_RESPONSE_ACCEPT,
+        NULL);
+    
+    gtk_window_set_modal(GTK_WINDOW(icon_chooser_dialog), TRUE);
+    gtk_dialog_set_default_response(GTK_DIALOG(icon_chooser_dialog), GTK_RESPONSE_ACCEPT);
+
+    const gchar *current_icon = gtk_entry_get_text(GTK_ENTRY(icon_name_entry_widget));
+    if (current_icon && *current_icon) {
+        exo_icon_chooser_dialog_set_icon(EXO_ICON_CHOOSER_DIALOG(icon_chooser_dialog), current_icon);
+    }
+
+    if (gtk_dialog_run (GTK_DIALOG (icon_chooser_dialog)) == GTK_RESPONSE_ACCEPT)
+    {
+        selected_icon_name = exo_icon_chooser_dialog_get_icon (EXO_ICON_CHOOSER_DIALOG (icon_chooser_dialog));
+        if (selected_icon_name)
+        {
+            gtk_entry_set_text (GTK_ENTRY(icon_name_entry_widget), selected_icon_name);
+            g_free (selected_icon_name);
+        }
+    }
+    gtk_widget_destroy (icon_chooser_dialog);
+}
+
+static void
+dialog_save_settings_and_update (GtkDialog *dialog, NewtonbuttonPlugin *newtonbutton, GtkBuilder *builder)
+{
+    GtkWidget *widget;
+
+    g_return_if_fail(newtonbutton != NULL);
+    g_return_if_fail(builder != NULL);
+
+    widget = GTK_WIDGET(gtk_builder_get_object (builder, "display_icon_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        newtonbutton->display_icon_prop = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+
+    widget = GTK_WIDGET(gtk_builder_get_object (builder, "icon_name_entry"));
+    if (GTK_IS_ENTRY(widget)) {
+        g_free (newtonbutton->icon_name_prop);
+        newtonbutton->icon_name_prop = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
+    }
+
+    widget = GTK_WIDGET(gtk_builder_get_object (builder, "label_text_entry"));
+    if (GTK_IS_ENTRY(widget)) {
+        g_free (newtonbutton->label_text_prop);
+        newtonbutton->label_text_prop = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
+    }
+    
+    newtonbutton_save (newtonbutton->plugin, newtonbutton);
+    newtonbutton_update_display (newtonbutton);
+}
+
+static void
+newtonbutton_configure_response_cb (GtkWidget    *dialog_widget,
+                              gint          response,
+                              NewtonbuttonPlugin *newtonbutton)
+{
+  GtkBuilder *builder = GTK_BUILDER(g_object_get_data(G_OBJECT(dialog_widget), "builder"));
+
+  if (response == GTK_RESPONSE_HELP) 
+    {
+      gboolean result;
+      result = g_spawn_command_line_async ("exo-open --launch WebBrowser " PLUGIN_WEBSITE, NULL);
+      if (G_UNLIKELY (result == FALSE))
+        g_warning (_("Unable to open the following url: %s"), PLUGIN_WEBSITE);
+      return; 
+    }
+  
+  if (response == GTK_RESPONSE_CLOSE || response == GTK_RESPONSE_DELETE_EVENT || response == GTK_RESPONSE_OK) {
+      if (builder && newtonbutton) {
+          dialog_save_settings_and_update(GTK_DIALOG(dialog_widget), newtonbutton, builder);
+      }
+  }
+
+  if (newtonbutton && newtonbutton->plugin) {
+      g_object_set_data (G_OBJECT (newtonbutton->plugin), "dialog", NULL);
+      xfce_panel_plugin_unblock_menu (newtonbutton->plugin);
+  }
+  if (builder) {
+      g_object_unref(builder);
+      g_object_set_data(G_OBJECT(dialog_widget), "builder", NULL);
+  }
+  gtk_widget_destroy (dialog_widget);
+}
 
 void
 newtonbutton_configure (XfcePanelPlugin *plugin,
                   NewtonbuttonPlugin    *newtonbutton)
 {
-  GtkWidget *dialog;
+  GtkBuilder *builder;
+  GObject    *dialog_obj;
+  GtkWidget  *dialog_widget;
+  GtkWidget  *widget;
 
-  /* block the plugin menu */
+  g_return_if_fail(plugin != NULL);
+  g_return_if_fail(newtonbutton != NULL);
+
+  if (g_object_get_data(G_OBJECT(plugin), "dialog") != NULL) {
+      gtk_window_present(GTK_WINDOW(g_object_get_data(G_OBJECT(plugin), "dialog")));
+      return;
+  }
+
   xfce_panel_plugin_block_menu (plugin);
 
-  /* create the dialog */
-  dialog = xfce_titled_dialog_new_with_mixed_buttons (_("Newtonbutton Plugin"),
-                                                      GTK_WINDOW (gtk_widget_get_toplevel (GTK_WIDGET (plugin))),
-                                                      GTK_DIALOG_DESTROY_WITH_PARENT,
-                                                      "help-browser-symbolic", _("_Help"), GTK_RESPONSE_HELP,
-                                                      "window-close-symbolic", _("_Close"), GTK_RESPONSE_OK,
-                                                      NULL);
+  const gchar *ui_resource_path = "/org/xfce/panel/plugins/newtonbutton/newtonbutton-dialog.ui";
+  builder = gtk_builder_new_from_resource (ui_resource_path);
 
-  /* center dialog on the screen */
-  gtk_window_set_position (GTK_WINDOW (dialog), GTK_WIN_POS_CENTER);
+  if (G_UNLIKELY (builder == NULL)) {
+      g_warning ("Failed to load UI for newtonbutton plugin configuration from resource: %s", ui_resource_path);
+      xfce_panel_plugin_unblock_menu (plugin);
+      return;
+  }
 
-  /* set dialog icon */
-  gtk_window_set_icon_name (GTK_WINDOW (dialog), "xfce4-settings");
+  dialog_obj = gtk_builder_get_object (builder, "newtonbutton_config_dialog");
+  if (G_UNLIKELY (dialog_obj == NULL || !GTK_IS_DIALOG (dialog_obj))) {
+      g_warning ("UI loaded, but toplevel widget ('newtonbutton_config_dialog') is not a GtkDialog or has wrong ID.");
+      g_object_unref (builder);
+      xfce_panel_plugin_unblock_menu (plugin);
+      return;
+  }
+  dialog_widget = GTK_WIDGET(dialog_obj);
+  gtk_window_set_transient_for(GTK_WINDOW(dialog_widget), GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(plugin))));
+  gtk_window_set_position(GTK_WINDOW(dialog_widget), GTK_WIN_POS_CENTER_ON_PARENT);
 
-  /* link the dialog to the plugin, so we can destroy it when the plugin
-   * is closed, but the dialog is still open */
-  g_object_set_data (G_OBJECT (plugin), "dialog", dialog);
+  g_object_set_data(G_OBJECT(dialog_widget), "builder", builder);
+  g_object_set_data(G_OBJECT(dialog_widget), "plugin_data", newtonbutton);
 
-  /* connect the response signal to the dialog */
-  g_signal_connect (G_OBJECT (dialog), "response",
-                    G_CALLBACK(newtonbutton_configure_response), newtonbutton);
+  widget = GTK_WIDGET(gtk_builder_get_object (builder, "display_icon_checkbutton"));
+  if (GTK_IS_TOGGLE_BUTTON(widget)) {
+      gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), newtonbutton->display_icon_prop);
+      on_display_icon_checkbutton_toggled(GTK_TOGGLE_BUTTON(widget), builder);
+      g_signal_connect (widget, "toggled", G_CALLBACK (on_display_icon_checkbutton_toggled), builder);
+  } else {
+      g_warning("Widget 'display_icon_checkbutton' not found or not a GtkToggleButton.");
+  }
 
-  /* show the entire dialog */
-  gtk_widget_show (dialog);
+  widget = GTK_WIDGET(gtk_builder_get_object (builder, "icon_name_entry"));
+  if (GTK_IS_ENTRY(widget)) {
+      gtk_entry_set_text (GTK_ENTRY (widget), newtonbutton->icon_name_prop ? newtonbutton->icon_name_prop : "");
+  } else {
+      g_warning("Widget 'icon_name_entry' not found or not a GtkEntry.");
+  }
+
+  widget = GTK_WIDGET(gtk_builder_get_object (builder, "label_text_entry"));
+  if (GTK_IS_ENTRY(widget)) {
+      gtk_entry_set_text (GTK_ENTRY (widget), newtonbutton->label_text_prop ? newtonbutton->label_text_prop : "");
+  } else {
+      g_warning("Widget 'label_text_entry' not found or not a GtkEntry.");
+  }
+
+  widget = GTK_WIDGET(gtk_builder_get_object (builder, "icon_choose_button"));
+  if (GTK_IS_BUTTON(widget)) {
+      g_signal_connect (widget, "clicked", G_CALLBACK (on_icon_choose_button_clicked), dialog_widget);
+  } else {
+      g_warning("Widget 'icon_choose_button' not found or not a GtkButton.");
+  }
+
+  g_object_set_data (G_OBJECT (plugin), "dialog", dialog_widget);
+  g_signal_connect (G_OBJECT (dialog_widget), "response",
+                    G_CALLBACK(newtonbutton_configure_response_cb), newtonbutton);
+
+  gtk_widget_show_all (dialog_widget);
 }
-
-
 
 void
 newtonbutton_about (XfcePanelPlugin *plugin)
 {
-  /* about dialog code. you can use the GtkAboutDialog
-   * or the XfceAboutInfo widget */
-  const gchar *auth[] =
-    {
-      "Xfce development team <xfce4-dev@xfce.org>",
+  const gchar *auth[] = {
+      "Adam <twoj.email@example.com>",
+      "AI Assistant",
       NULL
-    };
+  };
 
-  gtk_show_about_dialog (NULL,
+  gtk_show_about_dialog (GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(plugin))),
                          "logo-icon-name", "xfce4-newtonbutton-plugin",
-                         "license",        xfce_get_license_text (XFCE_LICENSE_TEXT_GPL),
-                         "version",        VERSION_FULL,
+                         "license-type",   GTK_LICENSE_GPL_2_0,
+                         "version",        PACKAGE_VERSION,
                          "program-name",   PACKAGE_NAME,
-                         "comments",       _("This is a newtonbutton plugin"),
+                         "comments",       _("A macOS-like application and session menu button."),
                          "website",        PLUGIN_WEBSITE,
-                         "copyright",      "Copyright \xc2\xa9 2006-" COPYRIGHT_YEAR " The Xfce development team",
+                         "copyright",      _("Copyright © 2024-2025 Adam"),
                          "authors",        auth,
                          NULL);
 }
