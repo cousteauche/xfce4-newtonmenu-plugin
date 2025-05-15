@@ -1,3 +1,7 @@
+/*
+ * Newton Button Plugin - Header File
+ * Contains type definitions and public function declarations for the plugin module.
+ */
 #ifndef __NEWTONBUTTON_H__
 #define __NEWTONBUTTON_H__
 
@@ -21,16 +25,13 @@ struct _NewtonbuttonPlugin
     gboolean         display_icon_prop;
     gchar           *icon_name_prop;
     gchar           *label_text_prop;
+    GtkWidget       *main_menu;
 };
 
 void newtonbutton_save (XfcePanelPlugin *plugin, NewtonbuttonPlugin *newtonbutton);
 void newtonbutton_update_display (NewtonbuttonPlugin *newtonbutton);
-/* Functions from newtonbutton-dialogs.c, declared here if needed by newtonbutton.c (though usually not)
-   or just for completeness if newtonbutton.h is the main header for the plugin module.
-   These are typically called via signals from XfcePanelPlugin. */
 void newtonbutton_configure (XfcePanelPlugin *plugin, NewtonbuttonPlugin *newtonbutton);
 void newtonbutton_about (XfcePanelPlugin *plugin);
-
 
 G_END_DECLS
 

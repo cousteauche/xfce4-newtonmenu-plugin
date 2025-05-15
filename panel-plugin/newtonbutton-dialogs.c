@@ -22,6 +22,7 @@ static void on_icon_choose_button_clicked (GtkButton *button, gpointer user_data
 static void dialog_save_settings_and_update (GtkDialog *dialog, NewtonbuttonPlugin *newtonbutton, GtkBuilder *builder);
 static void newtonbutton_configure_response_cb (GtkWidget *dialog_widget, gint response, NewtonbuttonPlugin *newtonbutton);
 
+
 static void
 on_display_icon_checkbutton_toggled (GtkToggleButton *togglebutton, gpointer user_data)
 {
@@ -224,7 +225,7 @@ void
 newtonbutton_about (XfcePanelPlugin *plugin)
 {
   const gchar *auth[] = {
-      "Adam <twoj.email@example.com>",
+      "Adam",
       "AI Assistant",
       NULL
   };
