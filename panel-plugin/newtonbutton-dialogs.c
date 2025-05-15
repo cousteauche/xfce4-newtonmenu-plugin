@@ -15,12 +15,13 @@
 #include "newtonbutton.h"
 #include "newtonbutton-dialogs.h"
 
-#define PLUGIN_WEBSITE "https://gitlab.xfce.org/panel-plugins/xfce4-sample-plugin"
+#define PLUGIN_WEBSITE "https://gitlab.xfce.org/panel-plugins/xfce4-newtonbutton-plugin" // Ensure this matches your project
 
 static void on_display_icon_checkbutton_toggled (GtkToggleButton *togglebutton, gpointer user_data);
 static void on_icon_choose_button_clicked (GtkButton *button, gpointer user_data);
 static void dialog_save_settings_and_update (GtkDialog *dialog, NewtonbuttonPlugin *newtonbutton, GtkBuilder *builder);
 static void newtonbutton_configure_response_cb (GtkWidget *dialog_widget, gint response, NewtonbuttonPlugin *newtonbutton);
+static void force_quit_dialog_response_cb (GtkDialog *dialog, gint response_id, gpointer user_data);
 
 
 static void
@@ -240,4 +241,42 @@ newtonbutton_about (XfcePanelPlugin *plugin)
                          "copyright",      _("Copyright © 2024-2025 Adam"),
                          "authors",        auth,
                          NULL);
+}
+
+static void
+force_quit_dialog_response_cb (GtkDialog *dialog, gint response_id, gpointer user_data)
+{
+    if (response_id == GTK_RESPONSE_YES)
+    {
+        GError *error = NULL;
+        if (!g_spawn_command_line_async ("xkill", &error))
+        {
+            g_warning ("Failed to execute xkill: %s", error->message);
+            g_error_free (error);
+        }
+    }
+    gtk_widget_destroy (GTK_WIDGET (dialog));
+}
+
+void
+newtonbutton_show_force_quit_confirmation (GtkWindow *parent)
+{
+    GtkWidget *dialog;
+
+    dialog = gtk_message_dialog_new (parent,
+                                     GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+                                     GTK_MESSAGE_QUESTION,
+                                     GTK_BUTTONS_NONE,
+                                     "%s",
+                                     _("Are you sure you want to activate Force Quit (xkill)?"));
+    
+    gtk_dialog_add_buttons(GTK_DIALOG(dialog),
+                           _("_Cancel"), GTK_RESPONSE_CANCEL,
+                           _("_Force Quit"), GTK_RESPONSE_YES,
+                           NULL);
+
+    gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_CANCEL);
+    
+    g_signal_connect (dialog, "response", G_CALLBACK (force_quit_dialog_response_cb), NULL);
+    gtk_widget_show_all (dialog);
 }
