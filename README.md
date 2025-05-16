@@ -1,37 +1,82 @@
 [![License](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://gitlab.xfce.org/panel-plugins/xfce4-newtonbutton-plugin/-/blob/master/COPYING)
 
-# xfce4-newtonbutton-plugin
+# Xfce4 Newtonbutton Plugin
 
-Xfce4-newtonbutton-plugin is a newtonbutton plugin for the Xfce panel, version 4.16 or higher.
-It demonstrates the basic usage of the plugin framework and provides a
-good layout for initial imports.
+The Xfce4 Newtonbutton Plugin provides a macOS-style application and session menu for the Xfce panel (version 4.16 or higher). It offers quick access to system actions and session management.
 
-Note that there is as well an experimental [python newtonbutton plugin](https://gitlab.xfce.org/itsManjeet/newtonbutton-python-plugin), in case you prefer to write a plugin in python.
+![Newtonbutton Screenshot](image.png)
 
-----
+## Features
 
-### Homepage
+*   **macOS-like Menu:** A single button to access common system and session actions.
+*   **Configurable Appearance:**
+    *   Display either an icon or a text label on the panel button.
+    *   Choose a custom icon (themed or full path) or set custom label text.
+*   **Menu Actions:**
+    *   About This PC
+    *   System Settings
+    *   App Store (placeholder - to be configured by user or future update)
+    *   Force Quit (invokes `xkill`)
+    *   Sleep
+    *   Restart
+    *   Shut Down
+    *   Lock Screen
+    *   Log Out (displays current username)
+*   **Configurable Confirmations:** Choose whether to display confirmation dialogs for Log Out, Restart, Shut Down, and Force Quit actions.
 
-[Xfce4-newtonbutton-plugin documentation](https://docs.xfce.org/panel-plugins/xfce4-newtonbutton-plugin)
+## Requirements
 
-### Changelog
+*   Xfce Panel 4.16 or higher
+*   GTK+ 3.24 or higher
+*   GLib 2.66 or higher
+*   libxfce4ui-2 4.16 or higher
+*   libxfce4util-1.0 4.16 or higher
+*   libxfce4panel-2.0 4.16 or higher
+*   exo-2 0.12.0 or higher (for icon chooser dialog)
 
-See [NEWS](https://gitlab.xfce.org/panel-plugins/xfce4-newtonbutton-plugin/-/blob/master/NEWS) for details on changes and fixes made in the current release.
+## Installation
 
-### Source Code Repository
+### From Source Code Repository (using Meson - Recommended)
 
-[Xfce4-newtonbutton-plugin source code](https://gitlab.xfce.org/panel-plugins/xfce4-newtonbutton-plugin)
+1.  Clone the repository:
+    ```bash
+    git clone <your_repository_url> xfce4-newtonbutton-plugin
+    cd xfce4-newtonbutton-plugin
+    ```
+2.  Build and install using Meson:
+    ```bash
+    meson setup builddir
+    meson compile -C builddir
+    sudo meson install -C builddir
+    ```
+3.  Restart the Xfce Panel:
+    ```bash
+    xfce4-panel -r
+    ```
 
-### Installation
-
-From source code repository: 
+### From Source Code Repository (using Autotools - if applicable)
 
     % cd xfce4-newtonbutton-plugin
     % ./autogen.sh
     % make
-    % make install
+    % sudo make install
+    % xfce4-panel -r
 
-### Reporting Bugs
+After installation, right-click on the Xfce panel, choose "Panel" -> "Add New Items", and select "Newton Button Plugin" from the list.
 
-Visit the [reporting bugs](https://docs.xfce.org/panel-plugins/xfce4-newtonbutton-plugin/bugs) page to view currently open bug reports and instructions on reporting new bugs or submitting bugfixes.
+## Configuration
 
+Right-click on the Newton Button on the panel and select "Properties" to configure:
+*   **Button Appearance:**
+    *   Choose between displaying an icon or text.
+    *   Set the icon name/path or label text.
+*   **Action Confirmations:**
+    *   Enable or disable confirmation dialogs for potentially disruptive actions like Log Out, Restart, Shut Down, and Force Quit.
+
+## Reporting Bugs
+
+Please report any bugs or feature requests on the [GitLab issue tracker](<your_gitlab_project_url>/-/issues).
+
+---
+
+*This plugin is inspired by the desire for a simple, integrated system menu similar to those found on other desktop environments.*
