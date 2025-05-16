@@ -1,0 +1,11 @@
+[Xfce Panel]
+Type=X-XFCE-PanelPlugin
+Encoding=UTF-8
+Name=Newtonbutton Plugin
+Comment=Newtonbutton plugin for the Xfce panel
+Icon=xfce4-newtonbutton-plugin
+X-XFCE-Module=newtonbutton
+X-XFCE-Internal=false
+X-XFCE-Unique=false
+X-XFCE-API=2.0
+
