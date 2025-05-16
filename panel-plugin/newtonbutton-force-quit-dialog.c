@@ -74,71 +74,6 @@ force_quit_process(pid_t pid)
 }
 
 static void
-confirm_force_quit_response_cb(GtkDialog *confirm_dialog, gint response_id, gpointer user_data)
-{
-    GtkWidget *parent_dialog = GTK_WIDGET(g_object_get_data(G_OBJECT(confirm_dialog), "parent_dialog"));
-    
-    if (response_id == GTK_RESPONSE_YES) {
-        pid_t pid = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(confirm_dialog), "pid_to_kill"));
-        gboolean killed = force_quit_process(pid);
-        
-        if (killed) {
-            // Let's give UI time to update
-            while (gtk_events_pending())
-                gtk_main_iteration();
-                
-            // Allow the UI to refresh for visual feedback
-            g_usleep(250000); // 250ms
-        }
-    }
-    
-    gtk_widget_destroy(GTK_WIDGET(confirm_dialog));
-    
-    // Make sure parent dialog stays in front
-    if (parent_dialog && GTK_IS_WINDOW(parent_dialog)) {
-        gtk_window_present(GTK_WINDOW(parent_dialog));
-    }
-}
-
-static void
-confirm_force_quit(GtkWindow *parent, const gchar *app_name, pid_t pid, ForceQuitDialogData *fq_data)
-{
-    GtkWidget *dialog;
-    gchar *message;
-    
-    if (parent == NULL)
-        return;
-    
-    message = g_strdup_printf(_("Are you sure you want to force quit \"%s\"?"), app_name);
-
-    dialog = gtk_message_dialog_new(parent,
-                                  GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-                                  GTK_MESSAGE_QUESTION,
-                                  GTK_BUTTONS_NONE,
-                                  "%s", message);
-    g_free(message);
-    gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog), 
-                                           _("You will lose any unsaved changes."));
-
-    gtk_dialog_add_buttons(GTK_DIALOG(dialog),
-                         _("_Cancel"), GTK_RESPONSE_CANCEL,
-                         _("Force _Quit"), GTK_RESPONSE_YES,
-                         NULL);
-    gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_CANCEL);
-    
-    g_object_set_data(G_OBJECT(dialog), "pid_to_kill", GINT_TO_POINTER(pid));
-    g_object_set_data(G_OBJECT(dialog), "parent_dialog", parent);
-    
-    g_signal_connect(dialog, "response", G_CALLBACK(confirm_force_quit_response_cb), NULL);
-    
-    // Ensure this dialog is centered on the parent
-    gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER_ON_PARENT);
-    gtk_window_set_transient_for(GTK_WINDOW(dialog), parent);
-    
-    gtk_widget_show_all(dialog);
-}
-
-static void
 add_window_to_list(ForceQuitDialogData *data, WnckWindow *window)
 {
     GtkTreeIter iter;
@@ -203,10 +138,10 @@ add_window_to_list(ForceQuitDialogData *data, WnckWindow *window)
         // Use fallback icon
         GError *error = NULL;
         scaled_icon = gtk_icon_theme_load_icon(icon_theme, 
-                                               "application-x-executable", 
-                                               16, 
-                                               GTK_ICON_LOOKUP_USE_BUILTIN, 
-                                               &error);
+                                             "application-x-executable", 
+                                             16, 
+                                             GTK_ICON_LOOKUP_USE_BUILTIN, 
+                                             &error);
         if (error) {
             g_error_free(error);
         }
@@ -314,9 +249,18 @@ on_fq_dialog_force_quit_button_clicked(GtkButton *button, gpointer user_data)
                          COL_APP_NAME, &app_name_to_kill,
                          -1);
         
-        if (pid_to_kill > 0 && app_name_to_kill) {
-            GtkWindow *parent_window = GTK_WINDOW(data->dialog);
-            confirm_force_quit(parent_window, app_name_to_kill, pid_to_kill, data);
+        if (pid_to_kill > 0) {
+            // Force quit the process directly without confirmation
+            if (force_quit_process(pid_to_kill)) {
+                // Allow the UI to refresh for visual feedback
+                while (gtk_events_pending())
+                    gtk_main_iteration();
+                
+                g_usleep(250000); // 250ms
+                
+                // Refresh list to remove the killed app
+                populate_app_list(data);
+            }
         }
         g_free(app_name_to_kill);
     }

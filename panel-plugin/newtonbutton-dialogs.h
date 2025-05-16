@@ -8,7 +8,6 @@ G_BEGIN_DECLS
 
 void newtonbutton_configure (XfcePanelPlugin *plugin, NewtonbuttonPlugin *newtonbutton);
 void newtonbutton_about (XfcePanelPlugin *plugin);
-void newtonbutton_show_force_quit_confirmation (GtkWindow *parent);
 void newtonbutton_show_generic_confirmation (GtkWindow *parent, const gchar *action_name_translated, const gchar *action_verb_translated, const gchar *command_to_run);
 
 G_END_DECLS
