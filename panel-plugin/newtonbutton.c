@@ -9,19 +9,20 @@
 #include <libxfce4util/libxfce4util.h>
 #include <libxfce4panel/libxfce4panel.h>
 #include <gdk/gdkkeysyms.h>
+#include <libintl.h>
 
 #include "newtonbutton.h"
-#include "newtonbutton-dialogs.h" // For newtonbutton_show_force_quit_confirmation
+#include "newtonbutton-dialogs.h" 
+#include "newtonbutton-force-quit-dialog.h"
 
 #define DEFAULT_DISPLAY_ICON TRUE
-#define DEFAULT_ICON_NAME "/usr/share/icons/hicolor/scalable/apps/xfce4-newtonbutton-plugin.svg"
+#define DEFAULT_ICON_NAME "xfce4-newtonbutton-plugin"
 #define DEFAULT_LABEL_TEXT N_("Menu")
 
-// Default confirmation states
 #define DEFAULT_CONFIRM_LOGOUT FALSE
 #define DEFAULT_CONFIRM_RESTART TRUE
 #define DEFAULT_CONFIRM_SHUTDOWN TRUE
-#define DEFAULT_CONFIRM_FORCE_QUIT FALSE // Changed to FALSE
+#define DEFAULT_CONFIRM_FORCE_QUIT FALSE 
 
 static void newtonbutton_construct (XfcePanelPlugin *plugin);
 static void newtonbutton_read (NewtonbuttonPlugin *newtonbutton);
@@ -335,18 +336,12 @@ on_force_quit_activate(GtkMenuItem *menuitem, gpointer user_data)
         parent_window = GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(newtonbutton->plugin)));
     }
 
-    if (newtonbutton->confirm_force_quit_prop) {
-        newtonbutton_show_force_quit_confirmation(parent_window);
-    } else {
-        execute_command("xkill");
-    }
+    newtonbutton_show_force_quit_applications_dialog(parent_window, newtonbutton);
 }
 
 static void
 on_sleep_activate(GtkMenuItem *menuitem, gpointer user_data)
 {
-    // Sleep action typically does not need confirmation by default from most OSes.
-    // If needed, it would use newtonbutton_show_generic_confirmation.
     execute_command("xfce4-session-logout --suspend");
 }
 
@@ -391,7 +386,6 @@ on_shutdown_activate(GtkMenuItem *menuitem, gpointer user_data)
 static void
 on_lock_screen_activate(GtkMenuItem *menuitem, gpointer user_data)
 {
-    // Lock screen action typically does not need confirmation.
     execute_command("xflock4");
 }
 
@@ -401,7 +395,7 @@ on_log_out_activate(GtkMenuItem *menuitem, gpointer user_data)
     NewtonbuttonPlugin *newtonbutton = (NewtonbuttonPlugin*)user_data;
     GtkWindow *parent_window = NULL;
     const gchar *username = g_get_user_name();
-    gchar *action_name; // For "log out Adam" vs "log out"
+    gchar *action_name; 
 
     g_return_if_fail(newtonbutton != NULL);
 
@@ -410,10 +404,9 @@ on_log_out_activate(GtkMenuItem *menuitem, gpointer user_data)
     }
 
     if (username) {
-        // Construct "log out <username>"
         action_name = g_strdup_printf(_("log out %s"), username);
     } else {
-        action_name = g_strdup(_("log out")); // Fallback
+        action_name = g_strdup(_("log out")); 
     }
 
     if (newtonbutton->confirm_logout_prop) {
@@ -492,7 +485,7 @@ newtonbutton_popup_menu_on_toggle (GtkToggleButton *toggle_button, NewtonbuttonP
         gtk_menu_shell_append(GTK_MENU_SHELL(newtonbutton->main_menu), gtk_separator_menu_item_new());
         
         menu_item = gtk_menu_item_new_with_mnemonic (_("Force Quit..."));
-        g_signal_connect (menu_item, "activate", G_CALLBACK (on_force_quit_activate), newtonbutton);
+        g_signal_connect (menu_item, "activate", G_CALLBACK (on_force_quit_activate), newtonbutton); 
         gtk_menu_shell_append (GTK_MENU_SHELL (newtonbutton->main_menu), menu_item);
 
         gtk_menu_shell_append(GTK_MENU_SHELL(newtonbutton->main_menu), gtk_separator_menu_item_new());

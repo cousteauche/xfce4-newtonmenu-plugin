@@ -232,7 +232,6 @@ newtonbutton_configure (XfcePanelPlugin *plugin,
       g_warning("Widget 'icon_choose_button' not found or not a GtkButton.");
   }
 
-    // Load states for confirmation checkboxes
     widget = GTK_WIDGET(gtk_builder_get_object (builder, "confirm_logout_checkbutton"));
     if (GTK_IS_TOGGLE_BUTTON(widget))
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), newtonbutton->confirm_logout_prop);

@@ -2,5 +2,6 @@
 <gresources>
   <gresource prefix="/org/xfce/panel/plugins/newtonbutton">
     <file compressed="true" preprocess="xml-stripblanks">newtonbutton-dialog.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks">newtonbutton-force-quit-dialog.ui</file>
   </gresource>
 </gresources>

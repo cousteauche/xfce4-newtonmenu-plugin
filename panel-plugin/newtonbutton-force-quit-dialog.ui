@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk+" version="3.20"/>
+  <object class="GtkDialog" id="force_quit_applications_dialog">
+    <property name="can_focus">False</property>
+    <property name="title" translatable="yes">Force Quit Applications</property>
+    <property name="type_hint">dialog</property>
+    <property name="border_width">12</property>
+    <property name="default_width">400</property>
+    <property name="default_height">350</property>
+    <property name="modal">True</property>
+    <property name="destroy_with_parent">True</property>
+    <child internal-child="vbox">
+      <object class="GtkBox" id="dialog_vbox">
+        <property name="visible">True</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">6</property>
+        <child>
+          <object class="GtkLabel" id="info_label">
+            <property name="visible">True</property>
+            <property name="wrap">True</property>
+            <property name="label" translatable="yes">If an app doesn't respond for a while, select its name and click Force Quit.</property>
+            <property name="xalign">0</property>
+            <property name="margin_bottom">6</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkScrolledWindow" id="scrolled_window">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="shadow_type">in</property>
+            <property name="hscrollbar_policy">never</property>
+            <child>
+              <object class="GtkTreeView" id="app_list_treeview">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="headers_visible">False</property> 
+                <child internal-child="selection">
+                  <object class="GtkTreeSelection"/>
+                </child>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="shortcut_label">
+            <property name="visible">True</property>
+            <property name="wrap">True</property>
+            <property name="label" translatable="yes">You can open this window by pressing Command-Option-Escape.</property> 
+            <property name="xalign">0</property>
+            <property name="margin_top">6</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    <child type="action">
+      <object class="GtkButton" id="force_quit_button">
+        <property name="label" translatable="yes">_Force Quit</property>
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="receives_default">True</property>
+        <property name="use_underline">True</property>
+        <style>
+          <class name="suggested-action"/> 
+        </style>
+      </object>
+    </child>
+    <child type="action">
+      <object class="GtkButton" id="close_button">
+        <property name="label" translatable="yes">_Close</property>
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="receives_default">False</property>
+        <property name="use_underline">True</property>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="GTK_RESPONSE_APPLY">force_quit_button</action-widget>
+      <action-widget response="GTK_RESPONSE_CLOSE">close_button</action-widget>
+    </action-widgets>
+  </object>
+</interface>

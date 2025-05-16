@@ -1,7 +1,3 @@
-/*
- * Newton Button Plugin - Header File
- * Contains type definitions and public function declarations for the plugin module.
- */
 #ifndef __NEWTONBUTTON_H__
 #define __NEWTONBUTTON_H__
 
@@ -36,8 +32,6 @@ struct _NewtonbuttonPlugin
 
 void newtonbutton_save (XfcePanelPlugin *plugin, NewtonbuttonPlugin *newtonbutton);
 void newtonbutton_update_display (NewtonbuttonPlugin *newtonbutton);
-void newtonbutton_configure (XfcePanelPlugin *plugin, NewtonbuttonPlugin *newtonbutton); // Declared in newtonbutton-dialogs.h as well
-void newtonbutton_about (XfcePanelPlugin *plugin); // Declared in newtonbutton-dialogs.h as well
 
 G_END_DECLS
 
