@@ -22,6 +22,7 @@ static void on_icon_choose_button_clicked (GtkButton *button, gpointer user_data
 static void dialog_save_settings_and_update (GtkDialog *dialog, NewtonbuttonPlugin *newtonbutton, GtkBuilder *builder);
 static void newtonbutton_configure_response_cb (GtkWidget *dialog_widget, gint response, NewtonbuttonPlugin *newtonbutton);
 static void force_quit_dialog_response_cb (GtkDialog *dialog, gint response_id, gpointer user_data);
+static void generic_action_dialog_response_cb (GtkDialog *dialog, gint response_id, gpointer user_data);
 
 
 static void
@@ -285,8 +286,8 @@ force_quit_dialog_response_cb (GtkDialog *dialog, gint response_id, gpointer use
         GError *error = NULL;
         if (!g_spawn_command_line_async ("xkill", &error))
         {
-            g_warning ("Failed to execute xkill: %s", error->message);
-            g_error_free (error);
+            g_warning ("Failed to execute xkill: %s", error ? error->message : "Unknown error");
+            if (error) g_error_free (error);
         }
     }
     gtk_widget_destroy (GTK_WIDGET (dialog));
@@ -312,5 +313,66 @@ newtonbutton_show_force_quit_confirmation (GtkWindow *parent)
     gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_CANCEL);
     
     g_signal_connect (dialog, "response", G_CALLBACK (force_quit_dialog_response_cb), NULL);
+    gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER_ALWAYS);
+    gtk_widget_show_all (dialog);
+}
+
+static void
+generic_action_dialog_response_cb (GtkDialog *dialog, gint response_id, gpointer command_to_run_gpointer)
+{
+    gchar *command_to_run = (gchar*)command_to_run_gpointer;
+
+    if (response_id == GTK_RESPONSE_YES)
+    {
+        if (command_to_run && *command_to_run) {
+            GError *error = NULL;
+            if (!g_spawn_command_line_async (command_to_run, &error))
+            {
+                g_warning ("Failed to execute command '%s': %s", command_to_run, error ? error->message : "Unknown error");
+                if (error) g_error_free (error);
+            }
+        }
+    }
+    if (command_to_run) g_free(command_to_run); 
+    gtk_widget_destroy (GTK_WIDGET (dialog));
+}
+
+void
+newtonbutton_show_generic_confirmation (GtkWindow *parent, 
+                                        const gchar *action_name_translated, 
+                                        const gchar *action_verb_translated, 
+                                        const gchar *command_to_run)
+{
+    GtkWidget *dialog;
+    gchar *primary_text;
+    gchar *secondary_text = NULL; 
+
+    primary_text = g_strdup_printf (_("Are you sure you want to %s?"), action_name_translated);
+
+    dialog = gtk_message_dialog_new (parent,
+                                     GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+                                     GTK_MESSAGE_QUESTION,
+                                     GTK_BUTTONS_NONE,
+                                     "%s", 
+                                     primary_text);
+    g_free(primary_text);
+
+    if (secondary_text) {
+        gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog), "%s", secondary_text);
+        g_free(secondary_text);
+    }
+    
+    gchar *action_button_label = g_strdup_printf("_%s", action_verb_translated);
+
+    gtk_dialog_add_buttons(GTK_DIALOG(dialog),
+                           _("_Cancel"), GTK_RESPONSE_CANCEL,
+                           action_button_label, GTK_RESPONSE_YES,
+                           NULL);
+    g_free(action_button_label);
+
+    gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_CANCEL);
+    
+    g_signal_connect (dialog, "response", G_CALLBACK (generic_action_dialog_response_cb), g_strdup(command_to_run));
+    gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER_ALWAYS); 
     gtk_widget_show_all (dialog);
 }

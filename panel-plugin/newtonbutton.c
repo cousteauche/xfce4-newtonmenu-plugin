@@ -21,7 +21,7 @@
 #define DEFAULT_CONFIRM_LOGOUT FALSE
 #define DEFAULT_CONFIRM_RESTART TRUE
 #define DEFAULT_CONFIRM_SHUTDOWN TRUE
-#define DEFAULT_CONFIRM_FORCE_QUIT TRUE
+#define DEFAULT_CONFIRM_FORCE_QUIT FALSE // Changed to FALSE
 
 static void newtonbutton_construct (XfcePanelPlugin *plugin);
 static void newtonbutton_read (NewtonbuttonPlugin *newtonbutton);
@@ -328,45 +328,100 @@ on_force_quit_activate(GtkMenuItem *menuitem, gpointer user_data)
 {
     NewtonbuttonPlugin *newtonbutton = (NewtonbuttonPlugin*)user_data;
     GtkWindow *parent_window = NULL;
-    if (newtonbutton && newtonbutton->plugin && gtk_widget_get_toplevel(GTK_WIDGET(newtonbutton->plugin))) {
+
+    g_return_if_fail(newtonbutton != NULL);
+
+    if (newtonbutton->plugin && gtk_widget_get_toplevel(GTK_WIDGET(newtonbutton->plugin))) {
         parent_window = GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(newtonbutton->plugin)));
     }
-    // We'll implement conditional dialog display in Phase 2
-    // For now, it uses the dialog from newtonbutton-dialogs.c
-    newtonbutton_show_force_quit_confirmation(parent_window);
+
+    if (newtonbutton->confirm_force_quit_prop) {
+        newtonbutton_show_force_quit_confirmation(parent_window);
+    } else {
+        execute_command("xkill");
+    }
 }
 
 static void
 on_sleep_activate(GtkMenuItem *menuitem, gpointer user_data)
 {
+    // Sleep action typically does not need confirmation by default from most OSes.
+    // If needed, it would use newtonbutton_show_generic_confirmation.
     execute_command("xfce4-session-logout --suspend");
 }
 
 static void
 on_restart_activate(GtkMenuItem *menuitem, gpointer user_data)
 {
-    // We'll implement conditional dialog display in Phase 2
-    execute_command("xfce4-session-logout --reboot");
+    NewtonbuttonPlugin *newtonbutton = (NewtonbuttonPlugin*)user_data;
+    GtkWindow *parent_window = NULL;
+
+    g_return_if_fail(newtonbutton != NULL);
+
+    if (newtonbutton->plugin && gtk_widget_get_toplevel(GTK_WIDGET(newtonbutton->plugin))) {
+        parent_window = GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(newtonbutton->plugin)));
+    }
+
+    if (newtonbutton->confirm_restart_prop) {
+        newtonbutton_show_generic_confirmation(parent_window, _("restart"), _("Restart"), "xfce4-session-logout --reboot");
+    } else {
+        execute_command("xfce4-session-logout --reboot");
+    }
 }
 
 static void
 on_shutdown_activate(GtkMenuItem *menuitem, gpointer user_data)
 {
-    // We'll implement conditional dialog display in Phase 2
-    execute_command("xfce4-session-logout --halt");
+    NewtonbuttonPlugin *newtonbutton = (NewtonbuttonPlugin*)user_data;
+    GtkWindow *parent_window = NULL;
+
+    g_return_if_fail(newtonbutton != NULL);
+
+    if (newtonbutton->plugin && gtk_widget_get_toplevel(GTK_WIDGET(newtonbutton->plugin))) {
+        parent_window = GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(newtonbutton->plugin)));
+    }
+    
+    if (newtonbutton->confirm_shutdown_prop) {
+        newtonbutton_show_generic_confirmation(parent_window, _("shut down"), _("Shut Down"), "xfce4-session-logout --halt");
+    } else {
+        execute_command("xfce4-session-logout --halt");
+    }
 }
 
 static void
 on_lock_screen_activate(GtkMenuItem *menuitem, gpointer user_data)
 {
+    // Lock screen action typically does not need confirmation.
     execute_command("xflock4");
 }
 
 static void
 on_log_out_activate(GtkMenuItem *menuitem, gpointer user_data)
 {
-    // We'll implement conditional dialog display in Phase 2
-    execute_command("xfce4-session-logout --logout");
+    NewtonbuttonPlugin *newtonbutton = (NewtonbuttonPlugin*)user_data;
+    GtkWindow *parent_window = NULL;
+    const gchar *username = g_get_user_name();
+    gchar *action_name; // For "log out Adam" vs "log out"
+
+    g_return_if_fail(newtonbutton != NULL);
+
+    if (newtonbutton->plugin && gtk_widget_get_toplevel(GTK_WIDGET(newtonbutton->plugin))) {
+        parent_window = GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(newtonbutton->plugin)));
+    }
+
+    if (username) {
+        // Construct "log out <username>"
+        action_name = g_strdup_printf(_("log out %s"), username);
+    } else {
+        action_name = g_strdup(_("log out")); // Fallback
+    }
+
+    if (newtonbutton->confirm_logout_prop) {
+        newtonbutton_show_generic_confirmation(parent_window, action_name, _("Log Out"), "xfce4-session-logout --logout");
+    } else {
+        execute_command("xfce4-session-logout --logout");
+    }
+    g_free(action_name);
 }
 
 
