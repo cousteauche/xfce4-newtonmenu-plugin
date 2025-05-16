@@ -8,7 +8,6 @@
 ChangeLog
 INSTALL
 Makefile
-Makefile.in
 aclocal.m4
 autom4te.cache
 build
@@ -19,7 +18,6 @@ depcomp
 install-sh
 intltool*
 libtool
-ltmain.sh
 missing
 mkinstalldirs
 panel-plugin/*.desktop
