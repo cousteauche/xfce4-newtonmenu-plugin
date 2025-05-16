@@ -2,7 +2,7 @@
 #define __NEWTONBUTTON_DIALOGS_H__
 
 #include <gtk/gtk.h>
-#include "newtonbutton.h" // Include to use NewtonbuttonPlugin type if needed
+#include "newtonbutton.h" // Include to use NewtonbuttonPlugin type
 
 G_BEGIN_DECLS
 

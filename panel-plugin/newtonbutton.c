@@ -11,11 +11,17 @@
 #include <gdk/gdkkeysyms.h>
 
 #include "newtonbutton.h"
-#include "newtonbutton-dialogs.h"
+#include "newtonbutton-dialogs.h" // For newtonbutton_show_force_quit_confirmation
 
 #define DEFAULT_DISPLAY_ICON TRUE
 #define DEFAULT_ICON_NAME "xfce4-newtonbutton-plugin"
 #define DEFAULT_LABEL_TEXT N_("Menu")
+
+// Default confirmation states
+#define DEFAULT_CONFIRM_LOGOUT FALSE
+#define DEFAULT_CONFIRM_RESTART TRUE
+#define DEFAULT_CONFIRM_SHUTDOWN TRUE
+#define DEFAULT_CONFIRM_FORCE_QUIT TRUE
 
 static void newtonbutton_construct (XfcePanelPlugin *plugin);
 static void newtonbutton_read (NewtonbuttonPlugin *newtonbutton);
@@ -85,6 +91,11 @@ newtonbutton_save (XfcePanelPlugin *plugin,
         xfce_rc_write_entry (rc, "LabelText", newtonbutton->label_text_prop);
       else
         xfce_rc_write_entry (rc, "LabelText", "");
+      
+      xfce_rc_write_bool_entry(rc, "ConfirmLogout", newtonbutton->confirm_logout_prop);
+      xfce_rc_write_bool_entry(rc, "ConfirmRestart", newtonbutton->confirm_restart_prop);
+      xfce_rc_write_bool_entry(rc, "ConfirmShutdown", newtonbutton->confirm_shutdown_prop);
+      xfce_rc_write_bool_entry(rc, "ConfirmForceQuit", newtonbutton->confirm_force_quit_prop);
 
       xfce_rc_close (rc);
     }
@@ -118,6 +129,11 @@ newtonbutton_read (NewtonbuttonPlugin *newtonbutton)
           value = xfce_rc_read_entry (rc, "LabelText", _(DEFAULT_LABEL_TEXT));
           g_free(newtonbutton->label_text_prop);
           newtonbutton->label_text_prop = g_strdup (value);
+
+          newtonbutton->confirm_logout_prop = xfce_rc_read_bool_entry(rc, "ConfirmLogout", DEFAULT_CONFIRM_LOGOUT);
+          newtonbutton->confirm_restart_prop = xfce_rc_read_bool_entry(rc, "ConfirmRestart", DEFAULT_CONFIRM_RESTART);
+          newtonbutton->confirm_shutdown_prop = xfce_rc_read_bool_entry(rc, "ConfirmShutdown", DEFAULT_CONFIRM_SHUTDOWN);
+          newtonbutton->confirm_force_quit_prop = xfce_rc_read_bool_entry(rc, "ConfirmForceQuit", DEFAULT_CONFIRM_FORCE_QUIT);
           
           xfce_rc_close (rc);
           return;
@@ -129,6 +145,11 @@ newtonbutton_read (NewtonbuttonPlugin *newtonbutton)
   newtonbutton->icon_name_prop = g_strdup (DEFAULT_ICON_NAME);
   g_free(newtonbutton->label_text_prop);
   newtonbutton->label_text_prop = g_strdup (_(DEFAULT_LABEL_TEXT));
+
+  newtonbutton->confirm_logout_prop = DEFAULT_CONFIRM_LOGOUT;
+  newtonbutton->confirm_restart_prop = DEFAULT_CONFIRM_RESTART;
+  newtonbutton->confirm_shutdown_prop = DEFAULT_CONFIRM_SHUTDOWN;
+  newtonbutton->confirm_force_quit_prop = DEFAULT_CONFIRM_FORCE_QUIT;
 }
 
 void
@@ -300,7 +321,6 @@ static void
 on_app_store_activate(GtkMenuItem *menuitem, gpointer user_data)
 {
     g_debug("App Store activated - placeholder: No standard XFCE app store command.");
-    // Example: execute_command("pamac-manager"); or find a suitable alternative
 }
 
 static void
@@ -311,6 +331,8 @@ on_force_quit_activate(GtkMenuItem *menuitem, gpointer user_data)
     if (newtonbutton && newtonbutton->plugin && gtk_widget_get_toplevel(GTK_WIDGET(newtonbutton->plugin))) {
         parent_window = GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(newtonbutton->plugin)));
     }
+    // We'll implement conditional dialog display in Phase 2
+    // For now, it uses the dialog from newtonbutton-dialogs.c
     newtonbutton_show_force_quit_confirmation(parent_window);
 }
 
@@ -323,12 +345,14 @@ on_sleep_activate(GtkMenuItem *menuitem, gpointer user_data)
 static void
 on_restart_activate(GtkMenuItem *menuitem, gpointer user_data)
 {
+    // We'll implement conditional dialog display in Phase 2
     execute_command("xfce4-session-logout --reboot");
 }
 
 static void
 on_shutdown_activate(GtkMenuItem *menuitem, gpointer user_data)
 {
+    // We'll implement conditional dialog display in Phase 2
     execute_command("xfce4-session-logout --halt");
 }
 
@@ -341,6 +365,7 @@ on_lock_screen_activate(GtkMenuItem *menuitem, gpointer user_data)
 static void
 on_log_out_activate(GtkMenuItem *menuitem, gpointer user_data)
 {
+    // We'll implement conditional dialog display in Phase 2
     execute_command("xfce4-session-logout --logout");
 }
 
@@ -412,7 +437,7 @@ newtonbutton_popup_menu_on_toggle (GtkToggleButton *toggle_button, NewtonbuttonP
         gtk_menu_shell_append(GTK_MENU_SHELL(newtonbutton->main_menu), gtk_separator_menu_item_new());
         
         menu_item = gtk_menu_item_new_with_mnemonic (_("Force Quit..."));
-        g_signal_connect (menu_item, "activate", G_CALLBACK (on_force_quit_activate), newtonbutton); // Pass newtonbutton for parent window
+        g_signal_connect (menu_item, "activate", G_CALLBACK (on_force_quit_activate), newtonbutton);
         gtk_menu_shell_append (GTK_MENU_SHELL (newtonbutton->main_menu), menu_item);
 
         gtk_menu_shell_append(GTK_MENU_SHELL(newtonbutton->main_menu), gtk_separator_menu_item_new());

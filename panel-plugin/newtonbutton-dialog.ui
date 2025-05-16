@@ -18,12 +18,14 @@
         <child>
           <object class="GtkFrame" id="appearance_frame">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="label" translatable="yes">Button Appearance</property>
             <property name="label_xalign">0</property>
             <property name="shadow_type">etched-in</property>
             <child>
               <object class="GtkBox" id="appearance_box_content">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="orientation">vertical</property>
                 <property name="border_width">12</property>
                 <property name="spacing">12</property>
@@ -85,7 +87,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="icon_name">document-open-symbolic</property>
-                            <property name="icon_size">1</property>
+                            <property name="icon_size">1</property> <!-- Corresponds to GTK_ICON_SIZE_MENU -->
                           </object>
                         </child>
                       </object>
@@ -147,6 +149,85 @@
             <property name="expand">False</property>
             <property name="fill">True</property>
             <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkFrame" id="confirmation_frame">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">Action Confirmations</property>
+            <property name="label_xalign">0</property>
+            <property name="shadow_type">etched-in</property>
+            <child>
+              <object class="GtkBox" id="confirmation_box_content">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="orientation">vertical</property>
+                <property name="border_width">12</property>
+                <property name="spacing">6</property>
+                <child>
+                  <object class="GtkCheckButton" id="confirm_logout_checkbutton">
+                    <property name="label" translatable="yes">Confirm before logging out</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="confirm_restart_checkbutton">
+                    <property name="label" translatable="yes">Confirm before restarting</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="confirm_shutdown_checkbutton">
+                    <property name="label" translatable="yes">Confirm before shutting down</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="confirm_force_quit_checkbutton">
+                    <property name="label" translatable="yes">Confirm before Force Quit (xkill)</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
           </packing>
         </child>
       </object>

@@ -15,7 +15,7 @@
 #include "newtonbutton.h"
 #include "newtonbutton-dialogs.h"
 
-#define PLUGIN_WEBSITE "https://gitlab.xfce.org/panel-plugins/xfce4-newtonbutton-plugin" // Ensure this matches your project
+#define PLUGIN_WEBSITE "https://gitlab.xfce.org/panel-plugins/xfce4-newtonbutton-plugin"
 
 static void on_display_icon_checkbutton_toggled (GtkToggleButton *togglebutton, gpointer user_data);
 static void on_icon_choose_button_clicked (GtkButton *button, gpointer user_data);
@@ -105,6 +105,22 @@ dialog_save_settings_and_update (GtkDialog *dialog, NewtonbuttonPlugin *newtonbu
         g_free (newtonbutton->label_text_prop);
         newtonbutton->label_text_prop = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
     }
+
+    widget = GTK_WIDGET(gtk_builder_get_object (builder, "confirm_logout_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        newtonbutton->confirm_logout_prop = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+
+    widget = GTK_WIDGET(gtk_builder_get_object (builder, "confirm_restart_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        newtonbutton->confirm_restart_prop = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+        
+    widget = GTK_WIDGET(gtk_builder_get_object (builder, "confirm_shutdown_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        newtonbutton->confirm_shutdown_prop = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+
+    widget = GTK_WIDGET(gtk_builder_get_object (builder, "confirm_force_quit_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        newtonbutton->confirm_force_quit_prop = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
     
     newtonbutton_save (newtonbutton->plugin, newtonbutton);
     newtonbutton_update_display (newtonbutton);
@@ -214,6 +230,24 @@ newtonbutton_configure (XfcePanelPlugin *plugin,
   } else {
       g_warning("Widget 'icon_choose_button' not found or not a GtkButton.");
   }
+
+    // Load states for confirmation checkboxes
+    widget = GTK_WIDGET(gtk_builder_get_object (builder, "confirm_logout_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), newtonbutton->confirm_logout_prop);
+
+    widget = GTK_WIDGET(gtk_builder_get_object (builder, "confirm_restart_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), newtonbutton->confirm_restart_prop);
+
+    widget = GTK_WIDGET(gtk_builder_get_object (builder, "confirm_shutdown_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), newtonbutton->confirm_shutdown_prop);
+
+    widget = GTK_WIDGET(gtk_builder_get_object (builder, "confirm_force_quit_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), newtonbutton->confirm_force_quit_prop);
+
 
   g_object_set_data (G_OBJECT (plugin), "dialog", dialog_widget);
   g_signal_connect (G_OBJECT (dialog_widget), "response",
