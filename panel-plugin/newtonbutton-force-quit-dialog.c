@@ -7,6 +7,9 @@
 #include <signal.h>
 #include <libxfce4util/libxfce4util.h>
 #include <libxfce4ui/libxfce4ui.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <errno.h>
 
 #include "newtonbutton.h"
 #include "newtonbutton-force-quit-dialog.h"
@@ -35,22 +38,66 @@ static void on_fq_dialog_response(GtkDialog *dialog, gint response_id, gpointer 
 static void on_fq_dialog_app_selection_changed(GtkTreeSelection *selection, gpointer user_data);
 static gboolean on_refresh_app_list(gpointer user_data);
 
-static void
+static gboolean
 force_quit_process(pid_t pid)
 {
-    if (pid > 0) {
-        kill(pid, SIGKILL);
+    gboolean result = FALSE;
+    gchar *command = NULL;
+    GError *error = NULL;
+    
+    if (pid <= 1)
+        return FALSE;
+    
+    // Don't kill our own process
+    if (pid == getpid())
+        return FALSE;
+        
+    // Use kill command for better success rate
+    command = g_strdup_printf("kill -9 %d", pid);
+    result = g_spawn_command_line_sync(command, NULL, NULL, NULL, &error);
+    g_free(command);
+    
+    if (!result) {
+        g_warning("Failed to execute kill command: %s", error ? error->message : "unknown error");
+        if (error) g_error_free(error);
+        
+        // Try direct kill as a fallback
+        if (kill(pid, SIGKILL) == 0) {
+            result = TRUE;
+        }
+        else {
+            g_warning("Direct kill failed: %s", strerror(errno));
+        }
     }
+    
+    return result;
 }
 
 static void
 confirm_force_quit_response_cb(GtkDialog *confirm_dialog, gint response_id, gpointer user_data)
 {
+    GtkWidget *parent_dialog = GTK_WIDGET(g_object_get_data(G_OBJECT(confirm_dialog), "parent_dialog"));
+    
     if (response_id == GTK_RESPONSE_YES) {
         pid_t pid = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(confirm_dialog), "pid_to_kill"));
-        force_quit_process(pid);
+        gboolean killed = force_quit_process(pid);
+        
+        if (killed) {
+            // Let's give UI time to update
+            while (gtk_events_pending())
+                gtk_main_iteration();
+                
+            // Allow the UI to refresh for visual feedback
+            g_usleep(250000); // 250ms
+        }
     }
+    
     gtk_widget_destroy(GTK_WIDGET(confirm_dialog));
+    
+    // Make sure parent dialog stays in front
+    if (parent_dialog && GTK_IS_WINDOW(parent_dialog)) {
+        gtk_window_present(GTK_WINDOW(parent_dialog));
+    }
 }
 
 static void
@@ -58,6 +105,9 @@ confirm_force_quit(GtkWindow *parent, const gchar *app_name, pid_t pid, ForceQui
 {
     GtkWidget *dialog;
     gchar *message;
+    
+    if (parent == NULL)
+        return;
     
     message = g_strdup_printf(_("Are you sure you want to force quit \"%s\"?"), app_name);
 
@@ -77,9 +127,14 @@ confirm_force_quit(GtkWindow *parent, const gchar *app_name, pid_t pid, ForceQui
     gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_CANCEL);
     
     g_object_set_data(G_OBJECT(dialog), "pid_to_kill", GINT_TO_POINTER(pid));
+    g_object_set_data(G_OBJECT(dialog), "parent_dialog", parent);
+    
     g_signal_connect(dialog, "response", G_CALLBACK(confirm_force_quit_response_cb), NULL);
+    
+    // Ensure this dialog is centered on the parent
     gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER_ON_PARENT);
     gtk_window_set_transient_for(GTK_WINDOW(dialog), parent);
+    
     gtk_widget_show_all(dialog);
 }
 
@@ -114,6 +169,11 @@ add_window_to_list(ForceQuitDialogData *data, WnckWindow *window)
     pid = wnck_application_get_pid(app);
     if (pid <= 0)
         return;  // Skip items with invalid PIDs
+        
+    // Skip xfce4-panel itself and its plugins to prevent suicide
+    if (pid == getpid()) {
+        return;
+    }
     
     // Check if we already have this PID in our list
     GtkTreeIter existing_iter;
@@ -270,13 +330,13 @@ on_fq_dialog_response(GtkDialog *dialog, gint response_id, gpointer user_data)
     if (!data)
         return;
     
-    // If Apply (Force Quit) clicked, handle it and return
+    // Apply (Force Quit) should trigger the force quit flow but not close dialog
     if (response_id == GTK_RESPONSE_APPLY) {
         on_fq_dialog_force_quit_button_clicked(data->force_quit_button, data);
-        return;
+        return; // Keep dialog open
     }
     
-    // For all other responses, clean up and destroy dialog
+    // For other responses (like close), clean up and destroy dialog
     if (data->refresh_id > 0) {
         g_source_remove(data->refresh_id);
         data->refresh_id = 0;
@@ -324,8 +384,16 @@ newtonbutton_show_force_quit_applications_dialog(GtkWindow *parent, Newtonbutton
     
     g_object_unref(builder);
     
-    // Setup window
-    gtk_window_set_transient_for(GTK_WINDOW(data->dialog), parent);
+    // Setup window properties and position
+    gtk_window_set_title(GTK_WINDOW(data->dialog), _("Force Quit Applications"));
+    gtk_window_set_position(GTK_WINDOW(data->dialog), GTK_WIN_POS_CENTER_ALWAYS);
+    gtk_window_set_default_size(GTK_WINDOW(data->dialog), 400, 350);
+    gtk_window_set_modal(GTK_WINDOW(data->dialog), TRUE);
+    
+    // Set parent relationship if available
+    if (parent) {
+        gtk_window_set_transient_for(GTK_WINDOW(data->dialog), parent);
+    }
     
     // Setup tree view columns
     GtkCellRenderer *renderer_pixbuf = gtk_cell_renderer_pixbuf_new();
@@ -354,12 +422,29 @@ newtonbutton_show_force_quit_applications_dialog(GtkWindow *parent, Newtonbutton
     // Populate initial app list
     populate_app_list(data);
     
-    // Add periodic refresh timer (every 2 seconds)
-    data->refresh_id = g_timeout_add_seconds(2, on_refresh_app_list, data);
+    // Add periodic refresh timer (every 1 second)
+    data->refresh_id = g_timeout_add(1000, on_refresh_app_list, data);
     
     // Force quit button starts disabled until selection made
     gtk_widget_set_sensitive(GTK_WIDGET(data->force_quit_button), FALSE);
     
     // Show dialog
     gtk_widget_show_all(GTK_WIDGET(data->dialog));
+    
+    // After showing, move to center of screen explicitly
+    GdkScreen *screen = gtk_window_get_screen(GTK_WINDOW(data->dialog));
+    if (screen) {
+        gint screen_width = gdk_screen_get_width(screen);
+        gint screen_height = gdk_screen_get_height(screen);
+        gint dialog_width, dialog_height;
+        
+        gtk_window_get_size(GTK_WINDOW(data->dialog), &dialog_width, &dialog_height);
+        
+        gtk_window_move(GTK_WINDOW(data->dialog), 
+                      (screen_width - dialog_width) / 2,
+                      (screen_height - dialog_height) / 2);
+    }
+    
+    // Make sure it gets focus
+    gtk_window_present(GTK_WINDOW(data->dialog));
 }
