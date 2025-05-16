@@ -1,7 +1,7 @@
 # $Id$
 
 SUBDIRS =								\
-	48x48								\
+	256x256								\
 	scalable
 
 EXTRA_DIST =                                                            \

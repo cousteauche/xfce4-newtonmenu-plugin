@@ -1,5 +1,5 @@
 install_data(
-  '48x48' / 'xfce4-newtonbutton-plugin.png',
+  '256x256' / 'xfce4-newtonbutton-plugin.png',
   install_dir: get_option('prefix') / get_option('datadir') / 'icons' / 'hicolor' / '48x48' / 'apps',
 )
 

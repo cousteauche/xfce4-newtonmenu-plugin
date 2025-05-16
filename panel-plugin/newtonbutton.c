@@ -14,7 +14,7 @@
 #include "newtonbutton-dialogs.h" // For newtonbutton_show_force_quit_confirmation
 
 #define DEFAULT_DISPLAY_ICON TRUE
-#define DEFAULT_ICON_NAME "xfce4-newtonbutton-plugin"
+#define DEFAULT_ICON_NAME "/usr/share/icons/hicolor/scalable/apps/xfce4-newtonbutton-plugin.svg"
 #define DEFAULT_LABEL_TEXT N_("Menu")
 
 // Default confirmation states
