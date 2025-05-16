@@ -35,7 +35,7 @@ static void newtonbutton_menu_deactivate_cb (GtkMenu *menu, NewtonbuttonPlugin *
 
 static void on_about_this_pc_activate(GtkMenuItem *menuitem, gpointer user_data);
 static void on_system_settings_activate(GtkMenuItem *menuitem, gpointer user_data);
-static void on_app_store_activate(GtkMenuItem *menuitem, gpointer user_data);
+static void on_run_command_activate(GtkMenuItem *menuitem, gpointer user_data);
 static void on_force_quit_activate(GtkMenuItem *menuitem, gpointer user_data);
 static void on_sleep_activate(GtkMenuItem *menuitem, gpointer user_data);
 static void on_restart_activate(GtkMenuItem *menuitem, gpointer user_data);
@@ -307,9 +307,7 @@ newtonbutton_size_changed (XfcePanelPlugin *plugin,
 static void
 on_about_this_pc_activate(GtkMenuItem *menuitem, gpointer user_data)
 {
-    XfcePanelPlugin *plugin = XFCE_PANEL_PLUGIN(user_data);
-    g_return_if_fail(plugin != NULL);
-    newtonbutton_about(plugin);
+    execute_command("xfce4-about");
 }
 
 static void
@@ -319,9 +317,9 @@ on_system_settings_activate(GtkMenuItem *menuitem, gpointer user_data)
 }
 
 static void
-on_app_store_activate(GtkMenuItem *menuitem, gpointer user_data)
+on_run_command_activate(GtkMenuItem *menuitem, gpointer user_data)
 {
-    g_debug("App Store activated - placeholder: No standard XFCE app store command.");
+    execute_command("xfce4-appfinder --collapsed");
 }
 
 static void
@@ -478,8 +476,8 @@ newtonbutton_popup_menu_on_toggle (GtkToggleButton *toggle_button, NewtonbuttonP
         g_signal_connect (menu_item, "activate", G_CALLBACK (on_system_settings_activate), newtonbutton);
         gtk_menu_shell_append (GTK_MENU_SHELL (newtonbutton->main_menu), menu_item);
 
-        menu_item = gtk_menu_item_new_with_mnemonic (_("App Store..."));
-        g_signal_connect (menu_item, "activate", G_CALLBACK (on_app_store_activate), newtonbutton);
+        menu_item = gtk_menu_item_new_with_mnemonic (_("Run Command..."));
+        g_signal_connect (menu_item, "activate", G_CALLBACK (on_run_command_activate), newtonbutton);
         gtk_menu_shell_append (GTK_MENU_SHELL (newtonbutton->main_menu), menu_item);
         
         gtk_menu_shell_append(GTK_MENU_SHELL(newtonbutton->main_menu), gtk_separator_menu_item_new());
