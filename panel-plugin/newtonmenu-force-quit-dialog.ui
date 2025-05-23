@@ -1,27 +1,149 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <requires lib="gtk+" version="3.20"/>
-  <object class="GtkDialog" id="force_quit_applications_dialog">
+  <object class="GtkDialog" id="newtonmenu_config_dialog">
     <property name="can_focus">False</property>
-    <property name="title" translatable="yes">Force Quit Applications</property>
+    <property name="title" translatable="yes">Newton Button Preferences</property>
     <property name="type_hint">dialog</property>
     <property name="border_width">12</property>
-    <property name="default_width">400</property>
-    <property name="default_height">350</property>
+    <property name="default_width">450</property>
     <property name="modal">True</property>
     <property name="destroy_with_parent">True</property>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog_vbox">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
         <property name="orientation">vertical</property>
-        <property name="spacing">6</property>
+        <property name="spacing">18</property>
         <child>
-          <object class="GtkLabel" id="info_label">
+          <object class="GtkFrame" id="appearance_frame">
             <property name="visible">True</property>
-            <property name="wrap">True</property>
-            <property name="label" translatable="yes">If an app doesn't respond for a while, select its name and click Force Quit.</property>
-            <property name="xalign">0</property>
-            <property name="margin_bottom">6</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">Button Appearance</property>
+            <property name="label_xalign">0</property>
+            <property name="shadow_type">etched-in</property>
+            <child>
+              <object class="GtkBox" id="appearance_box_content">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="orientation">vertical</property>
+                <property name="border_width">12</property>
+                <property name="spacing">12</property>
+                <child>
+                  <object class="GtkCheckButton" id="display_icon_checkbutton">
+                    <property name="label" translatable="yes">Display icon on panel button</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="draw_indicator">True</property>
+                    <property name="active">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkBox" id="icon_settings_box">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="orientation">horizontal</property>
+                    <property name="spacing">6</property>
+                    <child>
+                      <object class="GtkLabel" id="icon_name_label">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Icon name:</property>
+                        <property name="xalign">0</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkEntry" id="icon_name_entry">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="hexpand">True</property>
+                        <property name="tooltip_text" translatable="yes">Enter a themed icon name (e.g., 'start-here') or a full path to an image file.</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="icon_choose_button">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="tooltip_text" translatable="yes">Choose an icon</property>
+                        <child>
+                          <object class="GtkImage">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="icon_name">document-open-symbolic</property>
+                            <property name="icon_size">1</property> <!-- Corresponds to GTK_ICON_SIZE_MENU -->
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">2</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkBox" id="label_settings_box">
+                    <property name="visible">False</property>
+                    <property name="can_focus">False</property>
+                    <property name="orientation">horizontal</property>
+                    <property name="spacing">6</property>
+                    <child>
+                      <object class="GtkLabel" id="label_text_label">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Button label text:</property>
+                        <property name="xalign">0</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkEntry" id="label_text_entry">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="hexpand">True</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -29,69 +151,171 @@
             <property name="position">0</property>
           </packing>
         </child>
+        <!-- NEW: Global Menu Appearance Frame -->
         <child>
-          <object class="GtkScrolledWindow" id="scrolled_window">
+          <object class="GtkFrame" id="global_menu_frame">
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="shadow_type">in</property>
-            <property name="hscrollbar_policy">never</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">Global Menu Appearance</property>
+            <property name="label_xalign">0</property>
+            <property name="shadow_type">etched-in</property>
             <child>
-              <object class="GtkTreeView" id="app_list_treeview">
+              <object class="GtkBox" id="global_menu_box_content">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="headers_visible">False</property> 
-                <child internal-child="selection">
-                  <object class="GtkTreeSelection"/>
+                <property name="can_focus">False</property>
+                <property name="orientation">vertical</property>
+                <property name="border_width">12</property>
+                <property name="spacing">12</property>
+                <child>
+                  <object class="GtkCheckButton" id="hide_app_name_checkbutton">
+                    <property name="label" translatable="yes">Hide application name in global menu</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkBox" id="global_menu_title_box">
+                    <property name="visible">False</property> <!-- Initially hidden, controlled by code -->
+                    <property name="can_focus">False</property>
+                    <property name="orientation">horizontal</property>
+                    <property name="spacing">6</property>
+                    <child>
+                      <object class="GtkLabel" id="global_menu_title_label">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Global menu title:</property>
+                        <property name="xalign">0</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkEntry" id="global_menu_title_entry">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="hexpand">True</property>
+                        <property name="tooltip_text" translatable="yes">Custom title for the global menu when application name is hidden.</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
                 </child>
               </object>
             </child>
           </object>
           <packing>
-            <property name="expand">True</property>
+            <property name="expand">False</property>
             <property name="fill">True</property>
             <property name="position">1</property>
           </packing>
         </child>
         <child>
-          <object class="GtkLabel" id="shortcut_label">
+          <object class="GtkFrame" id="confirmation_frame">
             <property name="visible">True</property>
-            <property name="wrap">True</property>
-            <property name="label" translatable="yes">You can open this window by pressing Command-Option-Escape.</property> 
-            <property name="xalign">0</property>
-            <property name="margin_top">6</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">Action Confirmations</property>
+            <property name="label_xalign">0</property>
+            <property name="shadow_type">etched-in</property>
+            <child>
+              <object class="GtkBox" id="confirmation_box_content">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="orientation">vertical</property>
+                <property name="border_width">12</property>
+                <property name="spacing">6</property>
+                <child>
+                  <object class="GtkCheckButton" id="confirm_logout_checkbutton">
+                    <property name="label" translatable="yes">Confirm before logging out</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="confirm_restart_checkbutton">
+                    <property name="label" translatable="yes">Confirm before restarting</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="confirm_shutdown_checkbutton">
+                    <property name="label" translatable="yes">Confirm before shutting down</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
           </object>
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
-            <property name="position">2</property>
+            <property name="position">2</property> <!-- Adjusted position -->
           </packing>
         </child>
       </object>
     </child>
-    <child type="action">
-      <object class="GtkButton" id="force_quit_button">
-        <property name="label" translatable="yes">_Force Quit</property>
-        <property name="visible">True</property>
-        <property name="can_focus">True</property>
-        <property name="receives_default">True</property>
-        <property name="use_underline">True</property>
-        <style>
-          <class name="suggested-action"/> 
-        </style>
-      </object>
-    </child>
-    <child type="action">
-      <object class="GtkButton" id="close_button">
-        <property name="label" translatable="yes">_Close</property>
-        <property name="visible">True</property>
-        <property name="can_focus">True</property>
-        <property name="receives_default">False</property>
-        <property name="use_underline">True</property>
-      </object>
-    </child>
     <action-widgets>
-      <action-widget response="GTK_RESPONSE_APPLY">force_quit_button</action-widget>
-      <action-widget response="GTK_RESPONSE_CLOSE">close_button</action-widget>
+      <action-widget response="-11">help_button</action-widget>
+      <action-widget response="-7">close_button</action-widget>
     </action-widgets>
+    <child type="action">
+        <object class="GtkButton" id="help_button">
+            <property name="label">gtk-help</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="use-stock">True</property>
+        </object>
+    </child>
+    <child type="action">
+        <object class="GtkButton" id="close_button">
+            <property name="label">gtk-close</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <property name="use-underline">True</property>
+        </object>
+    </child>
   </object>
 </interface>
