@@ -12,15 +12,15 @@
 #include <libxfce4panel/libxfce4panel.h>
 #include <exo/exo.h>
 
-#include "newtonbutton.h"
-#include "newtonbutton-dialogs.h"
+#include "newtonmenu.h"
+#include "newtonmenu-dialogs.h"
 
-#define PLUGIN_WEBSITE "https://gitlab.xfce.org/panel-plugins/xfce4-newtonbutton-plugin"
+#define PLUGIN_WEBSITE "https://gitlab.xfce.org/panel-plugins/xfce4-newtonmenu-plugin"
 
 static void on_display_icon_checkbutton_toggled (GtkToggleButton *togglebutton, gpointer user_data);
 static void on_icon_choose_button_clicked (GtkButton *button, gpointer user_data);
-static void dialog_save_settings_and_update (GtkDialog *dialog, NewtonbuttonPlugin *newtonbutton, GtkBuilder *builder);
-static void newtonbutton_configure_response_cb (GtkWidget *dialog_widget, gint response, NewtonbuttonPlugin *newtonbutton);
+static void dialog_save_settings_and_update (GtkDialog *dialog, newtonmenuPlugin *newtonmenu, GtkBuilder *builder);
+static void newtonmenu_configure_response_cb (GtkWidget *dialog_widget, gint response, newtonmenuPlugin *newtonmenu);
 static void generic_action_dialog_response_cb (GtkDialog *dialog, gint response_id, gpointer user_data);
 
 
@@ -83,53 +83,53 @@ on_icon_choose_button_clicked (GtkButton *button, gpointer user_data)
 }
 
 static void
-dialog_save_settings_and_update (GtkDialog *dialog, NewtonbuttonPlugin *newtonbutton, GtkBuilder *builder)
+dialog_save_settings_and_update (GtkDialog *dialog, newtonmenuPlugin *newtonmenu, GtkBuilder *builder)
 {
     GtkWidget *widget;
 
-    g_return_if_fail(newtonbutton != NULL);
+    g_return_if_fail(newtonmenu != NULL);
     g_return_if_fail(builder != NULL);
 
     widget = GTK_WIDGET(gtk_builder_get_object (builder, "display_icon_checkbutton"));
     if (GTK_IS_TOGGLE_BUTTON(widget))
-        newtonbutton->display_icon_prop = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+        newtonmenu->display_icon_prop = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 
     widget = GTK_WIDGET(gtk_builder_get_object (builder, "icon_name_entry"));
     if (GTK_IS_ENTRY(widget)) {
-        g_free (newtonbutton->icon_name_prop);
-        newtonbutton->icon_name_prop = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
+        g_free (newtonmenu->icon_name_prop);
+        newtonmenu->icon_name_prop = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
     }
 
     widget = GTK_WIDGET(gtk_builder_get_object (builder, "label_text_entry"));
     if (GTK_IS_ENTRY(widget)) {
-        g_free (newtonbutton->label_text_prop);
-        newtonbutton->label_text_prop = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
+        g_free (newtonmenu->label_text_prop);
+        newtonmenu->label_text_prop = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
     }
 
     widget = GTK_WIDGET(gtk_builder_get_object (builder, "confirm_logout_checkbutton"));
     if (GTK_IS_TOGGLE_BUTTON(widget))
-        newtonbutton->confirm_logout_prop = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+        newtonmenu->confirm_logout_prop = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 
     widget = GTK_WIDGET(gtk_builder_get_object (builder, "confirm_restart_checkbutton"));
     if (GTK_IS_TOGGLE_BUTTON(widget))
-        newtonbutton->confirm_restart_prop = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+        newtonmenu->confirm_restart_prop = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
         
     widget = GTK_WIDGET(gtk_builder_get_object (builder, "confirm_shutdown_checkbutton"));
     if (GTK_IS_TOGGLE_BUTTON(widget))
-        newtonbutton->confirm_shutdown_prop = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+        newtonmenu->confirm_shutdown_prop = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 
     widget = GTK_WIDGET(gtk_builder_get_object (builder, "confirm_force_quit_checkbutton"));
     if (GTK_IS_TOGGLE_BUTTON(widget))
-        newtonbutton->confirm_force_quit_prop = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+        newtonmenu->confirm_force_quit_prop = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
     
-    newtonbutton_save (newtonbutton->plugin, newtonbutton);
-    newtonbutton_update_display (newtonbutton);
+    newtonmenu_save (newtonmenu->plugin, newtonmenu);
+    newtonmenu_update_display (newtonmenu);
 }
 
 static void
-newtonbutton_configure_response_cb (GtkWidget    *dialog_widget,
+newtonmenu_configure_response_cb (GtkWidget    *dialog_widget,
                               gint          response,
-                              NewtonbuttonPlugin *newtonbutton)
+                              newtonmenuPlugin *newtonmenu)
 {
   GtkBuilder *builder = GTK_BUILDER(g_object_get_data(G_OBJECT(dialog_widget), "builder"));
 
@@ -143,14 +143,14 @@ newtonbutton_configure_response_cb (GtkWidget    *dialog_widget,
     }
   
   if (response == GTK_RESPONSE_CLOSE || response == GTK_RESPONSE_DELETE_EVENT || response == GTK_RESPONSE_OK) {
-      if (builder && newtonbutton) {
-          dialog_save_settings_and_update(GTK_DIALOG(dialog_widget), newtonbutton, builder);
+      if (builder && newtonmenu) {
+          dialog_save_settings_and_update(GTK_DIALOG(dialog_widget), newtonmenu, builder);
       }
   }
 
-  if (newtonbutton && newtonbutton->plugin) {
-      g_object_set_data (G_OBJECT (newtonbutton->plugin), "dialog", NULL);
-      xfce_panel_plugin_unblock_menu (newtonbutton->plugin);
+  if (newtonmenu && newtonmenu->plugin) {
+      g_object_set_data (G_OBJECT (newtonmenu->plugin), "dialog", NULL);
+      xfce_panel_plugin_unblock_menu (newtonmenu->plugin);
   }
   if (builder) {
       g_object_unref(builder);
@@ -160,8 +160,8 @@ newtonbutton_configure_response_cb (GtkWidget    *dialog_widget,
 }
 
 void
-newtonbutton_configure (XfcePanelPlugin *plugin,
-                  NewtonbuttonPlugin    *newtonbutton)
+newtonmenu_configure (XfcePanelPlugin *plugin,
+                  newtonmenuPlugin    *newtonmenu)
 {
   GtkBuilder *builder;
   GObject    *dialog_obj;
@@ -169,7 +169,7 @@ newtonbutton_configure (XfcePanelPlugin *plugin,
   GtkWidget  *widget;
 
   g_return_if_fail(plugin != NULL);
-  g_return_if_fail(newtonbutton != NULL);
+  g_return_if_fail(newtonmenu != NULL);
 
   if (g_object_get_data(G_OBJECT(plugin), "dialog") != NULL) {
       gtk_window_present(GTK_WINDOW(g_object_get_data(G_OBJECT(plugin), "dialog")));
@@ -178,18 +178,18 @@ newtonbutton_configure (XfcePanelPlugin *plugin,
 
   xfce_panel_plugin_block_menu (plugin);
 
-  const gchar *ui_resource_path = "/org/xfce/panel/plugins/newtonbutton/newtonbutton-dialog.ui";
+  const gchar *ui_resource_path = "/org/xfce/panel/plugins/newtonmenu/newtonmenu-dialog.ui";
   builder = gtk_builder_new_from_resource (ui_resource_path);
 
   if (G_UNLIKELY (builder == NULL)) {
-      g_warning ("Failed to load UI for newtonbutton plugin configuration from resource: %s", ui_resource_path);
+      g_warning ("Failed to load UI for newtonmenu plugin configuration from resource: %s", ui_resource_path);
       xfce_panel_plugin_unblock_menu (plugin);
       return;
   }
 
-  dialog_obj = gtk_builder_get_object (builder, "newtonbutton_config_dialog");
+  dialog_obj = gtk_builder_get_object (builder, "newtonmenu_config_dialog");
   if (G_UNLIKELY (dialog_obj == NULL || !GTK_IS_DIALOG (dialog_obj))) {
-      g_warning ("UI loaded, but toplevel widget ('newtonbutton_config_dialog') is not a GtkDialog or has wrong ID.");
+      g_warning ("UI loaded, but toplevel widget ('newtonmenu_config_dialog') is not a GtkDialog or has wrong ID.");
       g_object_unref (builder);
       xfce_panel_plugin_unblock_menu (plugin);
       return;
@@ -199,11 +199,11 @@ newtonbutton_configure (XfcePanelPlugin *plugin,
   gtk_window_set_position(GTK_WINDOW(dialog_widget), GTK_WIN_POS_CENTER_ON_PARENT);
 
   g_object_set_data(G_OBJECT(dialog_widget), "builder", builder);
-  g_object_set_data(G_OBJECT(dialog_widget), "plugin_data", newtonbutton);
+  g_object_set_data(G_OBJECT(dialog_widget), "plugin_data", newtonmenu);
 
   widget = GTK_WIDGET(gtk_builder_get_object (builder, "display_icon_checkbutton"));
   if (GTK_IS_TOGGLE_BUTTON(widget)) {
-      gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), newtonbutton->display_icon_prop);
+      gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), newtonmenu->display_icon_prop);
       on_display_icon_checkbutton_toggled(GTK_TOGGLE_BUTTON(widget), builder);
       g_signal_connect (widget, "toggled", G_CALLBACK (on_display_icon_checkbutton_toggled), builder);
   } else {
@@ -212,14 +212,14 @@ newtonbutton_configure (XfcePanelPlugin *plugin,
 
   widget = GTK_WIDGET(gtk_builder_get_object (builder, "icon_name_entry"));
   if (GTK_IS_ENTRY(widget)) {
-      gtk_entry_set_text (GTK_ENTRY (widget), newtonbutton->icon_name_prop ? newtonbutton->icon_name_prop : "");
+      gtk_entry_set_text (GTK_ENTRY (widget), newtonmenu->icon_name_prop ? newtonmenu->icon_name_prop : "");
   } else {
       g_warning("Widget 'icon_name_entry' not found or not a GtkEntry.");
   }
 
   widget = GTK_WIDGET(gtk_builder_get_object (builder, "label_text_entry"));
   if (GTK_IS_ENTRY(widget)) {
-      gtk_entry_set_text (GTK_ENTRY (widget), newtonbutton->label_text_prop ? newtonbutton->label_text_prop : "");
+      gtk_entry_set_text (GTK_ENTRY (widget), newtonmenu->label_text_prop ? newtonmenu->label_text_prop : "");
   } else {
       g_warning("Widget 'label_text_entry' not found or not a GtkEntry.");
   }
@@ -233,30 +233,30 @@ newtonbutton_configure (XfcePanelPlugin *plugin,
 
     widget = GTK_WIDGET(gtk_builder_get_object (builder, "confirm_logout_checkbutton"));
     if (GTK_IS_TOGGLE_BUTTON(widget))
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), newtonbutton->confirm_logout_prop);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), newtonmenu->confirm_logout_prop);
 
     widget = GTK_WIDGET(gtk_builder_get_object (builder, "confirm_restart_checkbutton"));
     if (GTK_IS_TOGGLE_BUTTON(widget))
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), newtonbutton->confirm_restart_prop);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), newtonmenu->confirm_restart_prop);
 
     widget = GTK_WIDGET(gtk_builder_get_object (builder, "confirm_shutdown_checkbutton"));
     if (GTK_IS_TOGGLE_BUTTON(widget))
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), newtonbutton->confirm_shutdown_prop);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), newtonmenu->confirm_shutdown_prop);
 
     widget = GTK_WIDGET(gtk_builder_get_object (builder, "confirm_force_quit_checkbutton"));
     if (GTK_IS_TOGGLE_BUTTON(widget))
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), newtonbutton->confirm_force_quit_prop);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), newtonmenu->confirm_force_quit_prop);
 
 
   g_object_set_data (G_OBJECT (plugin), "dialog", dialog_widget);
   g_signal_connect (G_OBJECT (dialog_widget), "response",
-                    G_CALLBACK(newtonbutton_configure_response_cb), newtonbutton);
+                    G_CALLBACK(newtonmenu_configure_response_cb), newtonmenu);
 
   gtk_widget_show_all (dialog_widget);
 }
 
 void
-newtonbutton_about (XfcePanelPlugin *plugin)
+newtonmenu_about (XfcePanelPlugin *plugin)
 {
   const gchar *auth[] = {
       "Adam",
@@ -265,7 +265,7 @@ newtonbutton_about (XfcePanelPlugin *plugin)
   };
 
   gtk_show_about_dialog (GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(plugin))),
-                         "logo-icon-name", "xfce4-newtonbutton-plugin",
+                         "logo-icon-name", "xfce4-newtonmenu-plugin",
                          "license-type",   GTK_LICENSE_GPL_2_0,
                          "version",        PACKAGE_VERSION,
                          "program-name",   PACKAGE_NAME,
@@ -297,7 +297,7 @@ generic_action_dialog_response_cb (GtkDialog *dialog, gint response_id, gpointer
 }
 
 void
-newtonbutton_show_generic_confirmation (GtkWindow *parent, 
+newtonmenu_show_generic_confirmation (GtkWindow *parent, 
                                         const gchar *action_name_translated, 
                                         const gchar *action_verb_translated, 
                                         const gchar *command_to_run)

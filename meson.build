@@ -1,5 +1,5 @@
 project(
-  'xfce4-newtonbutton-plugin',
+  'xfce4-newtonmenu-plugin',
   'c',
   version: '0.0.4-dev',
   license: 'GPL-2.0-or-later',

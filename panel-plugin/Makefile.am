@@ -1,25 +1,25 @@
 AM_CPPFLAGS = \
 	-I$(top_srcdir) \
-	-DG_LOG_DOMAIN=\"xfce4-newtonbutton-plugin\" \
+	-DG_LOG_DOMAIN=\"xfce4-newtonmenu-plugin\" \
 	-DPACKAGE_LOCALE_DIR=\"$(localedir)\" \
 	$(PLATFORM_CPPFLAGS)
 
 #
-# Newtonbutton plugin
+# newtonmenu plugin
 #
 plugin_LTLIBRARIES = \
-	libnewtonbutton.la
+	libnewtonmenu.la
 
 plugindir = \
 	$(libdir)/xfce4/panel/plugins
 
-libnewtonbutton_la_SOURCES = \
-	newtonbutton.c \
-	newtonbutton.h \
-	newtonbutton-dialogs.c \
-	newtonbutton-dialogs.h
+libnewtonmenu_la_SOURCES = \
+	newtonmenu.c \
+	newtonmenu.h \
+	newtonmenu-dialogs.c \
+	newtonmenu-dialogs.h
 
-libnewtonbutton_la_CFLAGS = \
+libnewtonmenu_la_CFLAGS = \
 	$(GLIB_CFLAGS) \
 	$(GTK_CFLAGS) \
 	$(LIBXFCE4UTIL_CFLAGS) \
@@ -27,14 +27,14 @@ libnewtonbutton_la_CFLAGS = \
 	$(LIBXFCE4PANEL_CFLAGS) \
 	$(PLATFORM_CFLAGS)
 
-libnewtonbutton_la_LDFLAGS = \
+libnewtonmenu_la_LDFLAGS = \
        -avoid-version \
        -module \
        -no-undefined \
        -export-symbols-regex '^xfce_panel_module_(preinit|init|construct)' \
        $(PLATFORM_LDFLAGS)
 
-libnewtonbutton_la_LIBADD = \
+libnewtonmenu_la_LIBADD = \
 	$(GLIB_LIBS) \
 	$(GTK_LIBS) \
 	$(LIBXFCE4UTIL_LIBS) \
@@ -47,15 +47,15 @@ libnewtonbutton_la_LIBADD = \
 desktopdir =								\
 	$(datadir)/xfce4/panel/plugins
 
-newtonbutton.desktop: newtonbutton.desktop.in
+newtonmenu.desktop: newtonmenu.desktop.in
 	$(AM_V_GEN)$(MSGFMT) --desktop --template $< -d $(top_srcdir)/po -o $@
 
 desktop_DATA =								\
-	newtonbutton.desktop
+	newtonmenu.desktop
 
 EXTRA_DIST =								\
 	meson.build							\
-	newtonbutton.desktop.in
+	newtonmenu.desktop.in
 
 CLEANFILES =								\
 	$(desktop_DATA)

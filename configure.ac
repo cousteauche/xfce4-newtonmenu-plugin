@@ -1,5 +1,5 @@
 dnl
-dnl xfce4-newtonbutton-plugin - A newtonbutton plugin for the Xfce panel
+dnl xfce4-newtonmenu-plugin - A newtonmenu plugin for the Xfce panel
 dnl
 dnl 2023 John Doo <john@example.org>
 dnl
@@ -14,7 +14,7 @@ dnl *** Initialize autoconf ***
 dnl ***************************
 AC_COPYRIGHT([Copyright (C) 2006-copyright_year()
         The Xfce development team. All rights reserved.])
-AC_INIT([xfce4-newtonbutton-plugin], [xdt_version], [https://gitlab.xfce.org/panel-plugins/xfce4-newtonbutton-plugin], [xfce4-newtonbutton-plugin])
+AC_INIT([xfce4-newtonmenu-plugin], [xdt_version], [https://gitlab.xfce.org/panel-plugins/xfce4-newtonmenu-plugin], [xfce4-newtonmenu-plugin])
 AC_PREREQ([2.69])
 AC_REVISION([xdt_version_build])
 AC_CONFIG_MACRO_DIRS([m4])

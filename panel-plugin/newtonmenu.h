@@ -1,14 +1,14 @@
-#ifndef __NEWTONBUTTON_H__
-#define __NEWTONBUTTON_H__
+#ifndef __newtonmenu_H__
+#define __newtonmenu_H__
 
 #include <gtk/gtk.h>
 #include <libxfce4panel/libxfce4panel.h>
 
 G_BEGIN_DECLS
 
-typedef struct _NewtonbuttonPlugin NewtonbuttonPlugin;
+typedef struct _newtonmenuPlugin newtonmenuPlugin;
 
-struct _NewtonbuttonPlugin
+struct _newtonmenuPlugin
 {
     XfcePanelPlugin *plugin;
 
@@ -30,9 +30,9 @@ struct _NewtonbuttonPlugin
     GtkWidget       *main_menu;
 };
 
-void newtonbutton_save (XfcePanelPlugin *plugin, NewtonbuttonPlugin *newtonbutton);
-void newtonbutton_update_display (NewtonbuttonPlugin *newtonbutton);
+void newtonmenu_save (XfcePanelPlugin *plugin, newtonmenuPlugin *newtonmenu);
+void newtonmenu_update_display (newtonmenuPlugin *newtonmenu);
 
 G_END_DECLS
 
-#endif /* !__NEWTONBUTTON_H__ */
+#endif /* !__newtonmenu_H__ */

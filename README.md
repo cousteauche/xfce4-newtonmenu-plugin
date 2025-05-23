@@ -1,10 +1,10 @@
-[![License](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://gitlab.xfce.org/panel-plugins/xfce4-newtonbutton-plugin/-/blob/master/COPYING)
+[![License](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://gitlab.xfce.org/panel-plugins/xfce4-newtonmenu-plugin/-/blob/master/COPYING)
 
-# Xfce4 Newtonbutton Plugin
+# Xfce4 newtonmenu Plugin
 
-The Xfce4 Newtonbutton Plugin provides a macOS-style application and session menu for the Xfce panel (version 4.16 or higher). It offers quick access to system actions and session management.
+The Xfce4 newtonmenu Plugin provides a macOS-style application and session menu for the Xfce panel (version 4.16 or higher). It offers quick access to system actions and session management.
 
-![Newtonbutton Screenshot](image.png)
+![newtonmenu Screenshot](image.png)
 
 ## Features
 
@@ -40,8 +40,8 @@ The Xfce4 Newtonbutton Plugin provides a macOS-style application and session men
 
 1.  Clone the repository:
     ```bash
-    git clone <your_repository_url> xfce4-newtonbutton-plugin
-    cd xfce4-newtonbutton-plugin
+    git clone <your_repository_url> xfce4-newtonmenu-plugin
+    cd xfce4-newtonmenu-plugin
     ```
 2.  Build and install using Meson:
     ```bash
@@ -56,7 +56,7 @@ The Xfce4 Newtonbutton Plugin provides a macOS-style application and session men
 
 ### From Source Code Repository (using Autotools - if applicable)
 
-    % cd xfce4-newtonbutton-plugin
+    % cd xfce4-newtonmenu-plugin
     % ./autogen.sh
     % make
     % sudo make install

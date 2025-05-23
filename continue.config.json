@@ -1,0 +1,27 @@
+{
+  "$schema": "https://continue.dev/schema/continue.config.schema.json",
+  "models": [
+    {
+      "title": "Local DeepSeek",
+      "model": "deepseek-coder-v2-lite-instruct-i1",
+      "provider": "openai",
+      "apiBase": "http://localhost:1234/v1",
+      "apiKey": ""
+    },
+    {
+      "title": "Gemini Pro",
+      "model": "gemini-1.5-pro-preview-0514",
+      "provider": "gemini",
+      "apiKey": "your-api-key-here"
+    }
+  ],
+  "contextProviders": [
+    {
+      "title": "Project Files",
+      "provider": "file",
+      "directory": "./",
+      "exclude": ["node_modules", "build", ".git"]
+    }
+  ]
+}
+

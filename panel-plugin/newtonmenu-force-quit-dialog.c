@@ -11,8 +11,8 @@
 #include <unistd.h>
 #include <errno.h>
 
-#include "newtonbutton.h"
-#include "newtonbutton-force-quit-dialog.h"
+#include "newtonmenu.h"
+#include "newtonmenu-force-quit-dialog.h"
 
 enum
 {
@@ -27,7 +27,7 @@ typedef struct {
     GtkTreeView *tree_view;
     GtkListStore *list_store;
     GtkButton *force_quit_button;
-    NewtonbuttonPlugin *plugin_data;
+    newtonmenuPlugin *plugin_data;
     WnckScreen *screen;
     guint refresh_id;
 } ForceQuitDialogData;
@@ -291,12 +291,12 @@ on_fq_dialog_response(GtkDialog *dialog, gint response_id, gpointer user_data)
 }
 
 void
-newtonbutton_show_force_quit_applications_dialog(GtkWindow *parent, NewtonbuttonPlugin *plugin_data)
+newtonmenu_show_force_quit_applications_dialog(GtkWindow *parent, newtonmenuPlugin *plugin_data)
 {
     GtkBuilder *builder;
     GObject *dialog_obj;
     ForceQuitDialogData *data;
-    const gchar *ui_resource_path = "/org/xfce/panel/plugins/newtonbutton/newtonbutton-force-quit-dialog.ui";
+    const gchar *ui_resource_path = "/org/xfce/panel/plugins/newtonmenu/newtonmenu-force-quit-dialog.ui";
     
     // Initialize data structure
     data = g_slice_new0(ForceQuitDialogData);
