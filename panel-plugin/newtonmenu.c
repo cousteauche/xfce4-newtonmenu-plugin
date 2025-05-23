@@ -15,7 +15,7 @@
 // New includes for global menu functionality
 #include <libwnck/libwnck.h>
 #include <gio/gio.h>
-#include <dbusmenu-glib/client.h> // For DbusmenuClient_new, etc.
+#include <libdbusmenu-glib/client.h> // For DbusmenuClient_new, etc.
 
 
 #include "newtonmenu.h"

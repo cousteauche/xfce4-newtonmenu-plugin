@@ -6,7 +6,7 @@
 #include <libxfce4panel/libxfce4panel.h>
 #include <libwnck/libwnck.h> // For WnckScreen and WnckWindow
 #include <gio/gio.h>        // For GDBus and GMenuModel
-#include <dbusmenu-glib/client.h> // For DbusmenuClient
+#include <libdbusmenu-glib/client.h>// For DbusmenuClient
 
 G_BEGIN_DECLS
 
