@@ -40,12 +40,7 @@ plugin_lib = shared_module(
     '-DG_LOG_DOMAIN="@0@"'.format('xfce4-newtonmenu-plugin'),
     '-DWNCK_I_KNOW_THIS_IS_UNSTABLE', # Keep for Force Quit dialog's Wnck usage and general Wnck API
   ],
-  include_directories: [
-    # Add include path for the appmenu core library headers from the subproject
-    appmenu_core_dep.get_variable('include_directories'),
-    # Always include the current directory for plugin's own headers
-    include_directories('.'),
-  ],
+  include_directories: include_directories('.'),
   dependencies: [
     glib,
     gtk,

@@ -158,14 +158,14 @@ xfce_revision_h = vcs_tag(
 # and use `libwnck` as its backend.
 # The `appmenu_dep` variable from the subproject should then provide the necessary
 # link_with and include_directories for `xfce4-newtonmenu-plugin` to consume it.
-valapanel_appmenu_proj = subproject('external/vala-panel-appmenu',
+valapanel_appmenu_proj = subproject('vala-panel-appmenu',
     default_options: [
         'xfce=enabled', # Builds the xfce4-plugin-appmenu, which pulls in necessary libs.
                         # It's good to keep this enabled to ensure the submodule's features are built.
                         # The newtonmenu plugin will link against the underlying libs, not load the appmenu-xfce plugin directly.
         'appmenu-gtk-module=enabled', # Ensures GTK modules are built, which often depend on libdbusmenu-glib itself.
         'registrar=enabled', # Builds the AppMenu Registrar D-Bus service. Necessary for apps to register their menus.
-        'jayatana=enabled', # Java support
+        'jayatana=disabled', # Java support - disabled to avoid requiring javac
         'wm_backend=wnck', # Explicitly use wnck for window tracking
         'budgie=disabled', # Disable other panel integrations
         'mate=disabled',

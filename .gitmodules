@@ -1,0 +1,3 @@
+[submodule "subprojects/vala-panel-appmenu"]
+	path = subprojects/vala-panel-appmenu
+	url = https://gitlab.com/vala-panel-project/vala-panel-appmenu.git
