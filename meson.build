@@ -36,8 +36,9 @@ libxfce4ui = dependency('libxfce4ui-2', version: dependency_versions['xfce4'])
 libxfce4util = dependency('libxfce4util-1.0', version: dependency_versions['xfce4'])
 libwnck_dep = dependency('libwnck-3.0', version: dependency_versions['libwnck'])
 
-# DBusMenu dependency - this is what provides the headers
+# DBusMenu dependency - this provides the global menu headers
 libdbusmenu_glib_dep = dependency('dbusmenu-glib-0.4', version: dependency_versions['dbusmenu-glib'])
+libdbusmenu_gtk_dep = dependency('dbusmenu-gtk3-0.4', required: false)
 
 # Optional dependencies
 exo_dep = dependency('exo-2', version: '>= 0.12.0', required: false)
@@ -143,29 +144,66 @@ xfce_revision_h = vcs_tag(
   replace_string: '@REVISION@',
 )
 
-# Add the vala-panel-appmenu subproject
-valapanel_appmenu_proj = subproject('vala-panel-appmenu',
-    default_options: [
-        'xfce=enabled',
-        'appmenu-gtk-module=enabled',
-        'registrar=enabled',
-        'jayatana=disabled',
-        'budgie=disabled',
-        'mate=disabled',
-        'valapanel=disabled',
-    ]
-)
+# Try to find vala-panel-appmenu as a subproject if it exists
+vala_panel_appmenu_found = false
+appmenu_glib_translator_dep = dependency('', required: false)
 
-# Get the appmenu-glib-translator dependency from the registrar subproject
-# This provides the menu translation functionality
-appmenu_glib_translator_dep = dependency('appmenu-glib-translator', 
-  fallback: ['registrar', 'registrar_dep']
-)
+# Check if subprojects/vala-panel-appmenu/meson.build exists
+subproject_file = 'subprojects/vala-panel-appmenu/meson.build'
+if run_command('test', '-f', subproject_file, check: false).returncode() == 0
+  message('Found vala-panel-appmenu subproject directory')
+  
+  # Try to add as subproject
+  valapanel_appmenu_proj = subproject('vala-panel-appmenu',
+      required: false,
+      default_options: [
+          'xfce=enabled',
+          'appmenu-gtk-module=enabled',
+          'registrar=enabled',
+          'jayatana=disabled',
+          'budgie=disabled',
+          'mate=disabled',
+          'valapanel=disabled',
+      ]
+  )
+  
+  if valapanel_appmenu_proj.found()
+    message('Successfully loaded vala-panel-appmenu subproject')
+    vala_panel_appmenu_found = true
+    
+    # Try to get the appmenu-glib-translator dependency
+    appmenu_glib_translator_dep = dependency('appmenu-glib-translator', 
+      fallback: ['vala-panel-appmenu', 'appmenu_glib_translator_dep'],
+      required: false
+    )
+    
+    if not appmenu_glib_translator_dep.found()
+      # Alternative fallback names
+      appmenu_glib_translator_dep = dependency('appmenu-glib-translator',
+        required: false
+      )
+    endif
+  else
+    warning('vala-panel-appmenu subproject found but failed to load')
+  endif
+else
+  message('No vala-panel-appmenu subproject found, trying system dependency')
+endif
 
-# If the vala-panel-appmenu provides a library for xfce, get it
-# Note: You'll need to check what variables are actually exposed by the subproject
-# Common variable names might be: 'libappmenu_xfce', 'appmenu_xfce_lib', etc.
-# For now, we'll just use the dependencies we have
+# Fallback to system dependency if subproject not found
+if not vala_panel_appmenu_found
+  appmenu_glib_translator_dep = dependency('appmenu-glib-translator', required: false)
+endif
+
+if appmenu_glib_translator_dep.found()
+  message('Found appmenu-glib-translator dependency - full global menu support enabled')
+  extra_cflags += '-DHAVE_APPMENU_GLIB_TRANSLATOR=1'
+else
+  warning('appmenu-glib-translator not found - global menu functionality will be limited')
+  warning('To get full global menu support:')
+  warning('  1. Install vala-panel-appmenu system package, or')
+  warning('  2. Add vala-panel-appmenu as a git submodule in subprojects/')
+endif
 
 subdir('icons')
 subdir('panel-plugin')
