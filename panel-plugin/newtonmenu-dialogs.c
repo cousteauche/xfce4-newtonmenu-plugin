@@ -151,7 +151,7 @@ static void dialog_save_settings_and_update(GtkDialog *dialog, newtonmenuPlugin 
     // Save and update display
     newtonmenu_save(newtonmenu->plugin, newtonmenu);
     newtonmenu_update_display(newtonmenu);
-    newtonmenu_update_combined_menu(newtonmenu);
+    // REMOVED: newtonmenu_update_combined_menu(newtonmenu); - this function doesn't exist
 }
 
 static void newtonmenu_configure_response_cb(GtkWidget *dialog_widget, gint response, newtonmenuPlugin *newtonmenu)

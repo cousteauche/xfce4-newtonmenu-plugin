@@ -1,0 +1,2289 @@
+--- START OF FILE panel-plugin/dbusmenu-integration.c ---
+/*
+ * Copyright (C) 2025 Adam
+ * DBusmenu Integration Helper Functions
+ */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include <gtk/gtk.h>
+#include <libdbusmenu-glib/client.h>
+#include <libdbusmenu-glib/dbusmenu-glib.h>
+#include <libwnck/libwnck.h>
+#include <gio/gio.h>
+#include <pango/pango.h>
+
+#include "newtonmenu.h" // Provides newtonmenuPlugin, and prototypes for on_menu_button_enter, newtonmenu_menu_button_toggled
+#include "dbusmenu-integration.h"
+
+// REMOVE all forward declarations for functions that are now in newtonmenu.h
+// void newtonmenu_menu_button_toggled(GtkMenuButton *button, newtonmenuPlugin *newtonmenu); // REMOVE
+// static gboolean on_menu_button_enter(GtkWidget *widget, GdkEventCrossing *event, newtonmenuPlugin *newtonmenu); // REMOVE
+
+static void on_dbusmenu_root_changed(DbusmenuClient *client, DbusmenuMenuitem *newroot_unsafe, gpointer user_data);
+static void append_dbusmenu_items_to_gtk_menu(GtkWidget *gtk_menu_shell, DbusmenuMenuitem *dbusmenu_item_source);
+static GtkWidget* create_gtk_menuitem_from_dbusmenu_item(DbusmenuMenuitem *dbusmenu_item);
+static void on_dbusmenu_gtk_item_activated(GtkMenuItem *gtk_item, gpointer user_data);
+
+
+void newtonmenu_fetch_app_menu_enhanced(newtonmenuPlugin *newtonmenu, WnckWindow *window) {
+    GError *error = NULL;
+    gchar *service_name = NULL;
+    gchar *object_path = NULL;
+    g_return_if_fail(newtonmenu != NULL);
+    
+    if (newtonmenu->app_dbusmenu_client) { 
+        if (newtonmenu->app_dbusmenu_client_root_changed_id > 0 && g_signal_handler_is_connected(newtonmenu->app_dbusmenu_client, newtonmenu->app_dbusmenu_client_root_changed_id)) {
+            g_signal_handler_disconnect(newtonmenu->app_dbusmenu_client, newtonmenu->app_dbusmenu_client_root_changed_id);
+        }
+        newtonmenu->app_dbusmenu_client_root_changed_id = 0;
+        if (newtonmenu->app_dbusmenu_client_layout_updated_id > 0 && g_signal_handler_is_connected(newtonmenu->app_dbusmenu_client, newtonmenu->app_dbusmenu_client_layout_updated_id)) {
+            g_signal_handler_disconnect(newtonmenu->app_dbusmenu_client, newtonmenu->app_dbusmenu_client_layout_updated_id);
+        }
+        newtonmenu->app_dbusmenu_client_layout_updated_id = 0;
+        g_object_unref(newtonmenu->app_dbusmenu_client);
+        newtonmenu->app_dbusmenu_client = NULL;
+    }
+    newtonmenu_clear_dynamic_app_menus(newtonmenu); 
+
+    if (!window) return;
+    if (!newtonmenu->appmenu_registrar_proxy) {
+        g_warning("AppMenu Registrar Proxy not initialized.");
+        return;
+    }
+    GVariant *result = g_dbus_proxy_call_sync(
+        newtonmenu->appmenu_registrar_proxy, "GetMenuForWindow",
+        g_variant_new("(u)", (guint32)wnck_window_get_xid(window)),
+        G_DBUS_CALL_FLAGS_NONE, -1, NULL, &error);
+    if (error) {
+        g_debug("NM_DEBUG: Failed to get menu for window XID %lu: %s.", (gulong)wnck_window_get_xid(window), error->message);
+        g_clear_error(&error); return;
+    }
+    g_debug("NM_DEBUG: GetMenuForWindow call successful.");
+    g_variant_get(result, "(so)", &service_name, &object_path);
+    g_variant_unref(result);
+    g_debug("NM_DEBUG: Service: '%s', Path: '%s'", service_name ? service_name : "(null)", object_path ? object_path : "(null)");
+    if (service_name && object_path && strlen(service_name) > 0 && g_strcmp0(object_path, "/") != 0) {
+        g_debug("NM_DEBUG: Valid service/path found. Creating DbusmenuClient.");
+        newtonmenu->app_dbusmenu_client = dbusmenu_client_new(service_name, object_path);
+        g_debug("NM_DEBUG: app_dbusmenu_client: %p", newtonmenu->app_dbusmenu_client);
+        if (newtonmenu->app_dbusmenu_client) {
+            newtonmenu->app_dbusmenu_client_root_changed_id = g_signal_connect(newtonmenu->app_dbusmenu_client, "root-changed", G_CALLBACK(on_dbusmenu_root_changed), newtonmenu);
+            newtonmenu->app_dbusmenu_client_layout_updated_id = g_signal_connect(newtonmenu->app_dbusmenu_client, "layout-updated", G_CALLBACK(on_dbusmenu_root_changed), newtonmenu);
+            DbusmenuMenuitem *root = dbusmenu_client_get_root(newtonmenu->app_dbusmenu_client);
+            g_debug("NM_DEBUG: Initial client_get_root: %p", root);
+            if (root) on_dbusmenu_root_changed(newtonmenu->app_dbusmenu_client, root, newtonmenu);
+            else g_debug("NM_DEBUG: DBusmenu client created for %s %s, but root is initially NULL.", service_name, object_path);
+        } else g_warning("Failed to create DbusmenuClient for %s %s", service_name, object_path);
+    } else g_debug("NM_DEBUG: No valid service/path after GetMenuForWindow.");
+    g_free(service_name); g_free(object_path);
+}
+
+static void on_dbusmenu_root_changed(DbusmenuClient *client, DbusmenuMenuitem *newroot_unsafe_param, gpointer user_data) {
+    newtonmenuPlugin *newtonmenu = (newtonmenuPlugin*)user_data;
+    DbusmenuMenuitem *root_item_ref = NULL;
+    GList *top_level_dbus_children, *iter;
+    g_debug("NM_DEBUG: on_dbusmenu_root_changed CALLED. Client: %p, newroot_unsafe_param: %p", client, newroot_unsafe_param);
+    g_return_if_fail(newtonmenu != NULL);
+    newtonmenu_clear_dynamic_app_menus(newtonmenu);
+    if (!newtonmenu->app_dbusmenu_client) {
+        g_debug("NM_DEBUG: DBusmenu client not available in on_dbusmenu_root_changed.");
+        gtk_widget_hide(newtonmenu->app_menu_bar_container); return;
+    }
+    root_item_ref = dbusmenu_client_get_root(newtonmenu->app_dbusmenu_client);
+    g_debug("NM_DEBUG: root_item_ref from client_get_root in on_dbusmenu_root_changed: %p", root_item_ref);
+    if (!root_item_ref) {
+        g_debug("NM_DEBUG: root_item_ref is NULL. Hiding container.");
+        gtk_widget_hide(newtonmenu->app_menu_bar_container); return;
+    }
+    g_object_ref(root_item_ref); 
+    top_level_dbus_children = dbusmenu_menuitem_get_children(root_item_ref);
+    g_debug("NM_DEBUG: top_level_dbus_children: %p, Length: %d", top_level_dbus_children, top_level_dbus_children ? g_list_length(top_level_dbus_children) : 0);
+    if (!top_level_dbus_children) {
+        g_debug("NM_DEBUG: No top_level children. Hiding container.");
+        gtk_widget_hide(newtonmenu->app_menu_bar_container);
+        g_object_unref(root_item_ref); return;
+    }
+    iter = top_level_dbus_children;
+    if (newtonmenu->show_app_name_button_prop && iter != NULL) {
+        DbusmenuMenuitem *app_main_dbus_item = DBUSMENU_MENUITEM(iter->data);
+        const gchar *app_main_label_str = dbusmenu_menuitem_property_get(app_main_dbus_item, DBUSMENU_MENUITEM_PROP_LABEL);
+        g_debug("NM_DEBUG: AppNameButton: Label from D-Bus: '%s'", app_main_label_str ? app_main_label_str : "(null)");
+        gchar *display_label;
+        newtonmenu->app_name_button = GTK_MENU_BUTTON(gtk_menu_button_new());
+        if (newtonmenu->hide_application_name_prop && newtonmenu->global_menu_title_prop && strlen(newtonmenu->global_menu_title_prop) > 0) {
+            display_label = g_strdup(newtonmenu->global_menu_title_prop);
+        } else if (app_main_label_str && strlen(app_main_label_str) > 0) {
+            display_label = g_strdup(app_main_label_str);
+        } else if (newtonmenu->active_wnck_window) {
+            display_label = g_strdup(wnck_window_get_name(newtonmenu->active_wnck_window));
+        } else { display_label = g_strdup(_("Application")); }
+        newtonmenu->app_name_button_label = gtk_label_new(display_label);
+        g_free(display_label);
+        GtkWidget *app_name_content_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+        gtk_box_pack_start(GTK_BOX(app_name_content_box), newtonmenu->app_name_button_label, TRUE, TRUE, 0);
+        gtk_container_add(GTK_CONTAINER(newtonmenu->app_name_button), app_name_content_box);
+        if (newtonmenu->bold_app_name_prop) {
+            PangoAttrList *attrs = pango_attr_list_new();
+            pango_attr_list_insert(attrs, pango_attr_weight_new(PANGO_WEIGHT_BOLD));
+            gtk_label_set_attributes(GTK_LABEL(newtonmenu->app_name_button_label), attrs);
+            pango_attr_list_unref(attrs);
+        }
+        GtkWidget *app_main_submenu = gtk_menu_new();
+        append_dbusmenu_items_to_gtk_menu(app_main_submenu, app_main_dbus_item);
+        gtk_menu_button_set_popup(newtonmenu->app_name_button, app_main_submenu);
+        gtk_button_set_relief(GTK_BUTTON(newtonmenu->app_name_button), GTK_RELIEF_NONE);
+        g_signal_connect(newtonmenu->app_name_button, "toggled", G_CALLBACK(newtonmenu_menu_button_toggled), newtonmenu);
+        g_signal_connect(newtonmenu->app_name_button, "enter-notify-event", G_CALLBACK(on_menu_button_enter), newtonmenu);
+        gtk_box_pack_start(GTK_BOX(newtonmenu->app_menu_bar_container), GTK_WIDGET(newtonmenu->app_name_button), FALSE, FALSE, 0);
+        iter = g_list_next(iter);
+    }
+    for (; iter != NULL; iter = g_list_next(iter)) {
+        DbusmenuMenuitem *menu_bar_item_dbus = DBUSMENU_MENUITEM(iter->data);
+        const gchar *label_str = dbusmenu_menuitem_property_get(menu_bar_item_dbus, DBUSMENU_MENUITEM_PROP_LABEL);
+        g_debug("NM_DEBUG: DynamicButton: Label from D-Bus: '%s'", label_str ? label_str : "(null)");
+        if (!label_str || strlen(label_str) == 0) continue;
+        GtkMenuButton *menu_bar_button = GTK_MENU_BUTTON(gtk_menu_button_new());
+        GtkWidget *button_label_widget = gtk_label_new(label_str);
+        gtk_container_add(GTK_CONTAINER(menu_bar_button), button_label_widget);
+        gtk_button_set_relief(GTK_BUTTON(menu_bar_button), GTK_RELIEF_NONE);
+        GtkWidget *submenu = gtk_menu_new();
+        append_dbusmenu_items_to_gtk_menu(submenu, menu_bar_item_dbus);
+        gtk_menu_button_set_popup(menu_bar_button, submenu);
+        g_signal_connect(menu_bar_button, "toggled", G_CALLBACK(newtonmenu_menu_button_toggled), newtonmenu);
+        g_signal_connect(menu_bar_button, "enter-notify-event", G_CALLBACK(on_menu_button_enter), newtonmenu);
+        gtk_box_pack_start(GTK_BOX(newtonmenu->app_menu_bar_container), GTK_WIDGET(menu_bar_button), FALSE, FALSE, 0);
+        newtonmenu->dynamic_app_menu_buttons = g_list_append(newtonmenu->dynamic_app_menu_buttons, menu_bar_button);
+    }
+    if (top_level_dbus_children) g_list_free_full(top_level_dbus_children, g_object_unref);
+    if (root_item_ref) g_object_unref(root_item_ref);
+    if (gtk_container_get_children(GTK_CONTAINER(newtonmenu->app_menu_bar_container)) != NULL) {
+        g_debug("NM_DEBUG: Showing app_menu_bar_container because it has children.");
+        gtk_widget_show_all(newtonmenu->app_menu_bar_container);
+    } else {
+        g_debug("NM_DEBUG: Hiding app_menu_bar_container because it has NO children.");
+        gtk_widget_hide(newtonmenu->app_menu_bar_container);
+    }
+}
+
+static void append_dbusmenu_items_to_gtk_menu(GtkWidget *gtk_menu_shell, DbusmenuMenuitem *dbusmenu_item_source) {
+    GList *children, *iter;
+    g_return_if_fail(GTK_IS_MENU_SHELL(gtk_menu_shell) && DBUSMENU_IS_MENUITEM(dbusmenu_item_source));
+    children = dbusmenu_menuitem_get_children(dbusmenu_item_source);
+    for (iter = children; iter != NULL; iter = g_list_next(iter)) {
+        DbusmenuMenuitem *child_dbus_item = DBUSMENU_MENUITEM(iter->data);
+        GtkWidget *gtk_menu_item_widget = create_gtk_menuitem_from_dbusmenu_item(child_dbus_item);
+        if (gtk_menu_item_widget) gtk_menu_shell_append(GTK_MENU_SHELL(gtk_menu_shell), gtk_menu_item_widget);
+    }
+    if (children) g_list_free_full(children, g_object_unref);
+}
+
+static GtkWidget* create_gtk_menuitem_from_dbusmenu_item(DbusmenuMenuitem *dbusmenu_item) {
+    GtkWidget *gtk_item = NULL;
+    const gchar *label, *item_type_str, *toggle_type_str;
+    GList *children_of_dbus_item;
+    g_return_val_if_fail(DBUSMENU_IS_MENUITEM(dbusmenu_item), NULL);
+    item_type_str = dbusmenu_menuitem_property_get(dbusmenu_item, DBUSMENU_MENUITEM_PROP_TYPE);
+    if (item_type_str && g_strcmp0(item_type_str, DBUSMENU_CLIENT_TYPES_SEPARATOR) == 0) { 
+        return gtk_separator_menu_item_new();
+    }
+    label = dbusmenu_menuitem_property_get(dbusmenu_item, DBUSMENU_MENUITEM_PROP_LABEL);
+    if (!label || strlen(label) == 0) label = _("(Missing Label)");
+    children_of_dbus_item = dbusmenu_menuitem_get_children(dbusmenu_item);
+    if (children_of_dbus_item != NULL) {
+        gtk_item = gtk_menu_item_new_with_label(label);
+        GtkWidget *submenu_shell = gtk_menu_new();
+        append_dbusmenu_items_to_gtk_menu(submenu_shell, dbusmenu_item);
+        gtk_menu_item_set_submenu(GTK_MENU_ITEM(gtk_item), submenu_shell);
+        g_list_free_full(children_of_dbus_item, g_object_unref);
+    } else {
+        toggle_type_str = dbusmenu_menuitem_property_get(dbusmenu_item, DBUSMENU_MENUITEM_PROP_TOGGLE_TYPE);
+        if (toggle_type_str && (g_strcmp0(toggle_type_str, "checkmark") == 0 || g_strcmp0(toggle_type_str, "radio") == 0)) {
+            gtk_item = gtk_check_menu_item_new_with_label(label);
+            gint toggle_state = dbusmenu_menuitem_property_get_int(dbusmenu_item, DBUSMENU_MENUITEM_PROP_TOGGLE_STATE);
+            gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(gtk_item), toggle_state == DBUSMENU_MENUITEM_TOGGLE_STATE_CHECKED);
+        } else gtk_item = gtk_menu_item_new_with_label(label);
+    }
+    if (gtk_item) {
+        gtk_widget_set_sensitive(gtk_item, dbusmenu_menuitem_property_get_bool(dbusmenu_item, DBUSMENU_MENUITEM_PROP_ENABLED));
+        if (dbusmenu_menuitem_property_get_bool(dbusmenu_item, DBUSMENU_MENUITEM_PROP_VISIBLE)) gtk_widget_show(gtk_item);
+        else gtk_widget_hide(gtk_item);
+        if (children_of_dbus_item == NULL) {
+             g_object_set_data_full(G_OBJECT(gtk_item), "dbusmenu-item", g_object_ref(dbusmenu_item), g_object_unref);
+             g_signal_connect(gtk_item, "activate", G_CALLBACK(on_dbusmenu_gtk_item_activated), dbusmenu_item);
+        }
+    }
+    return gtk_item;
+}
+
+static void on_dbusmenu_gtk_item_activated(GtkMenuItem *gtk_item, gpointer user_data) {
+    DbusmenuMenuitem *dbusmenu_item = DBUSMENU_MENUITEM(user_data);
+    // GVariant *data_variant; // Removed as it's unused with dbusmenu_menuitem_handle_event("clicked")
+    guint32 timestamp = 0;
+    GdkEvent *current_event = gtk_get_current_event();
+    g_return_if_fail(DBUSMENU_IS_MENUITEM(dbusmenu_item));
+    if (current_event) { timestamp = gdk_event_get_time(current_event); gdk_event_free(current_event); }
+    
+    // Using dbusmenu_menuitem_handle_event as suggested by compiler for "clicked"
+    // The third argument for "clicked" (GVariant* data) can often be NULL.
+    dbusmenu_menuitem_handle_event(dbusmenu_item, "clicked", NULL, timestamp);
+}
+
+gboolean newtonmenu_window_has_app_menu(newtonmenuPlugin *newtonmenu, WnckWindow *window) {
+    GError *error = NULL;
+    gchar *service_name = NULL, *object_path = NULL;
+    gboolean has_menu = FALSE;
+    g_return_val_if_fail(newtonmenu != NULL && window != NULL, FALSE);
+    if (!newtonmenu->appmenu_registrar_proxy) return FALSE;
+    GVariant *result = g_dbus_proxy_call_sync(
+        newtonmenu->appmenu_registrar_proxy, "GetMenuForWindow",
+        g_variant_new("(u)", (guint32)wnck_window_get_xid(window)),
+        G_DBUS_CALL_FLAGS_NONE, 1000, NULL, &error);
+    if (!error && result) {
+        g_variant_get(result, "(so)", &service_name, &object_path);
+        has_menu = (service_name && strlen(service_name) > 0 && g_strcmp0(object_path, "/") != 0);
+        g_variant_unref(result);
+    }
+    g_free(service_name); g_free(object_path); g_clear_error(&error);
+    return has_menu;
+}--- END OF FILE panel-plugin/dbusmenu-integration.c ---
+
+--- START OF FILE panel-plugin/dbusmenu-integration.h ---
+#ifndef __DBUSMENU_INTEGRATION_H__
+#define __DBUSMENU_INTEGRATION_H__
+
+#include "newtonmenu.h"
+#include <libdbusmenu-glib/client.h>
+#include <libwnck/libwnck.h>
+#include <gtk/gtk.h>
+
+G_BEGIN_DECLS
+
+void newtonmenu_fetch_app_menu_enhanced(newtonmenuPlugin *newtonmenu, WnckWindow *window);
+gboolean newtonmenu_window_has_app_menu(newtonmenuPlugin *newtonmenu, WnckWindow *window);
+
+G_END_DECLS
+
+#endif--- END OF FILE panel-plugin/dbusmenu-integration.h ---
+
+--- START OF FILE panel-plugin/Makefile.am ---
+AM_CPPFLAGS = \
+	-I$(top_srcdir) \
+	-DG_LOG_DOMAIN=\"xfce4-newtonmenu-plugin\" \
+	-DPACKAGE_LOCALE_DIR=\"$(localedir)\" \
+	$(PLATFORM_CPPFLAGS)
+
+#
+# newtonmenu plugin
+#
+plugin_LTLIBRARIES = \
+	libnewtonmenu.la
+
+plugindir = \
+	$(libdir)/xfce4/panel/plugins
+
+libnewtonmenu_la_SOURCES = \
+	newtonmenu.c \
+	newtonmenu.h \
+	newtonmenu-dialogs.c \
+	newtonmenu-dialogs.h
+
+libnewtonmenu_la_CFLAGS = \
+	$(GLIB_CFLAGS) \
+	$(GTK_CFLAGS) \
+	$(LIBXFCE4UTIL_CFLAGS) \
+	$(LIBXFCE4UI_CFLAGS) \
+	$(LIBXFCE4PANEL_CFLAGS) \
+	$(PLATFORM_CFLAGS)
+
+libnewtonmenu_la_LDFLAGS = \
+       -avoid-version \
+       -module \
+       -no-undefined \
+       -export-symbols-regex '^xfce_panel_module_(preinit|init|construct)' \
+       $(PLATFORM_LDFLAGS)
+
+libnewtonmenu_la_LIBADD = \
+	$(GLIB_LIBS) \
+	$(GTK_LIBS) \
+	$(LIBXFCE4UTIL_LIBS) \
+	$(LIBXFCE4UI_LIBS) \
+	$(LIBXFCE4PANEL_LIBS)
+
+#
+# Desktop file
+#
+desktopdir =								\
+	$(datadir)/xfce4/panel/plugins
+
+newtonmenu.desktop: newtonmenu.desktop.in
+	$(AM_V_GEN)$(MSGFMT) --desktop --template $< -d $(top_srcdir)/po -o $@
+
+desktop_DATA =								\
+	newtonmenu.desktop
+
+EXTRA_DIST =								\
+	meson.build							\
+	newtonmenu.desktop.in
+
+CLEANFILES =								\
+	$(desktop_DATA)
+
+# vi:set ts=8 sw=8 noet ai nocindent syntax=automake:
+--- END OF FILE panel-plugin/Makefile.am ---
+
+--- START OF FILE panel-plugin/meson.build ---
+plugin_sources = files(
+  'newtonmenu.c',
+  'newtonmenu-dialogs.c',
+  'newtonmenu-force-quit-dialog.c',
+  'dbusmenu-integration.c'
+)
+
+newtonmenu_gresource = gnome.compile_resources(
+  'newtonmenu-gresource',
+  'newtonmenu.gresource.xml',
+  source_dir: '.',
+  c_name: 'newtonmenu'
+)
+
+plugin_c_args = [
+  '-DG_LOG_DOMAIN="xfce4-newtonmenu-plugin"',
+  '-DWNCK_I_KNOW_THIS_IS_UNSTABLE'
+]
+
+if appmenu_glib_translator_dep.found()
+  plugin_c_args += '-DHAVE_APPMENU_GLIB_TRANSLATOR=1'
+endif
+
+plugin_deps = [
+  glib,
+  gtk,
+  libxfce4panel,
+  libxfce4ui,
+  libxfce4util,
+  libwnck_dep,
+  libdbusmenu_glib_dep,
+  appmenu_glib_translator_dep,
+]
+
+if libdbusmenu_gtk_dep.found()
+  plugin_deps += libdbusmenu_gtk_dep
+endif
+
+if exo_dep.found()
+  plugin_deps += exo_dep
+endif
+
+# Determine the correct libdir based on the 'libdir' option from Meson
+# This will be 'lib' or 'lib64' etc. as determined by Meson for your system.
+plugin_install_dir = get_option('prefix') / get_option('libdir') / 'xfce4' / 'panel' / 'plugins'
+message('Plugin will be installed to: ' + plugin_install_dir) # For verification
+
+shared_module('newtonmenu',
+  sources: [plugin_sources, newtonmenu_gresource, xfce_revision_h],
+  dependencies: plugin_deps,
+  c_args: plugin_c_args,
+  include_directories: ['.'],
+  install: true,
+  install_dir: plugin_install_dir 
+)
+
+desktop_file = i18n.merge_file(
+  input: 'newtonmenu.desktop.in',
+  output: 'newtonmenu.desktop',
+  type: 'desktop',
+  po_dir: '../po',
+  install: true,
+  install_dir: get_option('datadir') / 'xfce4' / 'panel' / 'plugins'
+)--- END OF FILE panel-plugin/meson.build ---
+
+--- START OF FILE panel-plugin/newtonmenu.c ---
+/*
+ * Copyright (C) 2025 Adam
+ * Xfce4 Newton Menu Plugin with Global Menu Integration
+ */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+#ifdef HAVE_STRING_H
+#include <string.h>
+#endif
+
+#include <gtk/gtk.h>
+#include <libxfce4util/libxfce4util.h>
+#include <libxfce4panel/libxfce4panel.h>
+#include <gdk/gdkkeysyms.h> 
+#include <libintl.h>
+
+#include <libwnck/libwnck.h>
+#include <gio/gio.h>
+#include <libdbusmenu-glib/client.h>
+
+#include "newtonmenu.h"
+#include "newtonmenu-dialogs.h" 
+#include "newtonmenu-force-quit-dialog.h"
+#include "dbusmenu-integration.h" 
+
+#define DEFAULT_DISPLAY_ICON TRUE
+#define DEFAULT_ICON_NAME "xfce4-newtonmenu-plugin" 
+#define DEFAULT_LABEL_TEXT N_("Menu")
+
+#define DEFAULT_CONFIRM_LOGOUT FALSE
+#define DEFAULT_CONFIRM_RESTART TRUE
+#define DEFAULT_CONFIRM_SHUTDOWN TRUE
+#define DEFAULT_CONFIRM_FORCE_QUIT FALSE 
+
+#define DEFAULT_HIDE_APPLICATION_NAME FALSE 
+#define DEFAULT_GLOBAL_MENU_TITLE N_("Application") 
+#define DEFAULT_SHOW_APP_NAME_BUTTON TRUE 
+#define DEFAULT_BOLD_APP_NAME FALSE       
+
+#define APPMENU_REGISTRAR_BUS_NAME "com.canonical.AppMenu.Registrar"
+#define APPMENU_REGISTRAR_OBJECT_PATH "/com/canonical/AppMenu/Registrar"
+#define APPMENU_REGISTRAR_INTERFACE_NAME "com.canonical.AppMenu.Registrar"
+#define NEWTONMENU_DBUS_WELL_KNOWN_NAME "org.xfce.NewtonMenuService" // Example D-Bus name
+
+static void newtonmenu_construct(XfcePanelPlugin *plugin);
+static void newtonmenu_read_config(newtonmenuPlugin *newtonmenu); 
+static void newtonmenu_free(XfcePanelPlugin *plugin, newtonmenuPlugin *newtonmenu);
+static void newtonmenu_orientation_changed(XfcePanelPlugin *plugin, GtkOrientation orientation, newtonmenuPlugin *newtonmenu);
+static gboolean newtonmenu_size_changed(XfcePanelPlugin *plugin, gint size, newtonmenuPlugin *newtonmenu);
+static newtonmenuPlugin* newtonmenu_new(XfcePanelPlugin *plugin);
+
+static void on_about_this_pc_activate(GtkMenuItem *menuitem, gpointer user_data);
+static void on_system_settings_activate(GtkMenuItem *menuitem, gpointer user_data);
+static void on_run_command_activate(GtkMenuItem *menuitem, gpointer user_data);
+static void on_force_quit_activate(GtkMenuItem *menuitem, gpointer user_data);
+static void on_sleep_activate(GtkMenuItem *menuitem, gpointer user_data);
+static void on_restart_activate(GtkMenuItem *menuitem, gpointer user_data);
+static void on_shutdown_activate(GtkMenuItem *menuitem, gpointer user_data);
+static void on_lock_screen_activate(GtkMenuItem *menuitem, gpointer user_data);
+static void on_log_out_activate(GtkMenuItem *menuitem, gpointer user_data);
+
+static void newtonmenu_init_dbus_and_wnck(newtonmenuPlugin *newtonmenu);
+static void newtonmenu_teardown_dbus_and_wnck(newtonmenuPlugin *newtonmenu);
+static void on_wnck_active_window_changed(WnckScreen *screen, WnckWindow *prev_active_window, newtonmenuPlugin *newtonmenu);
+static void on_appmenu_registrar_signal(GDBusProxy *proxy, const gchar *sender_name, const gchar *signal_name, GVariant *parameters, gpointer user_data);
+static GtkWidget* newtonmenu_create_static_newton_menu(newtonmenuPlugin *newtonmenu);
+
+static void execute_command(const gchar *command);
+
+XFCE_PANEL_PLUGIN_REGISTER(newtonmenu_construct);
+
+static void execute_command(const gchar *command)
+{
+    GError *error = NULL;
+    if (!g_spawn_command_line_async(command, &error)) {
+        g_warning("Failed to execute command '%s': %s", command, error ? error->message : "Unknown error");
+        if (error) g_error_free(error);
+    }
+}
+
+void newtonmenu_save(XfcePanelPlugin *plugin, newtonmenuPlugin *newtonmenu)
+{
+    XfceRc *rc;
+    gchar *file;
+
+    g_return_if_fail(newtonmenu != NULL);
+    g_return_if_fail(XFCE_IS_PANEL_PLUGIN(plugin));
+
+    file = xfce_panel_plugin_save_location(plugin, TRUE);
+    if (G_UNLIKELY(file == NULL)) return;
+
+    rc = xfce_rc_simple_open(file, FALSE);
+    g_free(file);
+
+    if (G_LIKELY(rc != NULL)) {
+        xfce_rc_write_bool_entry(rc, "DisplayIcon", newtonmenu->display_icon_prop);
+        xfce_rc_write_entry(rc, "IconName", newtonmenu->icon_name_prop ? newtonmenu->icon_name_prop : "");
+        xfce_rc_write_entry(rc, "LabelText", newtonmenu->label_text_prop ? newtonmenu->label_text_prop : "");
+        
+        xfce_rc_write_bool_entry(rc, "HideApplicationName", newtonmenu->hide_application_name_prop);
+        xfce_rc_write_entry(rc, "GlobalMenuTitle", newtonmenu->global_menu_title_prop ? newtonmenu->global_menu_title_prop : "");
+        xfce_rc_write_bool_entry(rc, "ShowAppNameButton", newtonmenu->show_app_name_button_prop);
+        xfce_rc_write_bool_entry(rc, "BoldAppName", newtonmenu->bold_app_name_prop);
+
+        xfce_rc_write_bool_entry(rc, "ConfirmLogout", newtonmenu->confirm_logout_prop);
+        xfce_rc_write_bool_entry(rc, "ConfirmRestart", newtonmenu->confirm_restart_prop);
+        xfce_rc_write_bool_entry(rc, "ConfirmShutdown", newtonmenu->confirm_shutdown_prop);
+        xfce_rc_write_bool_entry(rc, "ConfirmForceQuit", newtonmenu->confirm_force_quit_prop);
+        xfce_rc_close(rc);
+    }
+}
+
+static void newtonmenu_read_config(newtonmenuPlugin *newtonmenu)
+{
+    XfceRc *rc;
+    gchar *file;
+
+    g_return_if_fail(newtonmenu != NULL);
+    g_return_if_fail(newtonmenu->plugin != NULL);
+
+    file = xfce_panel_plugin_save_location(newtonmenu->plugin, TRUE);
+
+    if (G_LIKELY(file != NULL)) {
+        rc = xfce_rc_simple_open(file, TRUE);
+        g_free(file);
+        if (G_LIKELY(rc != NULL)) {
+            newtonmenu->display_icon_prop = xfce_rc_read_bool_entry(rc, "DisplayIcon", DEFAULT_DISPLAY_ICON);
+            newtonmenu->icon_name_prop = g_strdup(xfce_rc_read_entry(rc, "IconName", DEFAULT_ICON_NAME));
+            newtonmenu->label_text_prop = g_strdup(xfce_rc_read_entry(rc, "LabelText", _(DEFAULT_LABEL_TEXT)));
+            
+            newtonmenu->hide_application_name_prop = xfce_rc_read_bool_entry(rc, "HideApplicationName", DEFAULT_HIDE_APPLICATION_NAME);
+            newtonmenu->global_menu_title_prop = g_strdup(xfce_rc_read_entry(rc, "GlobalMenuTitle", _(DEFAULT_GLOBAL_MENU_TITLE)));
+            newtonmenu->show_app_name_button_prop = xfce_rc_read_bool_entry(rc, "ShowAppNameButton", DEFAULT_SHOW_APP_NAME_BUTTON);
+            newtonmenu->bold_app_name_prop = xfce_rc_read_bool_entry(rc, "BoldAppName", DEFAULT_BOLD_APP_NAME);
+
+            newtonmenu->confirm_logout_prop = xfce_rc_read_bool_entry(rc, "ConfirmLogout", DEFAULT_CONFIRM_LOGOUT);
+            newtonmenu->confirm_restart_prop = xfce_rc_read_bool_entry(rc, "ConfirmRestart", DEFAULT_CONFIRM_RESTART);
+            newtonmenu->confirm_shutdown_prop = xfce_rc_read_bool_entry(rc, "ConfirmShutdown", DEFAULT_CONFIRM_SHUTDOWN);
+            newtonmenu->confirm_force_quit_prop = xfce_rc_read_bool_entry(rc, "ConfirmForceQuit", DEFAULT_CONFIRM_FORCE_QUIT);
+            xfce_rc_close(rc);
+            return;
+        }
+    }
+
+    newtonmenu->display_icon_prop = DEFAULT_DISPLAY_ICON;
+    newtonmenu->icon_name_prop = g_strdup(DEFAULT_ICON_NAME);
+    newtonmenu->label_text_prop = g_strdup(_(DEFAULT_LABEL_TEXT));
+    newtonmenu->hide_application_name_prop = DEFAULT_HIDE_APPLICATION_NAME;
+    newtonmenu->global_menu_title_prop = g_strdup(_(DEFAULT_GLOBAL_MENU_TITLE));
+    newtonmenu->show_app_name_button_prop = DEFAULT_SHOW_APP_NAME_BUTTON;
+    newtonmenu->bold_app_name_prop = DEFAULT_BOLD_APP_NAME;
+    newtonmenu->confirm_logout_prop = DEFAULT_CONFIRM_LOGOUT;
+    newtonmenu->confirm_restart_prop = DEFAULT_CONFIRM_RESTART;
+    newtonmenu->confirm_shutdown_prop = DEFAULT_CONFIRM_SHUTDOWN;
+    newtonmenu->confirm_force_quit_prop = DEFAULT_CONFIRM_FORCE_QUIT;
+}
+
+void newtonmenu_update_display(newtonmenuPlugin *newtonmenu)
+{
+    GtkIconTheme *icon_theme;
+    gint panel_icon_size;
+
+    g_return_if_fail(newtonmenu != NULL);
+    g_return_if_fail(newtonmenu->plugin != NULL);
+    g_return_if_fail(GTK_IS_MENU_BUTTON(newtonmenu->newton_button));
+    g_return_if_fail(GTK_IS_BOX(newtonmenu->newton_button_box));
+    g_return_if_fail(GTK_IS_IMAGE(newtonmenu->newton_icon_image));
+    g_return_if_fail(GTK_IS_LABEL(newtonmenu->newton_label_widget));
+
+    if (newtonmenu->display_icon_prop) {
+        gtk_widget_show(newtonmenu->newton_icon_image);
+        gtk_widget_hide(newtonmenu->newton_label_widget);
+        icon_theme = gtk_icon_theme_get_for_screen(gtk_widget_get_screen(GTK_WIDGET(newtonmenu->plugin)));
+        panel_icon_size = xfce_panel_plugin_get_icon_size(newtonmenu->plugin);
+        if (newtonmenu->icon_name_prop && strlen(newtonmenu->icon_name_prop) > 0) {
+            if (gtk_icon_theme_has_icon(icon_theme, newtonmenu->icon_name_prop)) {
+                gtk_image_set_from_icon_name(GTK_IMAGE(newtonmenu->newton_icon_image), newtonmenu->icon_name_prop, GTK_ICON_SIZE_BUTTON);
+                gtk_image_set_pixel_size(GTK_IMAGE(newtonmenu->newton_icon_image), panel_icon_size);
+            } else if (g_file_test(newtonmenu->icon_name_prop, G_FILE_TEST_IS_REGULAR)) {
+                GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file_at_size(newtonmenu->icon_name_prop, panel_icon_size, panel_icon_size, NULL);
+                if (pixbuf) { gtk_image_set_from_pixbuf(GTK_IMAGE(newtonmenu->newton_icon_image), pixbuf); g_object_unref(pixbuf); }
+                else { gtk_image_set_from_icon_name(GTK_IMAGE(newtonmenu->newton_icon_image), "image-missing", GTK_ICON_SIZE_BUTTON); gtk_image_set_pixel_size(GTK_IMAGE(newtonmenu->newton_icon_image), panel_icon_size); }
+            } else { gtk_image_set_from_icon_name(GTK_IMAGE(newtonmenu->newton_icon_image), "image-missing", GTK_ICON_SIZE_BUTTON); gtk_image_set_pixel_size(GTK_IMAGE(newtonmenu->newton_icon_image), panel_icon_size); }
+        } else { gtk_image_set_from_icon_name(GTK_IMAGE(newtonmenu->newton_icon_image), "image-missing", GTK_ICON_SIZE_BUTTON); gtk_image_set_pixel_size(GTK_IMAGE(newtonmenu->newton_icon_image), panel_icon_size); }
+    } else {
+        gtk_widget_hide(newtonmenu->newton_icon_image);
+        gtk_widget_show(newtonmenu->newton_label_widget);
+        gtk_label_set_text(GTK_LABEL(newtonmenu->newton_label_widget), newtonmenu->label_text_prop ? _(newtonmenu->label_text_prop) : "");
+    }
+    gtk_widget_queue_resize(GTK_WIDGET(newtonmenu->plugin));
+}
+
+void newtonmenu_clear_dynamic_app_menus(newtonmenuPlugin *newtonmenu) {
+    g_return_if_fail(newtonmenu != NULL);
+    if (newtonmenu->app_name_button) {
+        gtk_widget_destroy(GTK_WIDGET(newtonmenu->app_name_button));
+        newtonmenu->app_name_button = NULL;
+        newtonmenu->app_name_button_label = NULL;
+    }
+    if (newtonmenu->dynamic_app_menu_buttons) {
+        g_list_free_full(newtonmenu->dynamic_app_menu_buttons, (GDestroyNotify)gtk_widget_destroy);
+        newtonmenu->dynamic_app_menu_buttons = NULL;
+    }
+    GList *children = gtk_container_get_children(GTK_CONTAINER(newtonmenu->app_menu_bar_container));
+    for (GList *iter = children; iter != NULL; iter = g_list_next(iter)) {
+        gtk_widget_destroy(GTK_WIDGET(iter->data));
+    }
+    g_list_free(children);
+    gtk_widget_hide(newtonmenu->app_menu_bar_container);
+
+    if (newtonmenu->app_dbusmenu_client) {
+        if (newtonmenu->app_dbusmenu_client_root_changed_id > 0) {
+            if (g_signal_handler_is_connected(newtonmenu->app_dbusmenu_client, newtonmenu->app_dbusmenu_client_root_changed_id)) {
+                g_signal_handler_disconnect(newtonmenu->app_dbusmenu_client, newtonmenu->app_dbusmenu_client_root_changed_id);
+            }
+            newtonmenu->app_dbusmenu_client_root_changed_id = 0;
+        }
+        if (newtonmenu->app_dbusmenu_client_layout_updated_id > 0) {
+            if (g_signal_handler_is_connected(newtonmenu->app_dbusmenu_client, newtonmenu->app_dbusmenu_client_layout_updated_id)) {
+                g_signal_handler_disconnect(newtonmenu->app_dbusmenu_client, newtonmenu->app_dbusmenu_client_layout_updated_id);
+            }
+            newtonmenu->app_dbusmenu_client_layout_updated_id = 0;
+        }
+    }
+}
+
+gboolean on_menu_button_enter(GtkWidget *widget, GdkEventCrossing *event, gpointer user_data) {
+    newtonmenuPlugin *newtonmenu = (newtonmenuPlugin*)user_data;
+    GtkMenuButton *button_entered = GTK_MENU_BUTTON(widget);
+    if (newtonmenu->currently_open_button && 
+        newtonmenu->currently_open_button != button_entered &&
+        gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(newtonmenu->currently_open_button))) {
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(newtonmenu->currently_open_button), FALSE);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button_entered), TRUE);
+    }
+    return GDK_EVENT_PROPAGATE;
+}
+
+void newtonmenu_menu_button_toggled(GtkMenuButton *button, newtonmenuPlugin *newtonmenu)
+{
+    g_return_if_fail(newtonmenu != NULL);
+    
+    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) {
+        xfce_panel_plugin_block_autohide(newtonmenu->plugin, TRUE);
+        newtonmenu->currently_open_button = button;
+    } else {
+        xfce_panel_plugin_block_autohide(newtonmenu->plugin, FALSE);
+        if (newtonmenu->currently_open_button == button) {
+            newtonmenu->currently_open_button = NULL;
+        }
+    }
+}
+
+static newtonmenuPlugin* newtonmenu_new(XfcePanelPlugin *plugin) {
+    newtonmenuPlugin *newtonmenu = g_slice_new0(newtonmenuPlugin);
+    newtonmenu->plugin = plugin;
+    newtonmenu_read_config(newtonmenu);
+    GtkOrientation orientation = xfce_panel_plugin_get_orientation(plugin);
+
+    newtonmenu->main_box = gtk_box_new(orientation, 0);
+    gtk_widget_show(newtonmenu->main_box);
+
+    newtonmenu->newton_button = GTK_MENU_BUTTON(gtk_menu_button_new());
+    gtk_button_set_relief(GTK_BUTTON(newtonmenu->newton_button), GTK_RELIEF_NONE);
+    newtonmenu->newton_button_box = gtk_box_new(orientation, 2);
+    gtk_container_set_border_width(GTK_CONTAINER(newtonmenu->newton_button_box), 2);
+    gtk_container_add(GTK_CONTAINER(newtonmenu->newton_button), newtonmenu->newton_button_box);
+    newtonmenu->newton_icon_image = gtk_image_new();
+    gtk_box_pack_start(GTK_BOX(newtonmenu->newton_button_box), newtonmenu->newton_icon_image, FALSE, FALSE, 0);
+    newtonmenu->newton_label_widget = gtk_label_new("");
+    gtk_box_pack_start(GTK_BOX(newtonmenu->newton_button_box), newtonmenu->newton_label_widget, TRUE, TRUE, 0);
+    gtk_widget_show_all(GTK_WIDGET(newtonmenu->newton_button));
+    gtk_box_pack_start(GTK_BOX(newtonmenu->main_box), GTK_WIDGET(newtonmenu->newton_button), FALSE, FALSE, 0);
+
+    newtonmenu->app_menu_bar_container = gtk_box_new(orientation, 0);
+    gtk_box_pack_start(GTK_BOX(newtonmenu->main_box), newtonmenu->app_menu_bar_container, TRUE, TRUE, 0);
+    gtk_widget_show(newtonmenu->app_menu_bar_container); 
+    gtk_widget_hide(newtonmenu->app_menu_bar_container); 
+
+    newtonmenu->app_name_button = NULL;
+    newtonmenu->app_name_button_label = NULL;
+    newtonmenu->dynamic_app_menu_buttons = NULL;
+    newtonmenu->currently_open_button = NULL;
+    newtonmenu->app_dbusmenu_client = NULL;
+    newtonmenu->app_dbusmenu_client_root_changed_id = 0;
+    newtonmenu->app_dbusmenu_client_layout_updated_id = 0;
+    newtonmenu->dbus_name_owner_id = 0;
+
+    newtonmenu->static_newton_menu = newtonmenu_create_static_newton_menu(newtonmenu);
+    gtk_menu_button_set_popup(newtonmenu->newton_button, newtonmenu->static_newton_menu);
+    newtonmenu_update_display(newtonmenu);
+    
+    g_signal_connect(newtonmenu->newton_button, "toggled", G_CALLBACK(newtonmenu_menu_button_toggled), newtonmenu);
+    g_signal_connect(newtonmenu->newton_button, "enter-notify-event", G_CALLBACK(on_menu_button_enter), newtonmenu);
+
+    newtonmenu_init_dbus_and_wnck(newtonmenu);
+    return newtonmenu;
+}
+
+static void newtonmenu_free(XfcePanelPlugin *plugin, newtonmenuPlugin *newtonmenu) {
+    GtkWidget *dialog = g_object_get_data(G_OBJECT(plugin), "dialog");
+    if (G_UNLIKELY(dialog != NULL)) gtk_widget_destroy(dialog);
+
+    newtonmenu_clear_dynamic_app_menus(newtonmenu); 
+
+    if (newtonmenu->app_dbusmenu_client) {
+        if (newtonmenu->app_dbusmenu_client_root_changed_id > 0 && g_signal_handler_is_connected(newtonmenu->app_dbusmenu_client, newtonmenu->app_dbusmenu_client_root_changed_id)) {
+            g_signal_handler_disconnect(newtonmenu->app_dbusmenu_client, newtonmenu->app_dbusmenu_client_root_changed_id);
+        }
+        newtonmenu->app_dbusmenu_client_root_changed_id = 0;
+        if (newtonmenu->app_dbusmenu_client_layout_updated_id > 0 && g_signal_handler_is_connected(newtonmenu->app_dbusmenu_client, newtonmenu->app_dbusmenu_client_layout_updated_id)) {
+            g_signal_handler_disconnect(newtonmenu->app_dbusmenu_client, newtonmenu->app_dbusmenu_client_layout_updated_id);
+        }
+        newtonmenu->app_dbusmenu_client_layout_updated_id = 0;
+        g_object_unref(newtonmenu->app_dbusmenu_client);
+        newtonmenu->app_dbusmenu_client = NULL;
+    }
+
+    g_free(newtonmenu->icon_name_prop);
+    g_free(newtonmenu->label_text_prop);
+    g_free(newtonmenu->global_menu_title_prop);
+    if (newtonmenu->static_newton_menu) gtk_widget_destroy(newtonmenu->static_newton_menu);
+    newtonmenu_teardown_dbus_and_wnck(newtonmenu);
+    g_slice_free(newtonmenuPlugin, newtonmenu);
+}
+
+static void newtonmenu_orientation_changed(XfcePanelPlugin *plugin, GtkOrientation orientation, newtonmenuPlugin *newtonmenu) {
+    g_return_if_fail(newtonmenu != NULL);
+    gtk_orientable_set_orientation(GTK_ORIENTABLE(newtonmenu->main_box), orientation);
+    gtk_orientable_set_orientation(GTK_ORIENTABLE(newtonmenu->newton_button_box), orientation);
+    gtk_orientable_set_orientation(GTK_ORIENTABLE(newtonmenu->app_menu_bar_container), orientation);
+    newtonmenu_update_display(newtonmenu);
+}
+
+static gboolean newtonmenu_size_changed(XfcePanelPlugin *plugin, gint size, newtonmenuPlugin *newtonmenu) {
+    GtkOrientation orientation = xfce_panel_plugin_get_orientation(plugin);
+    g_return_val_if_fail(newtonmenu != NULL, TRUE);
+    if (orientation == GTK_ORIENTATION_HORIZONTAL) gtk_widget_set_size_request(GTK_WIDGET(plugin), -1, size);
+    else gtk_widget_set_size_request(GTK_WIDGET(plugin), size, -1);
+    newtonmenu_update_display(newtonmenu);
+    return TRUE;
+}
+
+static void newtonmenu_init_dbus_and_wnck(newtonmenuPlugin *newtonmenu) {
+    GError *error = NULL;
+    const gchar *current_gtk_modules = g_getenv("GTK_MODULES");
+    if (!current_gtk_modules || !g_strrstr(current_gtk_modules, "appmenu-gtk-module")) {
+        gchar *new_modules = current_gtk_modules ? 
+            g_strdup_printf("%s:appmenu-gtk-module", current_gtk_modules) : 
+            g_strdup("appmenu-gtk-module");
+        g_setenv("GTK_MODULES", new_modules, TRUE);
+        g_free(new_modules);
+        g_debug("NM_DEBUG: GTK_MODULES set to: %s", g_getenv("GTK_MODULES"));
+    }
+    
+    newtonmenu->wnck_screen = wnck_screen_get_default();
+    if (newtonmenu->wnck_screen) {
+         newtonmenu->wnck_active_window_changed_handler_id = g_signal_connect(
+            newtonmenu->wnck_screen, "active-window-changed", G_CALLBACK(on_wnck_active_window_changed), newtonmenu);
+    } else { g_warning("Failed to get WnckScreen."); }
+    newtonmenu->dbus_session_bus = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, &error);
+    if (!newtonmenu->dbus_session_bus) {
+        g_warning("Failed to connect to D-Bus session bus: %s", error ? error->message : "Unknown error");
+        g_clear_error(&error); return;
+    }
+
+    newtonmenu->dbus_name_owner_id = g_bus_own_name(
+        G_BUS_TYPE_SESSION, 
+        NEWTONMENU_DBUS_WELL_KNOWN_NAME, 
+        G_BUS_NAME_OWNER_FLAGS_NONE,
+        NULL, NULL, NULL, NULL, NULL); 
+    if (newtonmenu->dbus_name_owner_id == 0) g_warning("NM_WARNING: Failed to own D-Bus name: %s", NEWTONMENU_DBUS_WELL_KNOWN_NAME);
+    else g_debug("NM_DEBUG: Attempted to own D-Bus name: %s (owner_id: %u)", NEWTONMENU_DBUS_WELL_KNOWN_NAME, newtonmenu->dbus_name_owner_id);
+    
+    newtonmenu->appmenu_registrar_proxy = g_dbus_proxy_new_sync(
+        newtonmenu->dbus_session_bus, G_DBUS_PROXY_FLAGS_NONE, NULL, APPMENU_REGISTRAR_BUS_NAME,
+        APPMENU_REGISTRAR_OBJECT_PATH, APPMENU_REGISTRAR_INTERFACE_NAME, NULL, &error);
+    if (!newtonmenu->appmenu_registrar_proxy) {
+        g_warning("Failed to create AppMenu Registrar D-Bus proxy: %s", error ? error->message : "Unknown error");
+        g_clear_error(&error); return;
+    }
+    newtonmenu->appmenu_registrar_registered_handler_id = g_signal_connect(
+        newtonmenu->appmenu_registrar_proxy, "g-signal", G_CALLBACK(on_appmenu_registrar_signal), newtonmenu);
+    on_wnck_active_window_changed(newtonmenu->wnck_screen, NULL, newtonmenu);
+}
+
+static void newtonmenu_teardown_dbus_and_wnck(newtonmenuPlugin *newtonmenu) {
+    if (newtonmenu->dbus_name_owner_id > 0) {
+        g_bus_unown_name(newtonmenu->dbus_name_owner_id);
+        newtonmenu->dbus_name_owner_id = 0;
+    }
+    if (newtonmenu->wnck_screen && newtonmenu->wnck_active_window_changed_handler_id > 0) {
+        if (g_signal_handler_is_connected(newtonmenu->wnck_screen, newtonmenu->wnck_active_window_changed_handler_id)) {
+             g_signal_handler_disconnect(newtonmenu->wnck_screen, newtonmenu->wnck_active_window_changed_handler_id);
+        }
+    }
+    newtonmenu->wnck_active_window_changed_handler_id = 0;
+    if (newtonmenu->active_wnck_window) { g_object_unref(newtonmenu->active_wnck_window); newtonmenu->active_wnck_window = NULL; }
+    if (newtonmenu->appmenu_registrar_proxy && newtonmenu->appmenu_registrar_registered_handler_id > 0) {
+         if (g_signal_handler_is_connected(newtonmenu->appmenu_registrar_proxy, newtonmenu->appmenu_registrar_registered_handler_id)) {
+            g_signal_handler_disconnect(newtonmenu->appmenu_registrar_proxy, newtonmenu->appmenu_registrar_registered_handler_id);
+        }
+    }
+    newtonmenu->appmenu_registrar_registered_handler_id = 0;
+    if (newtonmenu->appmenu_registrar_proxy) { g_object_unref(newtonmenu->appmenu_registrar_proxy); newtonmenu->appmenu_registrar_proxy = NULL; }
+    if (newtonmenu->dbus_session_bus) { g_object_unref(newtonmenu->dbus_session_bus); newtonmenu->dbus_session_bus = NULL; }
+}
+
+static void on_wnck_active_window_changed(WnckScreen *screen, WnckWindow *prev_active_window, newtonmenuPlugin *newtonmenu) {
+    WnckWindow *current_active_window = NULL;
+    g_debug("NM_DEBUG: on_wnck_active_window_changed CALLED");
+    g_return_if_fail(newtonmenu != NULL);
+    if (screen) current_active_window = wnck_screen_get_active_window(screen);
+    if (newtonmenu->active_wnck_window) { 
+        g_object_unref(newtonmenu->active_wnck_window); 
+        newtonmenu->active_wnck_window = NULL; 
+    }
+    
+    if (newtonmenu->app_dbusmenu_client) { // Disconnect signals and unref old client *before* clearing UI
+        if (newtonmenu->app_dbusmenu_client_root_changed_id > 0 && g_signal_handler_is_connected(newtonmenu->app_dbusmenu_client, newtonmenu->app_dbusmenu_client_root_changed_id)) {
+            g_signal_handler_disconnect(newtonmenu->app_dbusmenu_client, newtonmenu->app_dbusmenu_client_root_changed_id);
+        }
+        newtonmenu->app_dbusmenu_client_root_changed_id = 0;
+        if (newtonmenu->app_dbusmenu_client_layout_updated_id > 0 && g_signal_handler_is_connected(newtonmenu->app_dbusmenu_client, newtonmenu->app_dbusmenu_client_layout_updated_id)) {
+            g_signal_handler_disconnect(newtonmenu->app_dbusmenu_client, newtonmenu->app_dbusmenu_client_layout_updated_id);
+        }
+        newtonmenu->app_dbusmenu_client_layout_updated_id = 0;
+        g_object_unref(newtonmenu->app_dbusmenu_client);
+        newtonmenu->app_dbusmenu_client = NULL;
+    }
+    newtonmenu_clear_dynamic_app_menus(newtonmenu); // Now clear UI
+
+    if (current_active_window) {
+        newtonmenu->active_wnck_window = g_object_ref(current_active_window);
+        g_debug("NM_DEBUG: Active window changed to '%s' (XID: %lu)", wnck_window_get_name(current_active_window), (gulong)wnck_window_get_xid(current_active_window));
+        newtonmenu_fetch_app_menu_enhanced(newtonmenu, newtonmenu->active_wnck_window);
+    } else {
+        g_debug("NM_DEBUG: No active window.");
+    }
+}
+
+static void on_appmenu_registrar_signal(GDBusProxy *proxy, const gchar *sender_name, const gchar *signal_name, GVariant *parameters, gpointer user_data) {
+    newtonmenuPlugin *newtonmenu = (newtonmenuPlugin*)user_data;
+    guint32 window_id;
+    g_debug("NM_DEBUG: on_appmenu_registrar_signal received: %s from %s", signal_name, sender_name);
+    if (g_strcmp0(signal_name, "WindowRegistered") == 0) {
+        gchar *service_name, *object_path;
+        g_variant_get(parameters, "(uso)", &window_id, &service_name, &object_path);
+        g_debug("NM_DEBUG: WindowRegistered: XID=%u, service=%s, path=%s", window_id, service_name ? service_name : "(null)", object_path ? object_path : "(null)");
+        if (newtonmenu->active_wnck_window && wnck_window_get_xid(newtonmenu->active_wnck_window) == window_id) {
+            g_debug("NM_DEBUG: AppMenu registered for current active window %lu. Re-fetching.", (gulong)window_id);
+            newtonmenu_fetch_app_menu_enhanced(newtonmenu, newtonmenu->active_wnck_window);
+        }
+        g_free(service_name); g_free(object_path);
+    } else if (g_strcmp0(signal_name, "WindowUnregistered") == 0) {
+        g_variant_get(parameters, "(u)", &window_id);
+        g_debug("NM_DEBUG: WindowUnregistered: XID=%u", window_id);
+        if (newtonmenu->active_wnck_window && wnck_window_get_xid(newtonmenu->active_wnck_window) == window_id) {
+            g_debug("NM_DEBUG: AppMenu unregistered for current active window %lu", (gulong)window_id);
+            newtonmenu_clear_dynamic_app_menus(newtonmenu);
+            if (newtonmenu->app_dbusmenu_client) {
+                g_object_unref(newtonmenu->app_dbusmenu_client);
+                newtonmenu->app_dbusmenu_client = NULL;
+            }
+        }
+    }
+}
+
+static GtkWidget* newtonmenu_create_static_newton_menu(newtonmenuPlugin *newtonmenu) {
+    GtkWidget *menu = gtk_menu_new(); GtkWidget *menu_item;
+    const gchar* username = g_get_user_name(); gchar* logout_label;
+    menu_item = gtk_menu_item_new_with_label(_("About This PC")); g_signal_connect(menu_item, "activate", G_CALLBACK(on_about_this_pc_activate), newtonmenu); gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), gtk_separator_menu_item_new());
+    menu_item = gtk_menu_item_new_with_label(_("System Settings...")); g_signal_connect(menu_item, "activate", G_CALLBACK(on_system_settings_activate), newtonmenu); gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+    menu_item = gtk_menu_item_new_with_label(_("Run Command...")); g_signal_connect(menu_item, "activate", G_CALLBACK(on_run_command_activate), newtonmenu); gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), gtk_separator_menu_item_new());
+    menu_item = gtk_menu_item_new_with_label(_("Force Quit...")); g_signal_connect(menu_item, "activate", G_CALLBACK(on_force_quit_activate), newtonmenu); gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), gtk_separator_menu_item_new());
+    menu_item = gtk_menu_item_new_with_label(_("Sleep")); g_signal_connect(menu_item, "activate", G_CALLBACK(on_sleep_activate), newtonmenu); gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+    menu_item = gtk_menu_item_new_with_label(_("Restart...")); g_signal_connect(menu_item, "activate", G_CALLBACK(on_restart_activate), newtonmenu); gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+    menu_item = gtk_menu_item_new_with_label(_("Shut Down...")); g_signal_connect(menu_item, "activate", G_CALLBACK(on_shutdown_activate), newtonmenu); gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), gtk_separator_menu_item_new());
+    menu_item = gtk_menu_item_new_with_label(_("Lock Screen")); g_signal_connect(menu_item, "activate", G_CALLBACK(on_lock_screen_activate), newtonmenu); gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+    if (username) logout_label = g_strdup_printf(_("Log Out %s..."), username); else logout_label = g_strdup(_("Log Out..."));
+    menu_item = gtk_menu_item_new_with_label(logout_label); g_signal_connect(menu_item, "activate", G_CALLBACK(on_log_out_activate), newtonmenu); gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item); g_free(logout_label);
+    gtk_widget_show_all(menu); return menu;
+}
+
+static void newtonmenu_construct(XfcePanelPlugin *plugin) {
+    newtonmenuPlugin *newtonmenu;
+    xfce_textdomain(GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR, "UTF-8");
+    newtonmenu = newtonmenu_new(plugin);
+    g_return_if_fail(newtonmenu != NULL);
+    gtk_container_add(GTK_CONTAINER(plugin), newtonmenu->main_box);
+    g_signal_connect(G_OBJECT(plugin), "free-data", G_CALLBACK(newtonmenu_free), newtonmenu);
+    g_signal_connect(G_OBJECT(plugin), "save", G_CALLBACK(newtonmenu_save), newtonmenu);
+    g_signal_connect(G_OBJECT(plugin), "size-changed", G_CALLBACK(newtonmenu_size_changed), newtonmenu);
+    g_signal_connect(G_OBJECT(plugin), "orientation-changed", G_CALLBACK(newtonmenu_orientation_changed), newtonmenu);
+    xfce_panel_plugin_menu_show_configure(plugin);
+    g_signal_connect(G_OBJECT(plugin), "configure-plugin", G_CALLBACK(newtonmenu_configure), newtonmenu);
+    xfce_panel_plugin_menu_show_about(plugin);
+    g_signal_connect(G_OBJECT(plugin), "about", G_CALLBACK(newtonmenu_about), plugin);
+}
+
+static void on_about_this_pc_activate(GtkMenuItem *menuitem, gpointer user_data) { execute_command("xfce4-about"); }
+static void on_system_settings_activate(GtkMenuItem *menuitem, gpointer user_data) { execute_command("xfce4-settings-manager"); }
+static void on_run_command_activate(GtkMenuItem *menuitem, gpointer user_data) { execute_command("xfce4-appfinder --collapsed"); }
+static void on_force_quit_activate(GtkMenuItem *menuitem, gpointer user_data) { 
+    newtonmenuPlugin *nm = (newtonmenuPlugin*)user_data;
+    newtonmenu_show_force_quit_applications_dialog(GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(nm->plugin))), nm);
+}
+static void on_sleep_activate(GtkMenuItem *menuitem, gpointer user_data) { execute_command("xfce4-session-logout --suspend"); }
+static void on_restart_activate(GtkMenuItem *menuitem, gpointer user_data) {
+    newtonmenuPlugin *nm = (newtonmenuPlugin*)user_data;
+    if (nm->confirm_restart_prop) newtonmenu_show_generic_confirmation(GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(nm->plugin))), _("restart"), _("Restart"), "xfce4-session-logout --reboot");
+    else execute_command("xfce4-session-logout --reboot");
+}
+static void on_shutdown_activate(GtkMenuItem *menuitem, gpointer user_data) {
+    newtonmenuPlugin *nm = (newtonmenuPlugin*)user_data;
+    if (nm->confirm_shutdown_prop) newtonmenu_show_generic_confirmation(GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(nm->plugin))), _("shut down"), _("Shut Down"), "xfce4-session-logout --halt");
+    else execute_command("xfce4-session-logout --halt");
+}
+static void on_lock_screen_activate(GtkMenuItem *menuitem, gpointer user_data) { execute_command("xflock4"); }
+static void on_log_out_activate(GtkMenuItem *menuitem, gpointer user_data) {
+    newtonmenuPlugin *nm = (newtonmenuPlugin*)user_data;
+    const gchar *un = g_get_user_name();
+    gchar *an = un ? g_strdup_printf(_("Log Out %s..."), un) : g_strdup(_("Log Out..."));
+    if (nm->confirm_logout_prop) newtonmenu_show_generic_confirmation(GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(nm->plugin))), an, _("Log Out"), "xfce4-session-logout --logout");
+    else execute_command("xfce4-session-logout --logout");
+    g_free(an);
+}--- END OF FILE panel-plugin/newtonmenu.c ---
+
+--- START OF FILE panel-plugin/newtonmenu.desktop ---
+[Xfce Panel]
+Type=X-XFCE-PanelPlugin
+Encoding=UTF-8
+Name=newtonmenu Plugin
+Comment=newtonmenu plugin for the Xfce panel
+Icon=xfce4-newtonmenu-plugin
+X-XFCE-Module=newtonmenu
+X-XFCE-Internal=false
+X-XFCE-Unique=false
+X-XFCE-API=2.0
+--- END OF FILE panel-plugin/newtonmenu.desktop ---
+
+--- START OF FILE panel-plugin/newtonmenu.desktop.in ---
+[Xfce Panel]
+Type=X-XFCE-PanelPlugin
+Encoding=UTF-8
+Name=newtonmenu Plugin
+Comment=newtonmenu plugin for the Xfce panel
+Icon=xfce4-newtonmenu-plugin
+X-XFCE-Module=newtonmenu
+X-XFCE-Internal=false
+X-XFCE-Unique=false
+X-XFCE-API=2.0
+--- END OF FILE panel-plugin/newtonmenu.desktop.in ---
+
+--- START OF FILE panel-plugin/newtonmenu-dialogs.c ---
+/*
+ * Copyright (C) 2025 Adam
+ * Xfce4 Newton Menu Plugin - Configuration Dialogs
+ */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+#ifdef HAVE_XFCE_REVISION_H
+#include "xfce-revision.h"
+#endif
+
+#include <string.h>
+#include <gtk/gtk.h>
+
+#include <libxfce4ui/libxfce4ui.h>
+#include <libxfce4panel/libxfce4panel.h>
+#include <exo/exo.h>
+
+#include "newtonmenu.h"
+#include "newtonmenu-dialogs.h"
+
+#define PLUGIN_WEBSITE "https://gitlab.xfce.org/panel-plugins/xfce4-newtonmenu-plugin"
+
+// Forward declarations for dialog-specific callbacks
+static void on_display_icon_checkbutton_toggled(GtkToggleButton *togglebutton, gpointer user_data);
+static void on_hide_app_name_checkbutton_toggled(GtkToggleButton *togglebutton, gpointer user_data);
+static void on_icon_choose_button_clicked(GtkButton *button, gpointer user_data);
+static void dialog_save_settings_and_update(GtkDialog *dialog, newtonmenuPlugin *newtonmenu, GtkBuilder *builder);
+static void newtonmenu_configure_response_cb(GtkWidget *dialog_widget, gint response, newtonmenuPlugin *newtonmenu);
+static void generic_action_dialog_response_cb(GtkDialog *dialog, gint response_id, gpointer user_data);
+
+static void on_display_icon_checkbutton_toggled(GtkToggleButton *togglebutton, gpointer user_data)
+{
+    GtkBuilder *builder = GTK_BUILDER(user_data);
+    gboolean display_icon = gtk_toggle_button_get_active(togglebutton);
+    GtkWidget *icon_settings_box, *label_settings_box;
+
+    g_return_if_fail(builder != NULL);
+
+    icon_settings_box = GTK_WIDGET(gtk_builder_get_object(builder, "icon_settings_box"));
+    label_settings_box = GTK_WIDGET(gtk_builder_get_object(builder, "label_settings_box"));
+
+    if (icon_settings_box) gtk_widget_set_visible(icon_settings_box, display_icon);
+    if (label_settings_box) gtk_widget_set_visible(label_settings_box, !display_icon);
+}
+
+static void on_hide_app_name_checkbutton_toggled(GtkToggleButton *togglebutton, gpointer user_data)
+{
+    GtkBuilder *builder = GTK_BUILDER(user_data);
+    gboolean hide_app_name = gtk_toggle_button_get_active(togglebutton);
+    GtkWidget *global_menu_title_box;
+
+    g_return_if_fail(builder != NULL);
+
+    global_menu_title_box = GTK_WIDGET(gtk_builder_get_object(builder, "global_menu_title_box"));
+
+    if (global_menu_title_box) gtk_widget_set_visible(global_menu_title_box, hide_app_name);
+}
+
+static void on_icon_choose_button_clicked(GtkButton *button, gpointer user_data)
+{
+    GtkWidget *parent_dialog = GTK_WIDGET(user_data);
+    GtkBuilder *builder = GTK_BUILDER(g_object_get_data(G_OBJECT(parent_dialog), "builder"));
+    GtkWidget *icon_chooser_dialog;
+    gchar *selected_icon_name = NULL;
+    GtkWindow *parent_window = GTK_WINDOW(parent_dialog);
+    GtkWidget *icon_name_entry_widget;
+
+    g_return_if_fail(builder != NULL);
+    icon_name_entry_widget = GTK_WIDGET(gtk_builder_get_object(builder, "icon_name_entry"));
+    g_return_if_fail(GTK_IS_ENTRY(icon_name_entry_widget));
+
+    icon_chooser_dialog = exo_icon_chooser_dialog_new(
+        _("Choose an Icon"),
+        parent_window,
+        _("_Cancel"), GTK_RESPONSE_CANCEL,
+        _("_OK"), GTK_RESPONSE_ACCEPT,
+        NULL);
+    
+    gtk_window_set_modal(GTK_WINDOW(icon_chooser_dialog), TRUE);
+    gtk_dialog_set_default_response(GTK_DIALOG(icon_chooser_dialog), GTK_RESPONSE_ACCEPT);
+
+    const gchar *current_icon = gtk_entry_get_text(GTK_ENTRY(icon_name_entry_widget));
+    if (current_icon && *current_icon) {
+        exo_icon_chooser_dialog_set_icon(EXO_ICON_CHOOSER_DIALOG(icon_chooser_dialog), current_icon);
+    }
+
+    if (gtk_dialog_run(GTK_DIALOG(icon_chooser_dialog)) == GTK_RESPONSE_ACCEPT) {
+        selected_icon_name = exo_icon_chooser_dialog_get_icon(EXO_ICON_CHOOSER_DIALOG(icon_chooser_dialog));
+        if (selected_icon_name) {
+            gtk_entry_set_text(GTK_ENTRY(icon_name_entry_widget), selected_icon_name);
+            g_free(selected_icon_name);
+        }
+    }
+    gtk_widget_destroy(icon_chooser_dialog);
+}
+
+static void dialog_save_settings_and_update(GtkDialog *dialog, newtonmenuPlugin *newtonmenu, GtkBuilder *builder)
+{
+    GtkWidget *widget;
+
+    g_return_if_fail(newtonmenu != NULL);
+    g_return_if_fail(builder != NULL);
+
+    // Save button appearance settings
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "display_icon_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        newtonmenu->display_icon_prop = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "icon_name_entry"));
+    if (GTK_IS_ENTRY(widget)) {
+        g_free(newtonmenu->icon_name_prop);
+        newtonmenu->icon_name_prop = g_strdup(gtk_entry_get_text(GTK_ENTRY(widget)));
+    }
+
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "label_text_entry"));
+    if (GTK_IS_ENTRY(widget)) {
+        g_free(newtonmenu->label_text_prop);
+        newtonmenu->label_text_prop = g_strdup(gtk_entry_get_text(GTK_ENTRY(widget)));
+    }
+
+    // Save global menu settings
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "hide_app_name_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        newtonmenu->hide_application_name_prop = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "global_menu_title_entry"));
+    if (GTK_IS_ENTRY(widget)) {
+        g_free(newtonmenu->global_menu_title_prop);
+        newtonmenu->global_menu_title_prop = g_strdup(gtk_entry_get_text(GTK_ENTRY(widget)));
+    }
+    
+    // Save confirmation settings
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "confirm_logout_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        newtonmenu->confirm_logout_prop = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "confirm_restart_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        newtonmenu->confirm_restart_prop = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+        
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "confirm_shutdown_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        newtonmenu->confirm_shutdown_prop = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "confirm_force_quit_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        newtonmenu->confirm_force_quit_prop = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    
+    // Save and update display
+    newtonmenu_save(newtonmenu->plugin, newtonmenu);
+    newtonmenu_update_display(newtonmenu);
+    // REMOVED: newtonmenu_update_combined_menu(newtonmenu); - this function doesn't exist
+}
+
+static void newtonmenu_configure_response_cb(GtkWidget *dialog_widget, gint response, newtonmenuPlugin *newtonmenu)
+{
+    GtkBuilder *builder = GTK_BUILDER(g_object_get_data(G_OBJECT(dialog_widget), "builder"));
+
+    if (response == GTK_RESPONSE_HELP) {
+        gboolean result;
+        result = g_spawn_command_line_async("exo-open --launch WebBrowser " PLUGIN_WEBSITE, NULL);
+        if (G_UNLIKELY(result == FALSE))
+            g_warning(_("Unable to open the following url: %s"), PLUGIN_WEBSITE);
+        return; 
+    }
+  
+    if (response == GTK_RESPONSE_CLOSE || response == GTK_RESPONSE_DELETE_EVENT || response == GTK_RESPONSE_OK) {
+        if (builder && newtonmenu) {
+            dialog_save_settings_and_update(GTK_DIALOG(dialog_widget), newtonmenu, builder);
+        }
+    }
+
+    if (newtonmenu && newtonmenu->plugin) {
+        g_object_set_data(G_OBJECT(newtonmenu->plugin), "dialog", NULL);
+        xfce_panel_plugin_unblock_menu(newtonmenu->plugin);
+    }
+    if (builder) {
+        g_object_unref(builder);
+        g_object_set_data(G_OBJECT(dialog_widget), "builder", NULL);
+    }
+    gtk_widget_destroy(dialog_widget);
+}
+
+void newtonmenu_configure(XfcePanelPlugin *plugin, newtonmenuPlugin *newtonmenu)
+{
+    GtkBuilder *builder;
+    GObject *dialog_obj;
+    GtkWidget *dialog_widget;
+    GtkWidget *widget;
+
+    g_return_if_fail(plugin != NULL);
+    g_return_if_fail(newtonmenu != NULL);
+
+    if (g_object_get_data(G_OBJECT(plugin), "dialog") != NULL) {
+        gtk_window_present(GTK_WINDOW(g_object_get_data(G_OBJECT(plugin), "dialog")));
+        return;
+    }
+
+    xfce_panel_plugin_block_menu(plugin);
+
+    const gchar *ui_resource_path = "/org/xfce/panel/plugins/newtonmenu/newtonmenu-dialog.ui";
+    builder = gtk_builder_new_from_resource(ui_resource_path);
+
+    if (G_UNLIKELY(builder == NULL)) {
+        g_warning("Failed to load UI for newtonmenu plugin configuration from resource: %s", ui_resource_path);
+        xfce_panel_plugin_unblock_menu(plugin);
+        return;
+    }
+
+    dialog_obj = gtk_builder_get_object(builder, "newtonmenu_config_dialog");
+    if (G_UNLIKELY(dialog_obj == NULL || !GTK_IS_DIALOG(dialog_obj))) {
+        g_warning("UI loaded, but toplevel widget ('newtonmenu_config_dialog') is not a GtkDialog or has wrong ID.");
+        g_object_unref(builder);
+        xfce_panel_plugin_unblock_menu(plugin);
+        return;
+    }
+    
+    dialog_widget = GTK_WIDGET(dialog_obj);
+    gtk_window_set_transient_for(GTK_WINDOW(dialog_widget), GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(plugin))));
+    gtk_window_set_position(GTK_WINDOW(dialog_widget), GTK_WIN_POS_CENTER_ON_PARENT);
+
+    g_object_set_data(G_OBJECT(dialog_widget), "builder", builder);
+    g_object_set_data(G_OBJECT(dialog_widget), "plugin_data", newtonmenu);
+
+    // Setup button appearance controls
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "display_icon_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget)) {
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), newtonmenu->display_icon_prop);
+        on_display_icon_checkbutton_toggled(GTK_TOGGLE_BUTTON(widget), builder);
+        g_signal_connect(widget, "toggled", G_CALLBACK(on_display_icon_checkbutton_toggled), builder);
+    } else {
+        g_warning("Widget 'display_icon_checkbutton' not found or not a GtkToggleButton.");
+    }
+
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "icon_name_entry"));
+    if (GTK_IS_ENTRY(widget)) {
+        gtk_entry_set_text(GTK_ENTRY(widget), newtonmenu->icon_name_prop ? newtonmenu->icon_name_prop : "");
+    } else {
+        g_warning("Widget 'icon_name_entry' not found or not a GtkEntry.");
+    }
+
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "label_text_entry"));
+    if (GTK_IS_ENTRY(widget)) {
+        gtk_entry_set_text(GTK_ENTRY(widget), newtonmenu->label_text_prop ? newtonmenu->label_text_prop : "");
+    } else {
+        g_warning("Widget 'label_text_entry' not found or not a GtkEntry.");
+    }
+
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "icon_choose_button"));
+    if (GTK_IS_BUTTON(widget)) {
+        g_signal_connect(widget, "clicked", G_CALLBACK(on_icon_choose_button_clicked), dialog_widget);
+    } else {
+        g_warning("Widget 'icon_choose_button' not found or not a GtkButton.");
+    }
+
+    // Setup global menu appearance controls
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "hide_app_name_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget)) {
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), newtonmenu->hide_application_name_prop);
+        on_hide_app_name_checkbutton_toggled(GTK_TOGGLE_BUTTON(widget), builder);
+        g_signal_connect(widget, "toggled", G_CALLBACK(on_hide_app_name_checkbutton_toggled), builder);
+    } else {
+        g_warning("Widget 'hide_app_name_checkbutton' not found or not a GtkToggleButton.");
+    }
+
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "global_menu_title_entry"));
+    if (GTK_IS_ENTRY(widget)) {
+        gtk_entry_set_text(GTK_ENTRY(widget), newtonmenu->global_menu_title_prop ? newtonmenu->global_menu_title_prop : "");
+    } else {
+        g_warning("Widget 'global_menu_title_entry' not found or not a GtkEntry.");
+    }
+
+    // Setup confirmation controls
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "confirm_logout_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), newtonmenu->confirm_logout_prop);
+
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "confirm_restart_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), newtonmenu->confirm_restart_prop);
+        
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "confirm_shutdown_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), newtonmenu->confirm_shutdown_prop);
+
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "confirm_force_quit_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), newtonmenu->confirm_force_quit_prop);
+    
+    g_object_set_data(G_OBJECT(plugin), "dialog", dialog_widget);
+    g_signal_connect(G_OBJECT(dialog_widget), "response",
+                     G_CALLBACK(newtonmenu_configure_response_cb), newtonmenu);
+
+    gtk_widget_show_all(dialog_widget);
+}
+
+void newtonmenu_about(XfcePanelPlugin *plugin)
+{
+    const gchar *auth[] = {
+        "Adam",
+        "AI Assistant",
+        NULL
+    };
+
+    gtk_show_about_dialog(GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(plugin))),
+                         "logo-icon-name", "xfce4-newtonmenu-plugin",
+                         "license-type",   GTK_LICENSE_GPL_2_0,
+                         "version",        PACKAGE_VERSION,
+                         "program-name",   PACKAGE_NAME,
+                         "comments",       _("A macOS-like application and session menu button with global menu integration."),
+                         "website",        PLUGIN_WEBSITE,
+                         "copyright",      _("Copyright © 2024-2025 Adam"),
+                         "authors",        auth,
+                         NULL);
+}
+
+static void generic_action_dialog_response_cb(GtkDialog *dialog, gint response_id, gpointer command_to_run_gpointer)
+{
+    gchar *command_to_run = (gchar*)command_to_run_gpointer;
+
+    if (response_id == GTK_RESPONSE_YES) {
+        if (command_to_run && *command_to_run) {
+            GError *error = NULL;
+            if (!g_spawn_command_line_async(command_to_run, &error)) {
+                g_warning("Failed to execute command '%s': %s", command_to_run, error ? error->message : "Unknown error");
+                if (error) g_error_free(error);
+            }
+        }
+    }
+    if (command_to_run) g_free(command_to_run); 
+    gtk_widget_destroy(GTK_WIDGET(dialog));
+}
+
+void newtonmenu_show_generic_confirmation(GtkWindow *parent, 
+                                          const gchar *action_name_translated, 
+                                          const gchar *action_verb_translated, 
+                                          const gchar *command_to_run)
+{
+    GtkWidget *dialog;
+    gchar *primary_text;
+    gchar *secondary_text = NULL; 
+
+    primary_text = g_strdup_printf(_("Are you sure you want to %s?"), action_name_translated);
+
+    dialog = gtk_message_dialog_new(parent,
+                                   GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+                                   GTK_MESSAGE_QUESTION,
+                                   GTK_BUTTONS_NONE,
+                                   "%s", 
+                                   primary_text);
+    g_free(primary_text);
+
+    if (secondary_text) {
+        gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog), "%s", secondary_text);
+        g_free(secondary_text);
+    }
+    
+    gchar *action_button_label = g_strdup_printf("_%s", action_verb_translated);
+
+    gtk_dialog_add_buttons(GTK_DIALOG(dialog),
+                          _("_Cancel"), GTK_RESPONSE_CANCEL,
+                          action_button_label, GTK_RESPONSE_YES,
+                          NULL);
+    g_free(action_button_label);
+
+    gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_CANCEL);
+    
+    g_signal_connect(dialog, "response", G_CALLBACK(generic_action_dialog_response_cb), g_strdup(command_to_run));
+    gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER_ALWAYS); 
+    gtk_widget_show_all(dialog);
+}--- END OF FILE panel-plugin/newtonmenu-dialogs.c ---
+
+--- START OF FILE panel-plugin/newtonmenu-dialogs.h ---
+#ifndef __newtonmenu_DIALOGS_H__
+#define __newtonmenu_DIALOGS_H__
+
+#include <gtk/gtk.h>
+#include "newtonmenu.h" 
+
+G_BEGIN_DECLS
+
+void newtonmenu_show_generic_confirmation (GtkWindow *parent, const gchar *action_name_translated, const gchar *action_verb_translated, const gchar *command_to_run);
+
+G_END_DECLS
+
+#endif--- END OF FILE panel-plugin/newtonmenu-dialogs.h ---
+
+--- START OF FILE panel-plugin/newtonmenu-dialog.ui ---
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk+" version="3.20"/>
+  <object class="GtkDialog" id="newtonmenu_config_dialog">
+    <property name="can_focus">False</property>
+    <property name="title" translatable="yes">Newton Button Preferences</property>
+    <property name="type_hint">dialog</property>
+    <property name="border_width">12</property>
+    <property name="default_width">450</property>
+    <property name="modal">True</property>
+    <property name="destroy_with_parent">True</property>
+    <child internal-child="vbox">
+      <object class="GtkBox" id="dialog_vbox">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">18</property>
+        <child>
+          <object class="GtkFrame" id="appearance_frame">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">Button Appearance</property>
+            <property name="label_xalign">0</property>
+            <property name="shadow_type">etched-in</property>
+            <child>
+              <object class="GtkBox" id="appearance_box_content">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="orientation">vertical</property>
+                <property name="border_width">12</property>
+                <property name="spacing">12</property>
+                <child>
+                  <object class="GtkCheckButton" id="display_icon_checkbutton">
+                    <property name="label" translatable="yes">Display icon on panel button</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="draw_indicator">True</property>
+                    <property name="active">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkBox" id="icon_settings_box">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="orientation">horizontal</property>
+                    <property name="spacing">6</property>
+                    <child>
+                      <object class="GtkLabel" id="icon_name_label">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Icon name:</property>
+                        <property name="xalign">0</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkEntry" id="icon_name_entry">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="hexpand">True</property>
+                        <property name="tooltip_text" translatable="yes">Enter a themed icon name (e.g., 'start-here') or a full path to an image file.</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="icon_choose_button">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="tooltip_text" translatable="yes">Choose an icon</property>
+                        <child>
+                          <object class="GtkImage">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="icon_name">document-open-symbolic</property>
+                            <property name="icon_size">1</property> <!-- Corresponds to GTK_ICON_SIZE_MENU -->
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">2</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkBox" id="label_settings_box">
+                    <property name="visible">False</property>
+                    <property name="can_focus">False</property>
+                    <property name="orientation">horizontal</property>
+                    <property name="spacing">6</property>
+                    <child>
+                      <object class="GtkLabel" id="label_text_label">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Button label text:</property>
+                        <property name="xalign">0</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkEntry" id="label_text_entry">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="hexpand">True</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <!-- NEW: Global Menu Appearance Frame -->
+        <child>
+          <object class="GtkFrame" id="global_menu_frame">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">Global Menu Appearance</property>
+            <property name="label_xalign">0</property>
+            <property name="shadow_type">etched-in</property>
+            <child>
+              <object class="GtkBox" id="global_menu_box_content">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="orientation">vertical</property>
+                <property name="border_width">12</property>
+                <property name="spacing">12</property>
+                <child>
+                  <object class="GtkCheckButton" id="hide_app_name_checkbutton">
+                    <property name="label" translatable="yes">Hide application name in global menu</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkBox" id="global_menu_title_box">
+                    <property name="visible">False</property> <!-- Initially hidden, controlled by code -->
+                    <property name="can_focus">False</property>
+                    <property name="orientation">horizontal</property>
+                    <property name="spacing">6</property>
+                    <child>
+                      <object class="GtkLabel" id="global_menu_title_label">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Global menu title:</property>
+                        <property name="xalign">0</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkEntry" id="global_menu_title_entry">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="hexpand">True</property>
+                        <property name="tooltip_text" translatable="yes">Custom title for the global menu when application name is hidden.</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkFrame" id="confirmation_frame">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">Action Confirmations</property>
+            <property name="label_xalign">0</property>
+            <property name="shadow_type">etched-in</property>
+            <child>
+              <object class="GtkBox" id="confirmation_box_content">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="orientation">vertical</property>
+                <property name="border_width">12</property>
+                <property name="spacing">6</property>
+                <child>
+                  <object class="GtkCheckButton" id="confirm_logout_checkbutton">
+                    <property name="label" translatable="yes">Confirm before logging out</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="confirm_restart_checkbutton">
+                    <property name="label" translatable="yes">Confirm before restarting</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="confirm_shutdown_checkbutton">
+                    <property name="label" translatable="yes">Confirm before shutting down</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="confirm_force_quit_checkbutton">
+                    <property name="label" translatable="yes">Confirm before force quitting applications</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="-11">help_button</action-widget>
+      <action-widget response="-7">close_button</action-widget>
+    </action-widgets>
+    <child type="action">
+        <object class="GtkButton" id="help_button">
+            <property name="label">gtk-help</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="use-stock">True</property>
+        </object>
+    </child>
+    <child type="action">
+        <object class="GtkButton" id="close_button">
+            <property name="label">gtk-close</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <property name="use-underline">True</property>
+        </object>
+    </child>
+  </object>
+</interface>--- END OF FILE panel-plugin/newtonmenu-dialog.ui ---
+
+--- START OF FILE panel-plugin/newtonmenu-force-quit-dialog.c ---
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include <gtk/gtk.h>
+#include <libwnck/libwnck.h>
+#include <signal.h>
+#include <libxfce4util/libxfce4util.h>
+#include <libxfce4ui/libxfce4ui.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <errno.h>
+
+#include "newtonmenu.h"
+#include "newtonmenu-force-quit-dialog.h"
+
+enum
+{
+    COL_ICON,
+    COL_APP_NAME,
+    COL_PID,
+    NUM_COLS
+};
+
+typedef struct {
+    GtkDialog *dialog;
+    GtkTreeView *tree_view;
+    GtkListStore *list_store;
+    GtkButton *force_quit_button;
+    newtonmenuPlugin *plugin_data;
+    WnckScreen *screen;
+    guint refresh_id;
+} ForceQuitDialogData;
+
+static void populate_app_list(ForceQuitDialogData *data);
+static void on_fq_dialog_force_quit_button_clicked(GtkButton *button, gpointer user_data);
+static void on_fq_dialog_response(GtkDialog *dialog, gint response_id, gpointer user_data);
+static void on_fq_dialog_app_selection_changed(GtkTreeSelection *selection, gpointer user_data);
+static gboolean on_refresh_app_list(gpointer user_data);
+
+static gboolean
+force_quit_process(pid_t pid)
+{
+    gboolean result = FALSE;
+    gchar *command = NULL;
+    GError *error = NULL;
+    
+    if (pid <= 1)
+        return FALSE;
+    
+    // Don't kill our own process
+    if (pid == getpid())
+        return FALSE;
+        
+    // Use kill command for better success rate
+    command = g_strdup_printf("kill -9 %d", pid);
+    result = g_spawn_command_line_sync(command, NULL, NULL, NULL, &error);
+    g_free(command);
+    
+    if (!result) {
+        g_warning("Failed to execute kill command: %s", error ? error->message : "unknown error");
+        if (error) g_error_free(error);
+        
+        // Try direct kill as a fallback
+        if (kill(pid, SIGKILL) == 0) {
+            result = TRUE;
+        }
+        else {
+            g_warning("Direct kill failed: %s", strerror(errno));
+        }
+    }
+    
+    return result;
+}
+
+static void
+add_window_to_list(ForceQuitDialogData *data, WnckWindow *window)
+{
+    GtkTreeIter iter;
+    GdkPixbuf *icon = NULL, *scaled_icon = NULL;
+    GtkIconTheme *icon_theme;
+    const gchar *app_name = NULL;
+    WnckApplication *app = NULL;
+    pid_t pid = 0;
+    
+    if (!window || !WNCK_IS_WINDOW(window))
+        return;
+    
+    // Skip windows that shouldn't be shown
+    if (wnck_window_is_skip_tasklist(window) ||
+        wnck_window_get_window_type(window) == WNCK_WINDOW_DESKTOP ||
+        wnck_window_get_window_type(window) == WNCK_WINDOW_DOCK) {
+        return;
+    }
+    
+    app = wnck_window_get_application(window);
+    if (!app || !WNCK_IS_APPLICATION(app))
+        return;
+        
+    app_name = wnck_application_get_name(app);
+    if (!app_name || !*app_name)
+        app_name = _("(Unknown Application)");
+    
+    pid = wnck_application_get_pid(app);
+    if (pid <= 0)
+        return;  // Skip items with invalid PIDs
+        
+    // Skip xfce4-panel itself and its plugins to prevent suicide
+    if (pid == getpid()) {
+        return;
+    }
+    
+    // Check if we already have this PID in our list
+    GtkTreeIter existing_iter;
+    gboolean valid, found = FALSE;
+    valid = gtk_tree_model_get_iter_first(GTK_TREE_MODEL(data->list_store), &existing_iter);
+    while (valid) {
+        pid_t existing_pid;
+        gtk_tree_model_get(GTK_TREE_MODEL(data->list_store), &existing_iter, COL_PID, &existing_pid, -1);
+        if (existing_pid == pid) {
+            found = TRUE;
+            break;
+        }
+        valid = gtk_tree_model_iter_next(GTK_TREE_MODEL(data->list_store), &existing_iter);
+    }
+    
+    // Skip if already in list
+    if (found)
+        return;
+    
+    // Get icon
+    icon_theme = gtk_icon_theme_get_default();
+    icon = wnck_application_get_icon(app);
+    
+    if (icon) {
+        scaled_icon = gdk_pixbuf_scale_simple(icon, 16, 16, GDK_INTERP_BILINEAR);
+    } else {
+        // Use fallback icon
+        GError *error = NULL;
+        scaled_icon = gtk_icon_theme_load_icon(icon_theme, 
+                                             "application-x-executable", 
+                                             16, 
+                                             GTK_ICON_LOOKUP_USE_BUILTIN, 
+                                             &error);
+        if (error) {
+            g_error_free(error);
+        }
+    }
+    
+    // Add to list store
+    gtk_list_store_append(data->list_store, &iter);
+    gtk_list_store_set(data->list_store, &iter,
+                     COL_ICON, scaled_icon,
+                     COL_APP_NAME, app_name,
+                     COL_PID, pid,
+                     -1);
+    
+    if (scaled_icon)
+        g_object_unref(scaled_icon);
+}
+
+static gboolean
+on_refresh_app_list(gpointer user_data)
+{
+    ForceQuitDialogData *data = (ForceQuitDialogData *)user_data;
+    
+    if (!data || !data->dialog || !gtk_widget_is_visible(GTK_WIDGET(data->dialog)))
+        return G_SOURCE_REMOVE;
+    
+    populate_app_list(data);
+    return G_SOURCE_CONTINUE;
+}
+
+static void
+populate_app_list(ForceQuitDialogData *data)
+{
+    GList *windows, *l;
+    GtkTreeSelection *selection;
+    pid_t selected_pid = 0;
+    gboolean had_selection = FALSE;
+    
+    // Remember the selected app if any
+    selection = gtk_tree_view_get_selection(data->tree_view);
+    if (gtk_tree_selection_get_selected(selection, NULL, NULL)) {
+        GtkTreeModel *model;
+        GtkTreeIter iter;
+        had_selection = gtk_tree_selection_get_selected(selection, &model, &iter);
+        if (had_selection) {
+            gtk_tree_model_get(model, &iter, COL_PID, &selected_pid, -1);
+        }
+    }
+    
+    // Clear the list
+    gtk_list_store_clear(data->list_store);
+    
+    // Force screen update to get latest data
+    if (data->screen) {
+        wnck_screen_force_update(data->screen);
+        windows = wnck_screen_get_windows(data->screen);
+        
+        for (l = windows; l != NULL; l = l->next) {
+            WnckWindow *window = WNCK_WINDOW(l->data);
+            add_window_to_list(data, window);
+        }
+    }
+    
+    // Reselect previously selected app if possible
+    if (had_selection && selected_pid > 0) {
+        GtkTreeIter iter;
+        gboolean valid;
+        
+        valid = gtk_tree_model_get_iter_first(GTK_TREE_MODEL(data->list_store), &iter);
+        while (valid) {
+            pid_t pid;
+            gtk_tree_model_get(GTK_TREE_MODEL(data->list_store), &iter, COL_PID, &pid, -1);
+            if (pid == selected_pid) {
+                gtk_tree_selection_select_iter(selection, &iter);
+                break;
+            }
+            valid = gtk_tree_model_iter_next(GTK_TREE_MODEL(data->list_store), &iter);
+        }
+    }
+}
+
+static void
+on_fq_dialog_app_selection_changed(GtkTreeSelection *selection, gpointer user_data)
+{
+    ForceQuitDialogData *data = (ForceQuitDialogData*)user_data;
+    gboolean something_selected;
+    
+    something_selected = gtk_tree_selection_get_selected(selection, NULL, NULL);
+    gtk_widget_set_sensitive(GTK_WIDGET(data->force_quit_button), something_selected);
+}
+
+static void
+on_fq_dialog_force_quit_button_clicked(GtkButton *button, gpointer user_data)
+{
+    ForceQuitDialogData *data = (ForceQuitDialogData*)user_data;
+    GtkTreeSelection *selection;
+    GtkTreeModel *model;
+    GtkTreeIter iter;
+    pid_t pid_to_kill = 0;
+    gchar *app_name_to_kill = NULL;
+    
+    selection = gtk_tree_view_get_selection(data->tree_view);
+    if (gtk_tree_selection_get_selected(selection, &model, &iter)) {
+        gtk_tree_model_get(model, &iter,
+                         COL_PID, &pid_to_kill,
+                         COL_APP_NAME, &app_name_to_kill,
+                         -1);
+        
+        if (pid_to_kill > 0) {
+            // Force quit the process directly without confirmation
+            if (force_quit_process(pid_to_kill)) {
+                // Allow the UI to refresh for visual feedback
+                while (gtk_events_pending())
+                    gtk_main_iteration();
+                
+                g_usleep(250000); // 250ms
+                
+                // Refresh list to remove the killed app
+                populate_app_list(data);
+            }
+        }
+        g_free(app_name_to_kill);
+    }
+}
+
+static void
+on_fq_dialog_response(GtkDialog *dialog, gint response_id, gpointer user_data)
+{
+    ForceQuitDialogData *data = (ForceQuitDialogData*)user_data;
+    
+    if (!data)
+        return;
+    
+    // Apply (Force Quit) should trigger the force quit flow but not close dialog
+    if (response_id == GTK_RESPONSE_APPLY) {
+        on_fq_dialog_force_quit_button_clicked(data->force_quit_button, data);
+        return; // Keep dialog open
+    }
+    
+    // For other responses (like close), clean up and destroy dialog
+    if (data->refresh_id > 0) {
+        g_source_remove(data->refresh_id);
+        data->refresh_id = 0;
+    }
+    
+    gtk_widget_destroy(GTK_WIDGET(dialog));
+    g_slice_free(ForceQuitDialogData, data);
+}
+
+void
+newtonmenu_show_force_quit_applications_dialog(GtkWindow *parent, newtonmenuPlugin *plugin_data)
+{
+    GtkBuilder *builder;
+    GObject *dialog_obj;
+    ForceQuitDialogData *data;
+    const gchar *ui_resource_path = "/org/xfce/panel/plugins/newtonmenu/newtonmenu-force-quit-dialog.ui";
+    
+    // Initialize data structure
+    data = g_slice_new0(ForceQuitDialogData);
+    data->plugin_data = plugin_data;
+    
+    // Handle WNCK lib with deprecation notice 
+    /* Using deprecated API for compatibility, will be updated in future versions */
+    data->screen = wnck_screen_get_default();
+    
+    // Load UI
+    builder = gtk_builder_new_from_resource(ui_resource_path);
+    if (G_UNLIKELY(builder == NULL)) {
+        g_warning("Failed to load UI for Force Quit dialog from resource: %s", ui_resource_path);
+        g_slice_free(ForceQuitDialogData, data);
+        return;
+    }
+    
+    dialog_obj = gtk_builder_get_object(builder, "force_quit_applications_dialog");
+    if (G_UNLIKELY(dialog_obj == NULL || !GTK_IS_DIALOG(dialog_obj))) {
+        g_warning("UI loaded, but toplevel widget 'force_quit_applications_dialog' is not a GtkDialog.");
+        g_object_unref(builder);
+        g_slice_free(ForceQuitDialogData, data);
+        return;
+    }
+    
+    data->dialog = GTK_DIALOG(dialog_obj);
+    data->tree_view = GTK_TREE_VIEW(gtk_builder_get_object(builder, "app_list_treeview"));
+    data->force_quit_button = GTK_BUTTON(gtk_builder_get_object(builder, "force_quit_button"));
+    
+    g_object_unref(builder);
+    
+    // Setup window properties and position
+    gtk_window_set_title(GTK_WINDOW(data->dialog), _("Force Quit Applications"));
+    gtk_window_set_position(GTK_WINDOW(data->dialog), GTK_WIN_POS_CENTER_ALWAYS);
+    gtk_window_set_default_size(GTK_WINDOW(data->dialog), 400, 350);
+    gtk_window_set_modal(GTK_WINDOW(data->dialog), TRUE);
+    
+    // Set parent relationship if available
+    if (parent) {
+        gtk_window_set_transient_for(GTK_WINDOW(data->dialog), parent);
+    }
+    
+    // Setup tree view columns
+    GtkCellRenderer *renderer_pixbuf = gtk_cell_renderer_pixbuf_new();
+    GtkCellRenderer *renderer_text = gtk_cell_renderer_text_new();
+    GtkTreeViewColumn *col;
+    
+    col = gtk_tree_view_column_new_with_attributes("", renderer_pixbuf, "pixbuf", COL_ICON, NULL);
+    gtk_tree_view_append_column(data->tree_view, col);
+    
+    col = gtk_tree_view_column_new_with_attributes("", renderer_text, "text", COL_APP_NAME, NULL);
+    gtk_tree_view_column_set_expand(col, TRUE);
+    gtk_tree_view_append_column(data->tree_view, col);
+    
+    // Create list store and connect to tree view
+    data->list_store = gtk_list_store_new(NUM_COLS, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_INT);
+    gtk_tree_view_set_model(data->tree_view, GTK_TREE_MODEL(data->list_store));
+    g_object_unref(data->list_store);
+    
+    // Connect signals
+    GtkTreeSelection *selection = gtk_tree_view_get_selection(data->tree_view);
+    gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
+    g_signal_connect(selection, "changed", G_CALLBACK(on_fq_dialog_app_selection_changed), data);
+    g_signal_connect(data->force_quit_button, "clicked", G_CALLBACK(on_fq_dialog_force_quit_button_clicked), data);
+    g_signal_connect(data->dialog, "response", G_CALLBACK(on_fq_dialog_response), data);
+    
+    // Populate initial app list
+    populate_app_list(data);
+    
+    // Add periodic refresh timer (every 1 second)
+    data->refresh_id = g_timeout_add(1000, on_refresh_app_list, data);
+    
+    // Force quit button starts disabled until selection made
+    gtk_widget_set_sensitive(GTK_WIDGET(data->force_quit_button), FALSE);
+    
+    // Show dialog
+    gtk_widget_show_all(GTK_WIDGET(data->dialog));
+    
+    // After showing, move to center of screen explicitly
+    GdkScreen *screen = gtk_window_get_screen(GTK_WINDOW(data->dialog));
+    if (screen) {
+        gint screen_width = gdk_screen_get_width(screen);
+        gint screen_height = gdk_screen_get_height(screen);
+        gint dialog_width, dialog_height;
+        
+        gtk_window_get_size(GTK_WINDOW(data->dialog), &dialog_width, &dialog_height);
+        
+        gtk_window_move(GTK_WINDOW(data->dialog), 
+                      (screen_width - dialog_width) / 2,
+                      (screen_height - dialog_height) / 2);
+    }
+    
+    // Make sure it gets focus
+    gtk_window_present(GTK_WINDOW(data->dialog));
+}--- END OF FILE panel-plugin/newtonmenu-force-quit-dialog.c ---
+
+--- START OF FILE panel-plugin/newtonmenu-force-quit-dialog.h ---
+#ifndef __newtonmenu_FORCE_QUIT_DIALOG_H__
+#define __newtonmenu_FORCE_QUIT_DIALOG_H__
+
+#include <gtk/gtk.h>
+#include "newtonmenu.h"
+
+G_BEGIN_DECLS
+
+void newtonmenu_show_force_quit_applications_dialog(GtkWindow *parent, newtonmenuPlugin *plugin_data);
+
+G_END_DECLS
+
+#endif /* !__newtonmenu_FORCE_QUIT_DIALOG_H__ */--- END OF FILE panel-plugin/newtonmenu-force-quit-dialog.h ---
+
+--- START OF FILE panel-plugin/newtonmenu-force-quit-dialog.ui ---
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk+" version="3.20"/>
+  <object class="GtkDialog" id="force_quit_applications_dialog">
+    <property name="can_focus">False</property>
+    <property name="title" translatable="yes">Force Quit Applications</property>
+    <property name="type_hint">dialog</property>
+    <property name="border_width">12</property>
+    <property name="default_width">400</property>
+    <property name="default_height">350</property>
+    <property name="modal">True</property>
+    <property name="destroy_with_parent">True</property>
+    <child internal-child="vbox">
+      <object class="GtkBox" id="dialog_vbox">
+        <property name="visible">True</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">6</property>
+        <child>
+          <object class="GtkLabel" id="info_label">
+            <property name="visible">True</property>
+            <property name="wrap">True</property>
+            <property name="label" translatable="yes">If an app doesn't respond for a while, select its name and click Force Quit.</property>
+            <property name="xalign">0</property>
+            <property name="margin_bottom">6</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkScrolledWindow" id="scrolled_window">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="shadow_type">in</property>
+            <property name="hscrollbar_policy">never</property>
+            <child>
+              <object class="GtkTreeView" id="app_list_treeview">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="headers_visible">False</property> 
+                <child internal-child="selection">
+                  <object class="GtkTreeSelection"/>
+                </child>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="shortcut_label">
+            <property name="visible">True</property>
+            <property name="wrap">True</property>
+            <property name="label" translatable="yes">You can open this window by pressing Command-Option-Escape.</property> 
+            <property name="xalign">0</property>
+            <property name="margin_top">6</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    <child type="action">
+      <object class="GtkButton" id="force_quit_button">
+        <property name="label" translatable="yes">_Force Quit</property>
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="receives_default">True</property>
+        <property name="use_underline">True</property>
+        <style>
+          <class name="suggested-action"/> 
+        </style>
+      </object>
+    </child>
+    <child type="action">
+      <object class="GtkButton" id="close_button">
+        <property name="label" translatable="yes">_Close</property>
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="receives_default">False</property>
+        <property name="use_underline">True</property>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="GTK_RESPONSE_APPLY">force_quit_button</action-widget>
+      <action-widget response="GTK_RESPONSE_CLOSE">close_button</action-widget>
+    </action-widgets>
+  </object>
+</interface>--- END OF FILE panel-plugin/newtonmenu-force-quit-dialog.ui ---
+
+--- START OF FILE panel-plugin/newtonmenu.gresource.xml ---
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/org/xfce/panel/plugins/newtonmenu">
+    <file compressed="true" preprocess="xml-stripblanks">newtonmenu-dialog.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks">newtonmenu-force-quit-dialog.ui</file>
+  </gresource>
+</gresources>--- END OF FILE panel-plugin/newtonmenu.gresource.xml ---
+
+--- START OF FILE panel-plugin/newtonmenu.h ---
+#ifndef __NEWTONMENU_H__
+#define __NEWTONMENU_H__
+
+#include <gtk/gtk.h>
+#include <libxfce4panel/libxfce4panel.h>
+#include <libxfce4ui/libxfce4ui.h>
+#include <libxfce4util/libxfce4util.h>
+#include <libwnck/libwnck.h>
+#include <gio/gio.h>
+#include <libdbusmenu-glib/client.h>
+
+G_BEGIN_DECLS
+
+typedef struct _newtonmenuPlugin newtonmenuPlugin;
+
+struct _newtonmenuPlugin
+{
+    XfcePanelPlugin *plugin;
+
+    GtkWidget       *main_box;
+    GtkMenuButton   *newton_button;
+    GtkWidget       *newton_button_box;
+    GtkWidget       *newton_icon_image;
+    GtkWidget       *newton_label_widget;
+    GtkWidget       *static_newton_menu;
+
+    GtkWidget       *app_menu_bar_container;
+    GtkMenuButton   *app_name_button;
+    GtkWidget       *app_name_button_label;
+
+    GList           *dynamic_app_menu_buttons;
+
+    DbusmenuClient  *app_dbusmenu_client;
+    gulong          app_dbusmenu_client_root_changed_id;    // For DbusmenuClient "root-changed"
+    gulong          app_dbusmenu_client_layout_updated_id;  // For DbusmenuClient "layout-updated"
+
+    GDBusConnection *dbus_session_bus;
+    GDBusProxy      *appmenu_registrar_proxy;
+    guint           dbus_name_owner_id;                     // For g_bus_own_name
+
+    WnckScreen      *wnck_screen;
+    WnckWindow      *active_wnck_window;
+
+    gulong          wnck_active_window_changed_handler_id;
+    gulong          appmenu_registrar_registered_handler_id;
+    gulong          appmenu_registrar_unregistered_handler_id;
+
+    gboolean        display_icon_prop;
+    gchar          *icon_name_prop;
+    gchar          *label_text_prop;
+    
+    gboolean        hide_application_name_prop;
+    gchar          *global_menu_title_prop;
+
+    gboolean        show_app_name_button_prop;
+    gboolean        bold_app_name_prop;
+    
+    gboolean        confirm_logout_prop;
+    gboolean        confirm_restart_prop;
+    gboolean        confirm_shutdown_prop;
+    gboolean        confirm_force_quit_prop;
+    
+    GtkMenuButton   *currently_open_button;
+};
+
+void newtonmenu_save(XfcePanelPlugin *plugin, newtonmenuPlugin *newtonmenu);
+void newtonmenu_update_display(newtonmenuPlugin *newtonmenu);
+void newtonmenu_clear_dynamic_app_menus(newtonmenuPlugin *newtonmenu);
+
+void newtonmenu_menu_button_toggled(GtkMenuButton *button, newtonmenuPlugin *newtonmenu);
+gboolean on_menu_button_enter(GtkWidget *widget, GdkEventCrossing *event, gpointer user_data);
+
+void newtonmenu_configure (XfcePanelPlugin *plugin, newtonmenuPlugin *newtonmenu);
+void newtonmenu_about (XfcePanelPlugin *plugin);
+
+G_END_DECLS
+
+#endif /* !__NEWTONMENU_H__ */--- END OF FILE panel-plugin/newtonmenu.h ---
+
