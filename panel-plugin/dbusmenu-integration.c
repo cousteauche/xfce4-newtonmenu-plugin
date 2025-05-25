@@ -156,7 +156,7 @@ static void on_dbusmenu_root_changed(DbusmenuClient *client, DbusmenuMenuitem *n
         gtk_box_pack_start(GTK_BOX(newtonmenu->app_menu_bar_container), GTK_WIDGET(menu_bar_button), FALSE, FALSE, 0);
         newtonmenu->dynamic_app_menu_buttons = g_list_append(newtonmenu->dynamic_app_menu_buttons, menu_bar_button);
     }
-    if (top_level_dbus_children) g_list_free_full(top_level_dbus_children, g_object_unref);
+    if (top_level_dbus_children) g_list_free(top_level_dbus_children);
     if (root_item_ref) g_object_unref(root_item_ref);
     if (gtk_container_get_children(GTK_CONTAINER(newtonmenu->app_menu_bar_container)) != NULL) {
         g_debug("NM_DEBUG: Showing app_menu_bar_container because it has children.");
