@@ -1,126 +1,47 @@
-project(
-  'xfce4-newtonmenu-plugin',
-  'c',
-  version: '0.0.4-dev',
-  license: 'GPL-2.0-or-later',
-  meson_version: '>= 0.54.0',
-  default_options: [
-    'c_std=gnu11',
-    'buildtype=debugoptimized',
-    'warning_level=2',
-  ]
+project('xfce4-newtonmenu-plugin', 'c', 'vala',
+  version: '1.0.0',
+  default_options: ['warning_level=1'])
+
+# Dependencies
+xfce_panel_dep = dependency('libxfce4panel-2.0', version: '>= 4.16')
+xfce_ui_dep    = dependency('libxfce4ui-2', version: '>= 4.16')
+xfce_util_dep  = dependency('libxfce4util-1.0', version: '>= 4.16')
+exo_dep        = dependency('exo-2', version: '>= 0.12')
+gtk_dep        = dependency('gtk+-3.0', version: '>= 3.24')
+glib_dep       = dependency('glib-2.0', version: '>= 2.66')
+wnck_dep       = dependency('libwnck-3.0', version: '>= 3.4.0')
+dbusmenu_dep   = dependency('dbusmenu-glib-0.4', required: true)
+
+# Plugin sources (C and Vala)
+sources_c = [
+  'src/newtonmenu.c',
+]
+sources_vala = [
+  'src/newtonmenu-dialog.vala',  # (example: maybe a settings dialog implemented in Vala)
+]
+
+# Compile Vala sources to C (if any)
+vala_features = [ '--target-glib=2.0' ]
+vala_c = vala.compile('newtonmenu_vala',
+  sources_vala,
+  dependencies: [gtk_dep, glib_dep, xfce_ui_dep, xfce_panel_dep],
+  args: vala_features,
+  install: false  # We compile into the .so, not a separate prog
 )
 
-project_namespace = 'panel-plugins'
-pkgdatadir = get_option('prefix') / get_option('datadir') / meson.project_name()
-copyright_year = '2025'
+# Combine generated C from Vala with hand-written C
+plugin_sources = sources_c + vala_c
 
-cc = meson.get_compiler('c')
-pkgconfig = import('pkgconfig')
-gnome = import('gnome')
-i18n = import('i18n')
+# Build the plugin as a shared object for Xfce panel
+plugin = shared_library(
+  'newtonmenu',
+  plugin_sources,
+  include_directories: include_directories('src'),
+  dependencies: [xfce_panel_dep, xfce_ui_dep, xfce_util_dep, exo_dep, gtk_dep, glib_dep, wnck_dep, dbusmenu_dep],
+  install: true,
+  install_dir: xfce_panel_dep.get_variable('plugindir')  # installs to XFCE's panel plugin directory
+)
 
-dependency_versions = {
-  'glib': '>= 2.66.0',
-  'gtk': '>= 3.24.0',
-  'xfce4': '>= 4.16.0',
-  'libwnck': '>= 3.4.8',
-  'dbusmenu-glib': '>= 0.6.0',
-  'appmenu-glib-translator': '>=0.1.1',
-}
-
-glib = dependency('glib-2.0', version: dependency_versions['glib'])
-gtk = dependency('gtk+-3.0', version: dependency_versions['gtk'])
-libxfce4panel = dependency('libxfce4panel-2.0', version: dependency_versions['xfce4'])
-libxfce4ui = dependency('libxfce4ui-2', version: dependency_versions['xfce4'])
-libxfce4util = dependency('libxfce4util-1.0', version: dependency_versions['xfce4'])
-libwnck_dep = dependency('libwnck-3.0', version: dependency_versions['libwnck'])
-libdbusmenu_glib_dep = dependency('dbusmenu-glib-0.4', version: dependency_versions['dbusmenu-glib'])
-libdbusmenu_gtk_dep = dependency('dbusmenu-gtk3-0.4', required: false)
-exo_dep = dependency('exo-2', version: '>= 0.12.0', required: false)
-
-appmenu_glib_translator_dep = dependency('appmenu-glib-translator',
-                                         version: dependency_versions['appmenu-glib-translator'],
-                                         required: true,
-                                         not_found_message: 'System library appmenu-glib-translator is required. Please install it.')
-
-feature_cflags = []
-if cc.check_header('string.h')
-  feature_cflags += '-DHAVE_STRING_H=1'
-endif
-
-project_c_args = []
-extra_cflags_check = [
-  '-Wmissing-declarations', '-Wmissing-noreturn', '-Wold-style-definition',
-  '-Wredundant-decls', '-Wpointer-arith', '-Wcast-align', '-Winit-self',
-  '-Wshadow', '-Wmissing-include-dirs', '-Wundef', '-Wformat',
-  '-Wformat-security', '-Wnested-externs', '-Wno-unused-parameter',
-  '-Wno-declaration-after-statement', '-Wno-missing-field-initializers',
-  '-Werror=implicit-function-declaration', '-Wno-error=deprecated-declarations',
-]
-if cc.has_argument('-Wformat-y2k')
-  extra_cflags_check += '-Wformat-y2k'
-endif
-
-optimization = get_option('optimization')
-if get_option('debug') and optimization in ['0', 'g']
-  extra_cflags_check += '-fstack-protector-strong'
-  project_c_args += ['-DDEBUG=1', '-DDEBUG_TRACE=1', '-DG_ENABLE_DEBUG']
-elif optimization in ['3', 'minsize']
-  project_c_args += ['-DNDEBUG', '-DG_DISABLE_CAST_CHECKS', '-DG_DISABLE_ASSERT']
-endif
-
-if dependency_versions.has_key('glib')
-  glib_version_parts = dependency_versions['glib'].split(' ')
-  glib_min_version_parts = glib_version_parts[1].split('.')
-  glib_min_version_define = 'GLIB_VERSION_@0@_@1@'.format(glib_min_version_parts[0], glib_min_version_parts[1])
-  project_c_args += [
-    '-DGLIB_VERSION_MIN_REQUIRED=@0@'.format(glib_min_version_define),
-    '-DGLIB_VERSION_MAX_ALLOWED=@0@'.format(glib_min_version_define),
-    '-DG_LOG_USE_STRUCTURED=1',
-  ]
-endif
-
-version_parts = meson.project_version().split('-dev')[0].split('.')
-version_short = '@0@.@1@'.format(version_parts[0], version_parts[1])
-project_c_args += [
-  '-DPACKAGE="@0@"'.format(meson.project_name()),
-  '-DPACKAGE_NAME="@0@"'.format(meson.project_name()),
-  '-DPACKAGE_VERSION="@0@"'.format(meson.project_version()),
-  '-DVERSION="@0@"'.format(meson.project_version()),
-  '-DVERSION_SHORT="@0@"'.format(version_short),
-  '-DPACKAGE_STRING="@0@ @1@"'.format(meson.project_name(), meson.project_version()),
-  '-DPACKAGE_DATADIR="@0@"'.format(pkgdatadir),
-  '-DCOPYRIGHT_YEAR="@0@"'.format(copyright_year),
-  '-DPACKAGE_LOCALE_DIR="@0@"'.format(get_option('prefix') / get_option('localedir')),
-  '-DPACKAGE_URL="https://docs.xfce.org/@0@/@1@/start"'.format(project_namespace, meson.project_name()),
-  '-DPACKAGE_BUGREPORT="https://gitlab.xfce.org/@0@/@1@/-/issues"'.format(project_namespace, meson.project_name()),
-  '-DGETTEXT_PACKAGE="@0@"'.format(meson.project_name()),
-  '-DPREFIX="@0@"'.format(get_option('prefix')), '-DBINDIR="@0@"'.format(get_option('prefix') / get_option('bindir')),
-  '-DDATADIR="@0@"'.format(get_option('prefix') / get_option('datadir')),
-  '-DDOCDIR="@0@"'.format(get_option('prefix') / 'doc' / meson.project_name()),
-  '-DINCLUDEDIR="@0@"'.format(get_option('prefix') / get_option('includedir')),
-  '-DLIBDIR="@0@"'.format(get_option('prefix') / get_option('libdir')),
-  '-DLIBEXECDIR="@0@"'.format(get_option('prefix') / get_option('libexecdir')),
-  '-DLOCALEDIR="@0@"'.format(get_option('prefix') / get_option('localedir')),
-  '-DLOCALSTATEDIR="@0@"'.format(get_option('prefix') / get_option('localstatedir')),
-  '-DSBINDIR="@0@"'.format(get_option('prefix') / get_option('sbindir')),
-  '-DSYSCONFDIR="@0@"'.format(get_option('prefix') / get_option('sysconfdir')),
-  '-DHAVE_XFCE_REVISION_H=1',
-]
-add_project_arguments(cc.get_supported_arguments(extra_cflags_check), language: 'c')
-add_project_arguments(feature_cflags, language: 'c')
-add_project_arguments(project_c_args, language: 'c')
-
-xfce_revision_h = vcs_tag(
-  command: ['git', 'rev-parse', '--short', 'HEAD'],
-  fallback: 'UNKNOWN', input: 'xfce-revision.h.in', output: 'xfce-revision.h', replace_string: '@REVISION@')
-
-if appmenu_glib_translator_dep.found()
-  add_project_arguments('-DHAVE_APPMENU_GLIB_TRANSLATOR=1', language: 'c')
-  message('Using system-provided appmenu-glib-translator dependency.')
-endif
-
-subdir('icons')
-subdir('panel-plugin')
-subdir('po')
+# Install the panel .desktop file for the plugin (to show in Add New Items dialog)
+install_data('panel-plugin/xfce4-newtonmenu-plugin.desktop',
+  install_dir: xfce_panel_dep.get_variable('datadir') + '/applications')

@@ -1,4 +1,601 @@
---- START OF FILE panel-plugin/dbusmenu-integration.c ---
+=== LLM CONTEXT: xfce4-newtonmenu-plugin ===
+Generated: Wed May 28 10:45:34 PM CEST 2025
+Purpose: Architecture analysis and implementation planning
+
+=== PROJECT STRUCTURE ===
+Root directory:
+total 368
+drwxr-xr-x 1 adam adam    678 May 28 22:45 .
+drwxr-xr-x 1 adam adam   1742 May 26 01:15 ..
+-rw-r--r-- 1 adam adam     24 May 23 02:39 AUTHORS
+-rwxr-xr-x 1 adam adam    423 May 23 02:39 autogen.sh
+-rw-r--r-- 1 adam adam  10606 May 24 15:18 breaking.txt
+drwxr-xr-x 1 adam adam    278 May 25 17:21 builddir
+-rw-r--r-- 1 adam adam   3345 May 23 02:39 configure.ac
+drwxr-xr-x 1 adam adam      8 May 23 02:39 .continue
+-rw-r--r-- 1 adam adam    612 May 23 02:39 continue.config.json
+-rw-r--r-- 1 adam adam  18092 May 23 02:39 COPYING
+-rw-r--r-- 1 adam adam  25383 May 23 02:39 COPYING.LIB
+drwxr-xr-x 1 adam adam    202 May 25 16:31 .git
+-rw-r--r-- 1 adam adam    466 May 23 02:39 .gitignore
+-rw-r--r-- 1 adam adam     80 May 23 02:39 .gitlab-ci.yml
+-rw-r--r-- 1 adam adam    152 May 23 19:35 .gitmodules
+drwxr-xr-x 1 adam adam     74 May 23 02:39 icons
+-rw-r--r-- 1 adam adam 135203 May 23 02:39 image.png
+-rw-r--r-- 1 adam adam    817 May 23 02:39 Makefile.am
+-rw-r--r-- 1 adam adam   5680 May 24 21:36 meson.build
+-rw-r--r-- 1 adam adam    135 May 23 02:39 NEWS
+drwxr-xr-x 1 adam adam    622 May 25 10:55 panel-plugin
+drwxr-xr-x 1 adam adam    610 May 23 02:39 po
+-rw-r--r-- 1 adam adam   2770 May 23 02:39 README.md
+drwxr-xr-x 1 adam adam    306 May 26 01:07 subprojects
+-rw-r--r-- 1 adam adam    542 May 23 02:39 THANKS
+-rw-r--r-- 1 adam adam      0 May 23 02:39 TODO
+-rw-r--r-- 1 adam adam 114476 May 26 01:16 xfce4-newtonmenu-plugin-20250526-011620_working.txt
+-rw-r--r-- 1 adam adam    191 May 28 22:45 xfce4-newtonmenu-plugin-20250528-224534_working.txt
+-rw-r--r-- 1 adam adam    380 May 24 15:19 xfce-revision.h.in
+
+Panel-plugin directory:
+total 148
+drwxr-xr-x 1 adam adam   622 May 25 10:55 .
+drwxr-xr-x 1 adam adam   678 May 28 22:45 ..
+drwxr-xr-x 1 adam adam     0 May 23 02:48 appmenu
+-rw-r--r-- 1 adam adam 17764 May 25 17:21 dbusmenu-integration.c
+-rw-r--r-- 1 adam adam   400 May 25 10:55 dbusmenu-integration.h
+-rw-r--r-- 1 adam adam  1248 May 23 02:39 Makefile.am
+-rw-r--r-- 1 adam adam  1547 May 25 10:55 meson.build
+-rw-r--r-- 1 adam adam 31836 May 25 17:19 newtonmenu.c
+-rw-r--r-- 1 adam adam   231 May 25 10:05 newtonmenu.desktop
+-rw-r--r-- 1 adam adam   231 May 25 10:05 newtonmenu.desktop.in
+-rw-r--r-- 1 adam adam 16191 May 24 22:14 newtonmenu-dialogs.c
+-rw-r--r-- 1 adam adam   315 May 25 09:53 newtonmenu-dialogs.h
+-rw-r--r-- 1 adam adam 17072 May 23 19:22 newtonmenu-dialog.ui
+-rw-r--r-- 1 adam adam 13283 May 23 02:39 newtonmenu-force-quit-dialog.c
+-rw-r--r-- 1 adam adam   313 May 23 02:39 newtonmenu-force-quit-dialog.h
+-rw-r--r-- 1 adam adam  4207 May 23 19:50 newtonmenu-force-quit-dialog.ui
+-rw-r--r-- 1 adam adam   319 May 23 16:23 newtonmenu.gresource.xml
+-rw-r--r-- 1 adam adam  2572 May 25 09:46 newtonmenu.h
+
+Subprojects directory:
+total 12
+drwxr-xr-x 1 adam adam 306 May 26 01:07 .
+drwxr-xr-x 1 adam adam 678 May 28 22:45 ..
+drwxr-xr-x 1 adam adam 642 May 26 01:07 vala-panel-appmenu
+-rw-r--r-- 1 adam adam 111 May 26 01:07 vala-panel-appmenu-20250526-010740_simple.txt
+-rw-r--r-- 1 adam adam 111 May 26 01:07 vala-panel-appmenu-20250526-010743_simple.txt
+-rw-r--r-- 1 adam adam 111 May 26 01:07 vala-panel-appmenu-20250526-010752_simple.txt
+
+vala-panel-appmenu structure:
+subprojects/vala-panel-appmenu/applets/budgie-plugin-appmenu.vala
+subprojects/vala-panel-appmenu/applets/mate-plugin-appmenu.vala
+subprojects/vala-panel-appmenu/applets/valapanel-plugin-appmenu.vala
+subprojects/vala-panel-appmenu/applets/xfce4-plugin-appmenu.vala
+subprojects/vala-panel-appmenu/lib/appmenu-abstractions.vala
+subprojects/vala-panel-appmenu/lib/appmenu-wnck.vala
+subprojects/vala-panel-appmenu/lib/helper-dbus.vala
+subprojects/vala-panel-appmenu/lib/helper-dbusmenu.vala
+subprojects/vala-panel-appmenu/lib/helper-desktop.vala
+subprojects/vala-panel-appmenu/lib/helper-menumodel.vala
+
+=== IMPORTANT FILES ===
+
+=== README.md ===
+[![License](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://gitlab.xfce.org/panel-plugins/xfce4-newtonmenu-plugin/-/blob/master/COPYING)
+
+# Xfce4 newtonmenu Plugin
+
+The Xfce4 newtonmenu Plugin provides a macOS-style application and session menu for the Xfce panel (version 4.16 or higher). It offers quick access to system actions and session management.
+
+![newtonmenu Screenshot](image.png)
+
+## Features
+
+*   **macOS-like Menu:** A single button to access common system and session actions.
+*   **Configurable Appearance:**
+    *   Display either an icon or a text label on the panel button.
+    *   Choose a custom icon (themed or full path) or set custom label text.
+*   **Menu Actions:**
+    *   About This PC
+    *   System Settings
+    *   App Store (placeholder - to be configured by user or future update)
+    *   Force Quit (invokes `xkill`)
+    *   Sleep
+    *   Restart
+    *   Shut Down
+    *   Lock Screen
+    *   Log Out (displays current username)
+*   **Configurable Confirmations:** Choose whether to display confirmation dialogs for Log Out, Restart, Shut Down, and Force Quit actions.
+
+## Requirements
+
+*   Xfce Panel 4.16 or higher
+*   GTK+ 3.24 or higher
+*   GLib 2.66 or higher
+*   libxfce4ui-2 4.16 or higher
+*   libxfce4util-1.0 4.16 or higher
+*   libxfce4panel-2.0 4.16 or higher
+*   exo-2 0.12.0 or higher (for icon chooser dialog)
+
+## Installation
+
+### From Source Code Repository (using Meson - Recommended)
+
+1.  Clone the repository:
+    ```bash
+    git clone <your_repository_url> xfce4-newtonmenu-plugin
+    cd xfce4-newtonmenu-plugin
+    ```
+2.  Build and install using Meson:
+    ```bash
+    meson setup builddir
+    meson compile -C builddir
+    sudo meson install -C builddir
+    ```
+3.  Restart the Xfce Panel:
+    ```bash
+    xfce4-panel -r
+    ```
+
+### From Source Code Repository (using Autotools - if applicable)
+
+    % cd xfce4-newtonmenu-plugin
+    % ./autogen.sh
+    % make
+    % sudo make install
+    % xfce4-panel -r
+
+After installation, right-click on the Xfce panel, choose "Panel" -> "Add New Items", and select "Newton Button Plugin" from the list.
+
+## Configuration
+
+Right-click on the Newton Button on the panel and select "Properties" to configure:
+*   **Button Appearance:**
+    *   Choose between displaying an icon or text.
+    *   Set the icon name/path or label text.
+*   **Action Confirmations:**
+    *   Enable or disable confirmation dialogs for potentially disruptive actions like Log Out, Restart, Shut Down, and Force Quit.
+
+## Reporting Bugs
+
+Please report any bugs or feature requests on the [GitLab issue tracker](<your_gitlab_project_url>/-/issues).
+
+---
+
+*This plugin is inspired by the desire for a simple, integrated system menu similar to those found on other desktop environments.*
+
+=== meson.build ===
+project(
+  'xfce4-newtonmenu-plugin',
+  'c',
+  version: '0.0.4-dev',
+  license: 'GPL-2.0-or-later',
+  meson_version: '>= 0.54.0',
+  default_options: [
+    'c_std=gnu11',
+    'buildtype=debugoptimized',
+    'warning_level=2',
+  ]
+)
+
+project_namespace = 'panel-plugins'
+pkgdatadir = get_option('prefix') / get_option('datadir') / meson.project_name()
+copyright_year = '2025'
+
+cc = meson.get_compiler('c')
+pkgconfig = import('pkgconfig')
+gnome = import('gnome')
+i18n = import('i18n')
+
+dependency_versions = {
+  'glib': '>= 2.66.0',
+  'gtk': '>= 3.24.0',
+  'xfce4': '>= 4.16.0',
+  'libwnck': '>= 3.4.8',
+  'dbusmenu-glib': '>= 0.6.0',
+  'appmenu-glib-translator': '>=0.1.1',
+}
+
+glib = dependency('glib-2.0', version: dependency_versions['glib'])
+gtk = dependency('gtk+-3.0', version: dependency_versions['gtk'])
+libxfce4panel = dependency('libxfce4panel-2.0', version: dependency_versions['xfce4'])
+libxfce4ui = dependency('libxfce4ui-2', version: dependency_versions['xfce4'])
+libxfce4util = dependency('libxfce4util-1.0', version: dependency_versions['xfce4'])
+libwnck_dep = dependency('libwnck-3.0', version: dependency_versions['libwnck'])
+libdbusmenu_glib_dep = dependency('dbusmenu-glib-0.4', version: dependency_versions['dbusmenu-glib'])
+libdbusmenu_gtk_dep = dependency('dbusmenu-gtk3-0.4', required: false)
+exo_dep = dependency('exo-2', version: '>= 0.12.0', required: false)
+
+appmenu_glib_translator_dep = dependency('appmenu-glib-translator',
+                                         version: dependency_versions['appmenu-glib-translator'],
+                                         required: true,
+                                         not_found_message: 'System library appmenu-glib-translator is required. Please install it.')
+
+feature_cflags = []
+if cc.check_header('string.h')
+  feature_cflags += '-DHAVE_STRING_H=1'
+endif
+
+project_c_args = []
+extra_cflags_check = [
+  '-Wmissing-declarations', '-Wmissing-noreturn', '-Wold-style-definition',
+  '-Wredundant-decls', '-Wpointer-arith', '-Wcast-align', '-Winit-self',
+  '-Wshadow', '-Wmissing-include-dirs', '-Wundef', '-Wformat',
+  '-Wformat-security', '-Wnested-externs', '-Wno-unused-parameter',
+  '-Wno-declaration-after-statement', '-Wno-missing-field-initializers',
+  '-Werror=implicit-function-declaration', '-Wno-error=deprecated-declarations',
+]
+if cc.has_argument('-Wformat-y2k')
+  extra_cflags_check += '-Wformat-y2k'
+endif
+
+optimization = get_option('optimization')
+if get_option('debug') and optimization in ['0', 'g']
+  extra_cflags_check += '-fstack-protector-strong'
+  project_c_args += ['-DDEBUG=1', '-DDEBUG_TRACE=1', '-DG_ENABLE_DEBUG']
+elif optimization in ['3', 'minsize']
+  project_c_args += ['-DNDEBUG', '-DG_DISABLE_CAST_CHECKS', '-DG_DISABLE_ASSERT']
+endif
+
+if dependency_versions.has_key('glib')
+  glib_version_parts = dependency_versions['glib'].split(' ')
+  glib_min_version_parts = glib_version_parts[1].split('.')
+  glib_min_version_define = 'GLIB_VERSION_@0@_@1@'.format(glib_min_version_parts[0], glib_min_version_parts[1])
+  project_c_args += [
+    '-DGLIB_VERSION_MIN_REQUIRED=@0@'.format(glib_min_version_define),
+    '-DGLIB_VERSION_MAX_ALLOWED=@0@'.format(glib_min_version_define),
+    '-DG_LOG_USE_STRUCTURED=1',
+  ]
+endif
+
+version_parts = meson.project_version().split('-dev')[0].split('.')
+version_short = '@0@.@1@'.format(version_parts[0], version_parts[1])
+project_c_args += [
+  '-DPACKAGE="@0@"'.format(meson.project_name()),
+  '-DPACKAGE_NAME="@0@"'.format(meson.project_name()),
+  '-DPACKAGE_VERSION="@0@"'.format(meson.project_version()),
+  '-DVERSION="@0@"'.format(meson.project_version()),
+  '-DVERSION_SHORT="@0@"'.format(version_short),
+  '-DPACKAGE_STRING="@0@ @1@"'.format(meson.project_name(), meson.project_version()),
+  '-DPACKAGE_DATADIR="@0@"'.format(pkgdatadir),
+  '-DCOPYRIGHT_YEAR="@0@"'.format(copyright_year),
+  '-DPACKAGE_LOCALE_DIR="@0@"'.format(get_option('prefix') / get_option('localedir')),
+  '-DPACKAGE_URL="https://docs.xfce.org/@0@/@1@/start"'.format(project_namespace, meson.project_name()),
+  '-DPACKAGE_BUGREPORT="https://gitlab.xfce.org/@0@/@1@/-/issues"'.format(project_namespace, meson.project_name()),
+  '-DGETTEXT_PACKAGE="@0@"'.format(meson.project_name()),
+  '-DPREFIX="@0@"'.format(get_option('prefix')), '-DBINDIR="@0@"'.format(get_option('prefix') / get_option('bindir')),
+  '-DDATADIR="@0@"'.format(get_option('prefix') / get_option('datadir')),
+  '-DDOCDIR="@0@"'.format(get_option('prefix') / 'doc' / meson.project_name()),
+  '-DINCLUDEDIR="@0@"'.format(get_option('prefix') / get_option('includedir')),
+  '-DLIBDIR="@0@"'.format(get_option('prefix') / get_option('libdir')),
+  '-DLIBEXECDIR="@0@"'.format(get_option('prefix') / get_option('libexecdir')),
+  '-DLOCALEDIR="@0@"'.format(get_option('prefix') / get_option('localedir')),
+  '-DLOCALSTATEDIR="@0@"'.format(get_option('prefix') / get_option('localstatedir')),
+  '-DSBINDIR="@0@"'.format(get_option('prefix') / get_option('sbindir')),
+  '-DSYSCONFDIR="@0@"'.format(get_option('prefix') / get_option('sysconfdir')),
+  '-DHAVE_XFCE_REVISION_H=1',
+]
+add_project_arguments(cc.get_supported_arguments(extra_cflags_check), language: 'c')
+add_project_arguments(feature_cflags, language: 'c')
+add_project_arguments(project_c_args, language: 'c')
+
+xfce_revision_h = vcs_tag(
+  command: ['git', 'rev-parse', '--short', 'HEAD'],
+  fallback: 'UNKNOWN', input: 'xfce-revision.h.in', output: 'xfce-revision.h', replace_string: '@REVISION@')
+
+if appmenu_glib_translator_dep.found()
+  add_project_arguments('-DHAVE_APPMENU_GLIB_TRANSLATOR=1', language: 'c')
+  message('Using system-provided appmenu-glib-translator dependency.')
+endif
+
+subdir('icons')
+subdir('panel-plugin')
+subdir('po')
+=== configure.ac ===
+dnl
+dnl xfce4-newtonmenu-plugin - A newtonmenu plugin for the Xfce panel
+dnl
+dnl 2023 John Doo <john@example.org>
+dnl
+
+dnl ***************************
+dnl *** Version information ***
+dnl ***************************
+m4_define([copyright_year], [2025])
+XDT_VERSION_INIT([0.0.4], [git])
+dnl ***************************
+dnl *** Initialize autoconf ***
+dnl ***************************
+AC_COPYRIGHT([Copyright (C) 2006-copyright_year()
+        The Xfce development team. All rights reserved.])
+AC_INIT([xfce4-newtonmenu-plugin], [xdt_version], [https://gitlab.xfce.org/panel-plugins/xfce4-newtonmenu-plugin], [xfce4-newtonmenu-plugin])
+AC_PREREQ([2.69])
+AC_REVISION([xdt_version_build])
+AC_CONFIG_MACRO_DIRS([m4])
+AC_DEFINE([VERSION_FULL], [PACKAGE_VERSION], [Alias for VERSION and PACKAGE_VERSION for meson compatibility])
+COPYRIGHT_YEAR=copyright_year()
+AC_DEFINE_UNQUOTED([COPYRIGHT_YEAR], ["$COPYRIGHT_YEAR"], [Copyright year])
+AC_SUBST([COPYRIGHT_YEAR])
+
+dnl ***************************
+dnl *** Initialize automake ***
+dnl ***************************
+AM_INIT_AUTOMAKE([1.15 no-dist-gzip dist-bzip2 tar-ustar foreign])
+AC_CONFIG_HEADERS([config.h])
+AM_MAINTAINER_MODE()
+AM_SILENT_RULES([yes])
+
+dnl **************************
+dnl *** Initialize libtool ***
+dnl **************************
+LT_PREREQ([2.2.6])
+LT_INIT([disable-static])
+
+dnl ********************************
+dnl *** Check for basic programs ***
+dnl ********************************
+AC_PROG_CC()
+AC_PROG_CC_C_O()
+AC_PROG_INSTALL()
+
+dnl **********************************
+dnl *** Check for standard headers ***
+dnl **********************************
+AC_CHECK_HEADERS([stdlib.h unistd.h locale.h stdio.h errno.h time.h string.h \
+                  math.h sys/types.h sys/wait.h memory.h signal.h sys/prctl.h])
+
+dnl ******************************
+dnl *** Check for i18n support ***
+dnl ******************************
+AC_DEFINE_UNQUOTED([GETTEXT_PACKAGE], ["$PACKAGE"], [Name of default gettext domain])
+AC_SUBST([GETTEXT_PACKAGE])
+AM_GNU_GETTEXT([external])
+AM_GNU_GETTEXT_VERSION([0.19.8])
+
+dnl ***********************************
+dnl *** Check for required packages ***
+dnl ***********************************
+XDT_CHECK_PACKAGE([GLIB], [glib-2.0], [2.66.0])
+XDT_CHECK_PACKAGE([GTK], [gtk+-3.0], [3.24.0])
+XDT_CHECK_PACKAGE([LIBXFCE4UI], [libxfce4ui-2], [4.16.0])
+XDT_CHECK_PACKAGE([LIBXFCE4UTIL], [libxfce4util-1.0], [4.16.0])
+XDT_CHECK_PACKAGE([LIBXFCE4PANEL], [libxfce4panel-2.0], [4.16.0])
+
+dnl ***********************************
+dnl *** Check for debugging support ***
+dnl ***********************************
+XDT_FEATURE_DEBUG([xdt_debug_default])
+
+dnl *********************************
+dnl *** Substitute platform flags ***
+dnl *********************************
+AC_MSG_CHECKING([PLATFORM_CPPFLAGS])
+AC_MSG_RESULT([$PLATFORM_CPPFLAGS])
+AC_SUBST([PLATFORM_CPPFLAGS])
+AC_MSG_CHECKING([PLATFORM_CFLAGS])
+AC_MSG_RESULT([$PLATFORM_CFLAGS])
+AC_SUBST([PLATFORM_CFLAGS])
+AC_MSG_CHECKING([PLATFORM_LDFLAGS])
+AC_MSG_RESULT([$PLATFORM_LDFLAGS])
+AC_SUBST([PLATFORM_LDFLAGS])
+
+AC_CONFIG_FILES([
+Makefile
+icons/Makefile
+icons/48x48/Makefile
+icons/scalable/Makefile
+panel-plugin/Makefile
+po/Makefile.in
+])
+AC_OUTPUT
+
+dnl ***************************
+dnl *** Print configuration ***
+dnl ***************************
+echo
+echo "Build Configuration:"
+echo
+echo "* Debug Support:    $enable_debug"
+echo
+
+=== Makefile.am ===
+@SET_MAKE@
+
+AUTOMAKE_OPTIONS = subdir-objects
+ACLOCAL_AMFLAGS = -I m4 ${ACLOCAL_FLAGS}
+
+SUBDIRS =	\
+	icons	\
+	panel-plugin \
+	po
+
+EXTRA_DIST = \
+	meson.build \
+	po/meson.build \
+	xfce-revision.h.in \
+	$(NULL)
+
+distclean-local:
+	rm -rf *.cache *~
+
+distuninstallcheck_listfiles =                                          \
+        find . -type f -print | grep -v ./share/icons/hicolor/icon-theme.cache
+
+rpm: dist
+	rpmbuild -ta $(PACKAGE)-$(VERSION).tar.gz
+	@rm -f $(PACKAGE)-$(VERSION).tar.gz
+
+.PHONY: ChangeLog
+
+ChangeLog: Makefile
+	(GIT_DIR=$(top_srcdir)/.git git log > .changelog.tmp \
+	&& mv .changelog.tmp ChangeLog; rm -f .changelog.tmp) \
+	|| (touch ChangeLog; echo 'Git directory not found: installing possibly empty changelog.' >&2)
+
+dist-hook: ChangeLog
+
+# vi:set ts=8 sw=8 noet ai nocindent syntax=automake:
+
+=== NEWS ===
+0.0.1
+=====
+- Enter here some release highlights.
+- Updated translations: John Doo (be), Foo Bar (nl).
+- New translations: Anton (de).
+
+=== AUTHORS ===
+John Doo <john@foo.org>
+
+=== TODO ===
+
+=== panel-plugin/newtonmenu.desktop ===
+[Xfce Panel]
+Type=X-XFCE-PanelPlugin
+Encoding=UTF-8
+Name=newtonmenu Plugin
+Comment=newtonmenu plugin for the Xfce panel
+Icon=xfce4-newtonmenu-plugin
+X-XFCE-Module=newtonmenu
+X-XFCE-Internal=false
+X-XFCE-Unique=false
+X-XFCE-API=2.0
+
+=== panel-plugin/newtonmenu.desktop.in ===
+[Xfce Panel]
+Type=X-XFCE-PanelPlugin
+Encoding=UTF-8
+Name=newtonmenu Plugin
+Comment=newtonmenu plugin for the Xfce panel
+Icon=xfce4-newtonmenu-plugin
+X-XFCE-Module=newtonmenu
+X-XFCE-Internal=false
+X-XFCE-Unique=false
+X-XFCE-API=2.0
+
+=== panel-plugin/dbusmenu-integration.h ===
+#ifndef __DBUSMENU_INTEGRATION_H__
+#define __DBUSMENU_INTEGRATION_H__
+
+#include "newtonmenu.h"
+#include <libdbusmenu-glib/client.h>
+#include <libwnck/libwnck.h>
+#include <gtk/gtk.h>
+
+G_BEGIN_DECLS
+
+void newtonmenu_fetch_app_menu_enhanced(newtonmenuPlugin *newtonmenu, WnckWindow *window);
+gboolean newtonmenu_window_has_app_menu(newtonmenuPlugin *newtonmenu, WnckWindow *window);
+
+G_END_DECLS
+
+#endif
+=== panel-plugin/newtonmenu-dialogs.h ===
+#ifndef __newtonmenu_DIALOGS_H__
+#define __newtonmenu_DIALOGS_H__
+
+#include <gtk/gtk.h>
+#include "newtonmenu.h" 
+
+G_BEGIN_DECLS
+
+void newtonmenu_show_generic_confirmation (GtkWindow *parent, const gchar *action_name_translated, const gchar *action_verb_translated, const gchar *command_to_run);
+
+G_END_DECLS
+
+#endif
+=== panel-plugin/newtonmenu-force-quit-dialog.h ===
+#ifndef __newtonmenu_FORCE_QUIT_DIALOG_H__
+#define __newtonmenu_FORCE_QUIT_DIALOG_H__
+
+#include <gtk/gtk.h>
+#include "newtonmenu.h"
+
+G_BEGIN_DECLS
+
+void newtonmenu_show_force_quit_applications_dialog(GtkWindow *parent, newtonmenuPlugin *plugin_data);
+
+G_END_DECLS
+
+#endif /* !__newtonmenu_FORCE_QUIT_DIALOG_H__ */
+=== panel-plugin/newtonmenu.h ===
+#ifndef __NEWTONMENU_H__
+#define __NEWTONMENU_H__
+
+#include <gtk/gtk.h>
+#include <libxfce4panel/libxfce4panel.h>
+#include <libxfce4ui/libxfce4ui.h>
+#include <libxfce4util/libxfce4util.h>
+#include <libwnck/libwnck.h>
+#include <gio/gio.h>
+#include <libdbusmenu-glib/client.h>
+
+G_BEGIN_DECLS
+
+typedef struct _newtonmenuPlugin newtonmenuPlugin;
+
+struct _newtonmenuPlugin
+{
+    XfcePanelPlugin *plugin;
+
+    GtkWidget       *main_box;
+    GtkMenuButton   *newton_button;
+    GtkWidget       *newton_button_box;
+    GtkWidget       *newton_icon_image;
+    GtkWidget       *newton_label_widget;
+    GtkWidget       *static_newton_menu;
+
+    GtkWidget       *app_menu_bar_container;
+    GtkMenuButton   *app_name_button;
+    GtkWidget       *app_name_button_label;
+
+    GList           *dynamic_app_menu_buttons;
+
+    DbusmenuClient  *app_dbusmenu_client;
+    gulong          app_dbusmenu_client_root_changed_id;    // For DbusmenuClient "root-changed"
+    gulong          app_dbusmenu_client_layout_updated_id;  // For DbusmenuClient "layout-updated"
+
+    GDBusConnection *dbus_session_bus;
+    GDBusProxy      *appmenu_registrar_proxy;
+    guint           dbus_name_owner_id;                     // For g_bus_own_name
+
+    WnckScreen      *wnck_screen;
+    WnckWindow      *active_wnck_window;
+
+    gulong          wnck_active_window_changed_handler_id;
+    gulong          appmenu_registrar_registered_handler_id;
+    gulong          appmenu_registrar_unregistered_handler_id;
+
+    gboolean        display_icon_prop;
+    gchar          *icon_name_prop;
+    gchar          *label_text_prop;
+    
+    gboolean        hide_application_name_prop;
+    gchar          *global_menu_title_prop;
+
+    gboolean        show_app_name_button_prop;
+    gboolean        bold_app_name_prop;
+    
+    gboolean        confirm_logout_prop;
+    gboolean        confirm_restart_prop;
+    gboolean        confirm_shutdown_prop;
+    gboolean        confirm_force_quit_prop;
+    
+    GtkMenuButton   *currently_open_button;
+};
+
+void newtonmenu_save(XfcePanelPlugin *plugin, newtonmenuPlugin *newtonmenu);
+void newtonmenu_update_display(newtonmenuPlugin *newtonmenu);
+void newtonmenu_clear_dynamic_app_menus(newtonmenuPlugin *newtonmenu);
+
+void newtonmenu_menu_button_toggled(GtkMenuButton *button, newtonmenuPlugin *newtonmenu);
+gboolean on_menu_button_enter(GtkWidget *widget, GdkEventCrossing *event, gpointer user_data);
+
+void newtonmenu_configure (XfcePanelPlugin *plugin, newtonmenuPlugin *newtonmenu);
+void newtonmenu_about (XfcePanelPlugin *plugin);
+
+G_END_DECLS
+
+#endif /* !__NEWTONMENU_H__ */
+=== panel-plugin/dbusmenu-integration.c ===
 /*
  * Copyright (C) 2025 Adam
  * DBusmenu Integration Helper Functions
@@ -29,6 +626,17 @@ static void on_dbusmenu_gtk_item_activated(GtkMenuItem *gtk_item, gpointer user_
 
 
 void newtonmenu_fetch_app_menu_enhanced(newtonmenuPlugin *newtonmenu, WnckWindow *window) {
+    g_debug("NM_DEBUG: newtonmenu_fetch_app_menu_enhanced CALLED with window: %p", window);
+    
+    // TEMP: Skip problematic apps
+    if (window) {
+        const char *app_name = wnck_window_get_name(window);
+        g_debug("NM_DEBUG: Processing window: %s", app_name ? app_name : "(null)");
+        if (app_name && (g_strrstr(app_name, "Chrome") || g_strrstr(app_name, "Firefox") || g_strrstr(app_name, "Chromium"))) {
+            g_debug("NM_DEBUG: Skipping problematic app: %s", app_name);
+            return;
+        }
+    }
     GError *error = NULL;
     gchar *service_name = NULL;
     gchar *object_path = NULL;
@@ -85,6 +693,49 @@ static void on_dbusmenu_root_changed(DbusmenuClient *client, DbusmenuMenuitem *n
     newtonmenuPlugin *newtonmenu = (newtonmenuPlugin*)user_data;
     DbusmenuMenuitem *root_item_ref = NULL;
     GList *top_level_dbus_children, *iter;
+    
+    g_debug("NM_DEBUG: on_dbusmenu_root_changed CALLED. Client: %p, newroot_unsafe_param: %p", client, newroot_unsafe_param);
+    g_return_if_fail(newtonmenu != NULL);
+    
+    newtonmenu_clear_dynamic_app_menus(newtonmenu);
+    
+    if (!newtonmenu->app_dbusmenu_client) {
+        g_debug("NM_DEBUG: DBusmenu client not available in on_dbusmenu_root_changed.");
+        gtk_widget_hide(newtonmenu->app_menu_bar_container); 
+        return;
+    }
+    
+    root_item_ref = dbusmenu_client_get_root(newtonmenu->app_dbusmenu_client);
+    g_debug("NM_DEBUG: root_item_ref from client_get_root: %p", root_item_ref);
+    
+    if (!root_item_ref) {
+        g_debug("NM_DEBUG: root_item_ref is NULL. Hiding container.");
+        gtk_widget_hide(newtonmenu->app_menu_bar_container); 
+        return;
+    }
+    
+    g_object_ref(root_item_ref); 
+    top_level_dbus_children = dbusmenu_menuitem_get_children(root_item_ref);
+    g_debug("NM_DEBUG: top_level_dbus_children: %p, Length: %d", top_level_dbus_children, top_level_dbus_children ? g_list_length(top_level_dbus_children) : 0);
+    
+    if (!top_level_dbus_children) {
+        g_debug("NM_DEBUG: No top_level children. Hiding container.");
+        gtk_widget_hide(newtonmenu->app_menu_bar_container);
+        g_object_unref(root_item_ref); 
+        return;
+    }
+    
+    // YOUR VALIDATION - this looks correct:
+    for (GList *check_iter = top_level_dbus_children; check_iter != NULL; check_iter = g_list_next(check_iter)) {
+        if (!check_iter->data || !DBUSMENU_IS_MENUITEM(check_iter->data)) {
+            g_debug("NM_DEBUG: Invalid menu structure detected, skipping");
+            gtk_widget_hide(newtonmenu->app_menu_bar_container);
+            g_list_free(top_level_dbus_children);  // ✅ GOOD - you fixed the g_list_free_full issue
+            g_object_unref(root_item_ref);
+            return;
+        }
+    }
+
     g_debug("NM_DEBUG: on_dbusmenu_root_changed CALLED. Client: %p, newroot_unsafe_param: %p", client, newroot_unsafe_param);
     g_return_if_fail(newtonmenu != NULL);
     newtonmenu_clear_dynamic_app_menus(newtonmenu);
@@ -157,7 +808,7 @@ static void on_dbusmenu_root_changed(DbusmenuClient *client, DbusmenuMenuitem *n
         gtk_box_pack_start(GTK_BOX(newtonmenu->app_menu_bar_container), GTK_WIDGET(menu_bar_button), FALSE, FALSE, 0);
         newtonmenu->dynamic_app_menu_buttons = g_list_append(newtonmenu->dynamic_app_menu_buttons, menu_bar_button);
     }
-    if (top_level_dbus_children) g_list_free_full(top_level_dbus_children, g_object_unref);
+    if (top_level_dbus_children) g_list_free(top_level_dbus_children);
     if (root_item_ref) g_object_unref(root_item_ref);
     if (gtk_container_get_children(GTK_CONTAINER(newtonmenu->app_menu_bar_container)) != NULL) {
         g_debug("NM_DEBUG: Showing app_menu_bar_container because it has children.");
@@ -197,7 +848,7 @@ static GtkWidget* create_gtk_menuitem_from_dbusmenu_item(DbusmenuMenuitem *dbusm
         GtkWidget *submenu_shell = gtk_menu_new();
         append_dbusmenu_items_to_gtk_menu(submenu_shell, dbusmenu_item);
         gtk_menu_item_set_submenu(GTK_MENU_ITEM(gtk_item), submenu_shell);
-        g_list_free_full(children_of_dbus_item, g_object_unref);
+        g_list_free(children_of_dbus_item);
     } else {
         toggle_type_str = dbusmenu_menuitem_property_get(dbusmenu_item, DBUSMENU_MENUITEM_PROP_TOGGLE_TYPE);
         if (toggle_type_str && (g_strcmp0(toggle_type_str, "checkmark") == 0 || g_strcmp0(toggle_type_str, "radio") == 0)) {
@@ -248,159 +899,8 @@ gboolean newtonmenu_window_has_app_menu(newtonmenuPlugin *newtonmenu, WnckWindow
     }
     g_free(service_name); g_free(object_path); g_clear_error(&error);
     return has_menu;
-}--- END OF FILE panel-plugin/dbusmenu-integration.c ---
-
---- START OF FILE panel-plugin/dbusmenu-integration.h ---
-#ifndef __DBUSMENU_INTEGRATION_H__
-#define __DBUSMENU_INTEGRATION_H__
-
-#include "newtonmenu.h"
-#include <libdbusmenu-glib/client.h>
-#include <libwnck/libwnck.h>
-#include <gtk/gtk.h>
-
-G_BEGIN_DECLS
-
-void newtonmenu_fetch_app_menu_enhanced(newtonmenuPlugin *newtonmenu, WnckWindow *window);
-gboolean newtonmenu_window_has_app_menu(newtonmenuPlugin *newtonmenu, WnckWindow *window);
-
-G_END_DECLS
-
-#endif--- END OF FILE panel-plugin/dbusmenu-integration.h ---
-
---- START OF FILE panel-plugin/Makefile.am ---
-AM_CPPFLAGS = \
-	-I$(top_srcdir) \
-	-DG_LOG_DOMAIN=\"xfce4-newtonmenu-plugin\" \
-	-DPACKAGE_LOCALE_DIR=\"$(localedir)\" \
-	$(PLATFORM_CPPFLAGS)
-
-#
-# newtonmenu plugin
-#
-plugin_LTLIBRARIES = \
-	libnewtonmenu.la
-
-plugindir = \
-	$(libdir)/xfce4/panel/plugins
-
-libnewtonmenu_la_SOURCES = \
-	newtonmenu.c \
-	newtonmenu.h \
-	newtonmenu-dialogs.c \
-	newtonmenu-dialogs.h
-
-libnewtonmenu_la_CFLAGS = \
-	$(GLIB_CFLAGS) \
-	$(GTK_CFLAGS) \
-	$(LIBXFCE4UTIL_CFLAGS) \
-	$(LIBXFCE4UI_CFLAGS) \
-	$(LIBXFCE4PANEL_CFLAGS) \
-	$(PLATFORM_CFLAGS)
-
-libnewtonmenu_la_LDFLAGS = \
-       -avoid-version \
-       -module \
-       -no-undefined \
-       -export-symbols-regex '^xfce_panel_module_(preinit|init|construct)' \
-       $(PLATFORM_LDFLAGS)
-
-libnewtonmenu_la_LIBADD = \
-	$(GLIB_LIBS) \
-	$(GTK_LIBS) \
-	$(LIBXFCE4UTIL_LIBS) \
-	$(LIBXFCE4UI_LIBS) \
-	$(LIBXFCE4PANEL_LIBS)
-
-#
-# Desktop file
-#
-desktopdir =								\
-	$(datadir)/xfce4/panel/plugins
-
-newtonmenu.desktop: newtonmenu.desktop.in
-	$(AM_V_GEN)$(MSGFMT) --desktop --template $< -d $(top_srcdir)/po -o $@
-
-desktop_DATA =								\
-	newtonmenu.desktop
-
-EXTRA_DIST =								\
-	meson.build							\
-	newtonmenu.desktop.in
-
-CLEANFILES =								\
-	$(desktop_DATA)
-
-# vi:set ts=8 sw=8 noet ai nocindent syntax=automake:
---- END OF FILE panel-plugin/Makefile.am ---
-
---- START OF FILE panel-plugin/meson.build ---
-plugin_sources = files(
-  'newtonmenu.c',
-  'newtonmenu-dialogs.c',
-  'newtonmenu-force-quit-dialog.c',
-  'dbusmenu-integration.c'
-)
-
-newtonmenu_gresource = gnome.compile_resources(
-  'newtonmenu-gresource',
-  'newtonmenu.gresource.xml',
-  source_dir: '.',
-  c_name: 'newtonmenu'
-)
-
-plugin_c_args = [
-  '-DG_LOG_DOMAIN="xfce4-newtonmenu-plugin"',
-  '-DWNCK_I_KNOW_THIS_IS_UNSTABLE'
-]
-
-if appmenu_glib_translator_dep.found()
-  plugin_c_args += '-DHAVE_APPMENU_GLIB_TRANSLATOR=1'
-endif
-
-plugin_deps = [
-  glib,
-  gtk,
-  libxfce4panel,
-  libxfce4ui,
-  libxfce4util,
-  libwnck_dep,
-  libdbusmenu_glib_dep,
-  appmenu_glib_translator_dep,
-]
-
-if libdbusmenu_gtk_dep.found()
-  plugin_deps += libdbusmenu_gtk_dep
-endif
-
-if exo_dep.found()
-  plugin_deps += exo_dep
-endif
-
-# Determine the correct libdir based on the 'libdir' option from Meson
-# This will be 'lib' or 'lib64' etc. as determined by Meson for your system.
-plugin_install_dir = get_option('prefix') / get_option('libdir') / 'xfce4' / 'panel' / 'plugins'
-message('Plugin will be installed to: ' + plugin_install_dir) # For verification
-
-shared_module('newtonmenu',
-  sources: [plugin_sources, newtonmenu_gresource, xfce_revision_h],
-  dependencies: plugin_deps,
-  c_args: plugin_c_args,
-  include_directories: ['.'],
-  install: true,
-  install_dir: plugin_install_dir 
-)
-
-desktop_file = i18n.merge_file(
-  input: 'newtonmenu.desktop.in',
-  output: 'newtonmenu.desktop',
-  type: 'desktop',
-  po_dir: '../po',
-  install: true,
-  install_dir: get_option('datadir') / 'xfce4' / 'panel' / 'plugins'
-)--- END OF FILE panel-plugin/meson.build ---
-
---- START OF FILE panel-plugin/newtonmenu.c ---
+}
+=== panel-plugin/newtonmenu.c ===
 /*
  * Copyright (C) 2025 Adam
  * Xfce4 Newton Menu Plugin with Global Menu Integration
@@ -597,6 +1097,13 @@ void newtonmenu_update_display(newtonmenuPlugin *newtonmenu)
 
 void newtonmenu_clear_dynamic_app_menus(newtonmenuPlugin *newtonmenu) {
     g_return_if_fail(newtonmenu != NULL);
+
+        // Close any open menus before cleanup
+    if (newtonmenu->currently_open_button) {
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(newtonmenu->currently_open_button), FALSE);
+        newtonmenu->currently_open_button = NULL;
+    }
+
     if (newtonmenu->app_name_button) {
         gtk_widget_destroy(GTK_WIDGET(newtonmenu->app_name_button));
         newtonmenu->app_name_button = NULL;
@@ -747,6 +1254,8 @@ static gboolean newtonmenu_size_changed(XfcePanelPlugin *plugin, gint size, newt
 }
 
 static void newtonmenu_init_dbus_and_wnck(newtonmenuPlugin *newtonmenu) {
+        g_debug("NM_DEBUG: newtonmenu_init_dbus_and_wnck STARTING");
+
     GError *error = NULL;
     const gchar *current_gtk_modules = g_getenv("GTK_MODULES");
     if (!current_gtk_modules || !g_strrstr(current_gtk_modules, "appmenu-gtk-module")) {
@@ -933,35 +1442,8 @@ static void on_log_out_activate(GtkMenuItem *menuitem, gpointer user_data) {
     if (nm->confirm_logout_prop) newtonmenu_show_generic_confirmation(GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(nm->plugin))), an, _("Log Out"), "xfce4-session-logout --logout");
     else execute_command("xfce4-session-logout --logout");
     g_free(an);
-}--- END OF FILE panel-plugin/newtonmenu.c ---
-
---- START OF FILE panel-plugin/newtonmenu.desktop ---
-[Xfce Panel]
-Type=X-XFCE-PanelPlugin
-Encoding=UTF-8
-Name=newtonmenu Plugin
-Comment=newtonmenu plugin for the Xfce panel
-Icon=xfce4-newtonmenu-plugin
-X-XFCE-Module=newtonmenu
-X-XFCE-Internal=false
-X-XFCE-Unique=false
-X-XFCE-API=2.0
---- END OF FILE panel-plugin/newtonmenu.desktop ---
-
---- START OF FILE panel-plugin/newtonmenu.desktop.in ---
-[Xfce Panel]
-Type=X-XFCE-PanelPlugin
-Encoding=UTF-8
-Name=newtonmenu Plugin
-Comment=newtonmenu plugin for the Xfce panel
-Icon=xfce4-newtonmenu-plugin
-X-XFCE-Module=newtonmenu
-X-XFCE-Internal=false
-X-XFCE-Unique=false
-X-XFCE-API=2.0
---- END OF FILE panel-plugin/newtonmenu.desktop.in ---
-
---- START OF FILE panel-plugin/newtonmenu-dialogs.c ---
+}
+=== panel-plugin/newtonmenu-dialogs.c ===
 /*
  * Copyright (C) 2025 Adam
  * Xfce4 Newton Menu Plugin - Configuration Dialogs
@@ -1334,361 +1816,8 @@ void newtonmenu_show_generic_confirmation(GtkWindow *parent,
     g_signal_connect(dialog, "response", G_CALLBACK(generic_action_dialog_response_cb), g_strdup(command_to_run));
     gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER_ALWAYS); 
     gtk_widget_show_all(dialog);
-}--- END OF FILE panel-plugin/newtonmenu-dialogs.c ---
-
---- START OF FILE panel-plugin/newtonmenu-dialogs.h ---
-#ifndef __newtonmenu_DIALOGS_H__
-#define __newtonmenu_DIALOGS_H__
-
-#include <gtk/gtk.h>
-#include "newtonmenu.h" 
-
-G_BEGIN_DECLS
-
-void newtonmenu_show_generic_confirmation (GtkWindow *parent, const gchar *action_name_translated, const gchar *action_verb_translated, const gchar *command_to_run);
-
-G_END_DECLS
-
-#endif--- END OF FILE panel-plugin/newtonmenu-dialogs.h ---
-
---- START OF FILE panel-plugin/newtonmenu-dialog.ui ---
-<?xml version="1.0" encoding="UTF-8"?>
-<interface>
-  <requires lib="gtk+" version="3.20"/>
-  <object class="GtkDialog" id="newtonmenu_config_dialog">
-    <property name="can_focus">False</property>
-    <property name="title" translatable="yes">Newton Button Preferences</property>
-    <property name="type_hint">dialog</property>
-    <property name="border_width">12</property>
-    <property name="default_width">450</property>
-    <property name="modal">True</property>
-    <property name="destroy_with_parent">True</property>
-    <child internal-child="vbox">
-      <object class="GtkBox" id="dialog_vbox">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="orientation">vertical</property>
-        <property name="spacing">18</property>
-        <child>
-          <object class="GtkFrame" id="appearance_frame">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="label" translatable="yes">Button Appearance</property>
-            <property name="label_xalign">0</property>
-            <property name="shadow_type">etched-in</property>
-            <child>
-              <object class="GtkBox" id="appearance_box_content">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="orientation">vertical</property>
-                <property name="border_width">12</property>
-                <property name="spacing">12</property>
-                <child>
-                  <object class="GtkCheckButton" id="display_icon_checkbutton">
-                    <property name="label" translatable="yes">Display icon on panel button</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="draw_indicator">True</property>
-                    <property name="active">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkBox" id="icon_settings_box">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="orientation">horizontal</property>
-                    <property name="spacing">6</property>
-                    <child>
-                      <object class="GtkLabel" id="icon_name_label">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">Icon name:</property>
-                        <property name="xalign">0</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkEntry" id="icon_name_entry">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="hexpand">True</property>
-                        <property name="tooltip_text" translatable="yes">Enter a themed icon name (e.g., 'start-here') or a full path to an image file.</property>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkButton" id="icon_choose_button">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">True</property>
-                        <property name="tooltip_text" translatable="yes">Choose an icon</property>
-                        <child>
-                          <object class="GtkImage">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="icon_name">document-open-symbolic</property>
-                            <property name="icon_size">1</property> <!-- Corresponds to GTK_ICON_SIZE_MENU -->
-                          </object>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">2</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkBox" id="label_settings_box">
-                    <property name="visible">False</property>
-                    <property name="can_focus">False</property>
-                    <property name="orientation">horizontal</property>
-                    <property name="spacing">6</property>
-                    <child>
-                      <object class="GtkLabel" id="label_text_label">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">Button label text:</property>
-                        <property name="xalign">0</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkEntry" id="label_text_entry">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="hexpand">True</property>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-              </object>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-        <!-- NEW: Global Menu Appearance Frame -->
-        <child>
-          <object class="GtkFrame" id="global_menu_frame">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="label" translatable="yes">Global Menu Appearance</property>
-            <property name="label_xalign">0</property>
-            <property name="shadow_type">etched-in</property>
-            <child>
-              <object class="GtkBox" id="global_menu_box_content">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="orientation">vertical</property>
-                <property name="border_width">12</property>
-                <property name="spacing">12</property>
-                <child>
-                  <object class="GtkCheckButton" id="hide_app_name_checkbutton">
-                    <property name="label" translatable="yes">Hide application name in global menu</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkBox" id="global_menu_title_box">
-                    <property name="visible">False</property> <!-- Initially hidden, controlled by code -->
-                    <property name="can_focus">False</property>
-                    <property name="orientation">horizontal</property>
-                    <property name="spacing">6</property>
-                    <child>
-                      <object class="GtkLabel" id="global_menu_title_label">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">Global menu title:</property>
-                        <property name="xalign">0</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkEntry" id="global_menu_title_entry">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="hexpand">True</property>
-                        <property name="tooltip_text" translatable="yes">Custom title for the global menu when application name is hidden.</property>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-              </object>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">1</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkFrame" id="confirmation_frame">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="label" translatable="yes">Action Confirmations</property>
-            <property name="label_xalign">0</property>
-            <property name="shadow_type">etched-in</property>
-            <child>
-              <object class="GtkBox" id="confirmation_box_content">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="orientation">vertical</property>
-                <property name="border_width">12</property>
-                <property name="spacing">6</property>
-                <child>
-                  <object class="GtkCheckButton" id="confirm_logout_checkbutton">
-                    <property name="label" translatable="yes">Confirm before logging out</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="confirm_restart_checkbutton">
-                    <property name="label" translatable="yes">Confirm before restarting</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="confirm_shutdown_checkbutton">
-                    <property name="label" translatable="yes">Confirm before shutting down</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="confirm_force_quit_checkbutton">
-                    <property name="label" translatable="yes">Confirm before force quitting applications</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">3</property>
-                  </packing>
-                </child>
-              </object>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">2</property>
-          </packing>
-        </child>
-      </object>
-    </child>
-    <action-widgets>
-      <action-widget response="-11">help_button</action-widget>
-      <action-widget response="-7">close_button</action-widget>
-    </action-widgets>
-    <child type="action">
-        <object class="GtkButton" id="help_button">
-            <property name="label">gtk-help</property>
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">False</property>
-            <property name="use-stock">True</property>
-        </object>
-    </child>
-    <child type="action">
-        <object class="GtkButton" id="close_button">
-            <property name="label">gtk-close</property>
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">True</property>
-            <property name="use-underline">True</property>
-        </object>
-    </child>
-  </object>
-</interface>--- END OF FILE panel-plugin/newtonmenu-dialog.ui ---
-
---- START OF FILE panel-plugin/newtonmenu-force-quit-dialog.c ---
+}
+=== panel-plugin/newtonmenu-force-quit-dialog.c ===
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -2082,208 +2211,348 @@ newtonmenu_show_force_quit_applications_dialog(GtkWindow *parent, newtonmenuPlug
     
     // Make sure it gets focus
     gtk_window_present(GTK_WINDOW(data->dialog));
-}--- END OF FILE panel-plugin/newtonmenu-force-quit-dialog.c ---
+}
+=== subprojects/vala-panel-appmenu/README.md ===
+---
+Vala Panel Application Menu
+---
 
---- START OF FILE panel-plugin/newtonmenu-force-quit-dialog.h ---
-#ifndef __newtonmenu_FORCE_QUIT_DIALOG_H__
-#define __newtonmenu_FORCE_QUIT_DIALOG_H__
+Vala Panel Application Menu is a Global Menu applet for use with Vala Panel, xfce4-panel and mate-panel (Budgie 10.x is also planned). unity-gtk-module is used as a backend, and thus must also be installed (see instructions, below).
 
-#include <gtk/gtk.h>
-#include "newtonmenu.h"
+**REQUIRED DEPENDENCES**
 
-G_BEGIN_DECLS
+ * GLib (>= 2.50.0)
+ * GTK+ (>= 3.22.0)
+ * valac (>= 0.24.0)
+ * libwnck (>=3.4.8)
 
-void newtonmenu_show_force_quit_applications_dialog(GtkWindow *parent, newtonmenuPlugin *plugin_data);
+---
+Compilation Instructions (Non-Distribution-Specific)
+---
+  * Install all the required dependencies listed above. These packages may have different names depending on your distribution. Please see [below](#dependency-packages) for the package names on some specific distributions (i.e. Ubuntu).
+  * Clone this repository to your `home` directory by typing:
+  `git clone https://gitlab.com/vala-panel-project/vala-panel-appmenu.git` then `cd` into the directory.
+  * You're **almost** ready to run `meson`. First, review the following flags:
+    * Meson flags:
+      * `-Dxfce=[enabled/disabled]` Use `enabled` to compile applet for XFCE Panel
+      * `-Dbudgie=[enabled/disabled]` Use `enabled` to compile for budgie (experimental)
+      * `-Dvalapanel=[enabled/disabled]` Use `enabled` to compile for Vala Panel
+      * `-Dmate=[enabled/disabled]` Use `enabled` to compile for MATE Panel
+      * `-Djayatana=[enabled/disabled]` Use `enabled` to include Jayatana library (enable global menu for java swing applications), requires CMake
+      * `-Dappmenu-gtk-module=enabled` Use this flag if you are compiling for a distro other than Arch (see instructions below for including unity-gtk-module with Arch) or Ubuntu (Ubuntu users can install unity-gtk-module from the ubuntu repositories--see 'Post-build Instructions', below).
+      * `--prefix=[path]` By default, Vala-Panel-Appmenu will install in the `/usr/local` directory. You can use this flag to change that. For some DEs (XFCE, for example), it is required to match install prefix with panel prefix (`/usr` in most distros), so, do not forget it.
+  * once you've decided on any flags you want to include, type (from your build directory) `meson [flags] [dir]`
+  * once the build is successful, you can compile and install Vala-Panel-Appmenu by typing `cd [dir] && ninja && sudo ninja install`
+---
+Post-Build Instructions
+---
+- Install GTK module using instructions below
+- To get QT menus to work, install your distribution's qt4 and qt5 appmenu packages. In Ubuntu 17.04, for example, this involves typing `sudo apt-get install appmenu-qt`
+  
+To install and enable unity-gtk-module for your distro:
 
-G_END_DECLS
+ **UBUNTU-BASED DISTROS**
+ - Install unity-gtk-module by typing `sudo apt-get install unity-gtk-module-common unity-gtk2-module unity-gtk3-module`
+ - Follow instructions in (appmenu-gtk-module) [README](subprojects/appmenu-gtk-module/README.md), but replace any occurence of `appmenu-gtk-module` to `unity-gtk-module`
 
-#endif /* !__newtonmenu_FORCE_QUIT_DIALOG_H__ */--- END OF FILE panel-plugin/newtonmenu-force-quit-dialog.h ---
+ **ARCH-BASED DISTROS**
+* Install from AUR [appmenu-gtk-module-git](https://aur.archlinux.org/packages/appmenu-gtk-module-git/) for GTK applications to work
+* Install [Appmenu](https://aur.archlinux.org/packages/appmenu-qt4) to get appmenu for Qt4 Applications to work. Qt 5.7 must work out of the box.
+* Install these [libdbusmenu-glib](https://archlinux.org/packages/libdbusmenu-glib/) [libdbusmenu-gtk3](https://archlinux.org/packages/libdbusmenu-gtk3/) [libdbusmenu-gtk2](https://archlinux.org/packages/libdbusmenu-gtk2/) to get Chromium/Google Chrome to work
+ - Follow instructions in the (appmenu-gtk-module) [README](subprojects/appmenu-gtk-module/README.md), if it is not enabled automatically.
 
---- START OF FILE panel-plugin/newtonmenu-force-quit-dialog.ui ---
-<?xml version="1.0" encoding="UTF-8"?>
-<interface>
-  <requires lib="gtk+" version="3.20"/>
-  <object class="GtkDialog" id="force_quit_applications_dialog">
-    <property name="can_focus">False</property>
-    <property name="title" translatable="yes">Force Quit Applications</property>
-    <property name="type_hint">dialog</property>
-    <property name="border_width">12</property>
-    <property name="default_width">400</property>
-    <property name="default_height">350</property>
-    <property name="modal">True</property>
-    <property name="destroy_with_parent">True</property>
-    <child internal-child="vbox">
-      <object class="GtkBox" id="dialog_vbox">
-        <property name="visible">True</property>
-        <property name="orientation">vertical</property>
-        <property name="spacing">6</property>
-        <child>
-          <object class="GtkLabel" id="info_label">
-            <property name="visible">True</property>
-            <property name="wrap">True</property>
-            <property name="label" translatable="yes">If an app doesn't respond for a while, select its name and click Force Quit.</property>
-            <property name="xalign">0</property>
-            <property name="margin_bottom">6</property>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkScrolledWindow" id="scrolled_window">
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="shadow_type">in</property>
-            <property name="hscrollbar_policy">never</property>
-            <child>
-              <object class="GtkTreeView" id="app_list_treeview">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="headers_visible">False</property> 
-                <child internal-child="selection">
-                  <object class="GtkTreeSelection"/>
-                </child>
-              </object>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
-            <property name="position">1</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkLabel" id="shortcut_label">
-            <property name="visible">True</property>
-            <property name="wrap">True</property>
-            <property name="label" translatable="yes">You can open this window by pressing Command-Option-Escape.</property> 
-            <property name="xalign">0</property>
-            <property name="margin_top">6</property>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">2</property>
-          </packing>
-        </child>
-      </object>
-    </child>
-    <child type="action">
-      <object class="GtkButton" id="force_quit_button">
-        <property name="label" translatable="yes">_Force Quit</property>
-        <property name="visible">True</property>
-        <property name="can_focus">True</property>
-        <property name="receives_default">True</property>
-        <property name="use_underline">True</property>
-        <style>
-          <class name="suggested-action"/> 
-        </style>
-      </object>
-    </child>
-    <child type="action">
-      <object class="GtkButton" id="close_button">
-        <property name="label" translatable="yes">_Close</property>
-        <property name="visible">True</property>
-        <property name="can_focus">True</property>
-        <property name="receives_default">False</property>
-        <property name="use_underline">True</property>
-      </object>
-    </child>
-    <action-widgets>
-      <action-widget response="GTK_RESPONSE_APPLY">force_quit_button</action-widget>
-      <action-widget response="GTK_RESPONSE_CLOSE">close_button</action-widget>
-    </action-widgets>
-  </object>
-</interface>--- END OF FILE panel-plugin/newtonmenu-force-quit-dialog.ui ---
+ **DISTROS OTHER THAN ARCH OR UBUNTU**
+ - When building vala-panel-appmenu with meson, use the flag, `-Dappmenu-gtk-module=enabled`
+ - Follow instructions in the (appmenu-gtk-module) [README](subprojects/appmenu-gtk-module/README.md)
 
---- START OF FILE panel-plugin/newtonmenu.gresource.xml ---
-<?xml version="1.0" encoding="UTF-8"?>
-<gresources>
-  <gresource prefix="/org/xfce/panel/plugins/newtonmenu">
-    <file compressed="true" preprocess="xml-stripblanks">newtonmenu-dialog.ui</file>
-    <file compressed="true" preprocess="xml-stripblanks">newtonmenu-force-quit-dialog.ui</file>
-  </gresource>
-</gresources>--- END OF FILE panel-plugin/newtonmenu.gresource.xml ---
 
---- START OF FILE panel-plugin/newtonmenu.h ---
-#ifndef __NEWTONMENU_H__
-#define __NEWTONMENU_H__
+**NOTE**: 
+Vala-Panel-Appmenu conflicts with [qt5ct](https://sourceforge.net/p/qt5ct/tickets/34/) before 21.04.2017, so, if you are using an older version of qt5ct, use another PlatformTheme.
 
-#include <gtk/gtk.h>
-#include <libxfce4panel/libxfce4panel.h>
-#include <libxfce4ui/libxfce4ui.h>
-#include <libxfce4util/libxfce4util.h>
-#include <libwnck/libwnck.h>
-#include <gio/gio.h>
-#include <libdbusmenu-glib/client.h>
+---
+Desktop Environment-Specific Settings
+---
+When using the Vala-panel-appmenu as an XFCE or MATE menu applet, you have to configure the appmenu to show in the panel applet, rather than on each individual window. This configuration should remove any 'double' menus you may experience:
 
-G_BEGIN_DECLS
+**XFCE**
+- If you are using Vala-Panel-Appmenu for XFCE-Panel, type the following lines into your console:
+```
+xfconf-query -c xsettings -p /Gtk/ShellShowsMenubar -n -t bool -s true
+xfconf-query -c xsettings -p /Gtk/ShellShowsAppmenu -n -t bool -s true
+```
 
-typedef struct _newtonmenuPlugin newtonmenuPlugin;
+**MATE**
+- Enable the appmenu and menubar in gtk with these steps:
+- If you are using MATE>=1.19 (or 1.18 in Ubuntu), use this commands:
+```
+gsettings set org.mate.interface gtk-shell-shows-app-menu true
+gsettings set org.mate.interface gtk-shell-shows-menubar true
+```
 
-struct _newtonmenuPlugin
+**BUDGIE**
+- If you using gnome-settings-daemon, you should go to dconf-editor and set key `org.gnome.settings-daemon.plugins.xsettings.overrides` to `{'Gtk/ShellShowsAppMenu': <0>, 'Gtk/ShellShowsMenubar': <1>}`
+
+- If commands above does not work, create or edit .config/gtk-3.0/settings.ini file in your home(~) directory and add the following lines to it under `[Settings]`:
+```
+  gtk-shell-shows-app-menu=true
+  gtk-shell-shows-menubar=true
+```
+
+---
+Experimental Features
+---
+**JAyatana**
+
+JAyatana allows for displaying global menus in Java Swing applications. Because Vala-Panel-Appmenu uses the unity-gtk-module backend, this should theoretically work with JAyatana, although applications such as Netbeans and the JetBrains suite of IDEs require some configuration, which you can figure out with a cursory internet search.
+
+There are some problems with the implementation, notably that you need to include `env XDG_CURRENT_DESKTOP=Unity` to the beginning of your launch command.
+
+Basic Instructions for Enabling JAyatana:
+* Install OpenJDK >= 9 or JDK >= 1.9
+* Build vala-panel-appmenu with `-DENABLE_JAYATANA=ON`
+* Add following lines to your ~/.profile and ~/.bashrc, in any order:
+```
+export _JAVA_OPTIONS="${_JAVA_OPTIONS} -javaagent:/usr/share/java/jayatanaag.jar"
+export JAYATANA_FORCE=1
+```
+
+---
+Dependency Packages
+---
+**Ubuntu 18.04**
+
+*All variants require:* `git build-essential cmake bamfdaemon libdbusmenu-glib-dev libgtk2.0-dev gobject-introspection libbamf3-dev libdbus-glib-1-dev libffi-dev libgirepository1.0-dev libpeas-dev libstartup-notification0-dev libwnck-3-dev libwnck-common libwnck22 libxml2-utils libxres-dev libvala-0.40-0 valac valac-0.40-vapi`
+
+*Ubuntu Budgie also needs:* `budgie-core-dev gir1.2-budgie-1.0 libbudgie-plugin0 libbudgietheme0 libraven0`
+
+*Ubuntu MATE also needs:* `libmate-panel-applet-dev`
+
+*Xubuntu also needs:* `exo-utils libexo-1-0 libexo-2-0 libexo-common libexo-helpers libgarcon-1-0 libgarcon-common libxfce4panel-2.0-4 libxfce4panel-2.0-dev libxfce4ui-1-0 libxfce4ui-2-0 libxfce4ui-common libxfce4util7 libxfce4util-common libxfce4util-dev libxfconf-0-2 libxfconf-0-dev xfce4-panel xfce4-panel-dev xfconf`
+
+*Vala Panel also needs:* `libvalapanel0 libvalapanel-dev`
+
+Author
+===
+ * Athor <ria.freelander@gmail.com>
+
+=== subprojects/vala-panel-appmenu/meson.build ===
+project(
+  'vala-panel-appmenu',
+  'vala',
+  'c',
+version : '25.04',
+meson_version : '>=0.51.0',
+license : 'LGPL-3.0-or-later',
+default_options : ['c_std=gnu11', 'buildtype=debugoptimized', 'warning_level=1']
+)
+
+am_cflags = [
+    '-fstack-protector',
+    '-DGETTEXT_PACKAGE="@0@"'.format(meson.project_name()),
+]
+add_project_arguments(am_cflags, language: 'c')
+
+vapi_dir = join_paths(meson.current_source_dir(), 'vapi')
+add_project_arguments(['--vapidir', vapi_dir], language: 'vala')
+
+##################
+# Module imports #
+##################
+
+gnome = import('gnome')
+i18n = import('i18n')
+
+###############
+# Directories #
+###############
+prefix = get_option('prefix')
+datadir = get_option('datadir')
+localedir = get_option('localedir')
+schema_dir = join_paths(get_option('datadir'), 'glib-2.0', 'schemas')
+
+
+################
+# Dependencies #
+################
+glib_ver = '>=2.52.0'
+giounix = dependency('gio-unix-2.0', version: glib_ver)
+
+gdkpixbuf = dependency('gdk-pixbuf-2.0', required: false)
+
+gtk_ver = '>=3.22.0'
+gtk = dependency('gtk+-3.0', version: gtk_ver)
+
+backend_opt = get_option('wm_backend')
+backend_wnck = false
+
+wnck_ver = '>=3.4.8'
+wnck = dependency('libwnck-3.0', version: wnck_ver, required: backend_opt == 'wnck')
+
+if(wnck.found() and (backend_opt == 'wnck' or backend_opt == 'auto'))
+    backend_wnck = true
+endif
+
+if(not (backend_wnck))
+    error('No backend available (libwnck3 required)')
+endif
+
+vp_ver = '>=24.03'
+vp = dependency('vala-panel', version:  vp_ver, required: get_option('valapanel'))
+vala_panel_found = vp.found()
+
+mp_ver = '>=1.20'
+mp = dependency('libmatepanelapplet-4.0', version: mp_ver, required: get_option('mate'))
+mate_found = mp.found()
+
+xp = dependency('libxfce4panel-2.0', required: get_option('xfce'))
+xc = dependency('libxfconf-0', required: get_option('xfce'))
+xfce_found = xp.found() and xc.found()
+
+bp = dependency('budgie-1.0', required: get_option('budgie'))
+budgie_found = bp.found()
+
+
+#################
+# Configuration #
+#################
+conf_data = configuration_data()
+conf_data.set('GETTEXT_PACKAGE', meson.project_name())
+conf_data.set('LOCALE_DIR', join_paths(prefix,localedir))
+conf_data.set('CMAKE_INSTALL_PREFIX', prefix)
+
+config = configure_file(input : join_paths('vapi','config.vala.in'),
+               output : 'config.vala',
+			   configuration : conf_data)
+
+desktop_kwargs = {
+      'type': 'desktop',
+      'args' : ['--keyword=Name','--keyword=Description','--keyword=Comment', '--keyword=Help'],
+      'po_dir': join_paths(meson.current_source_dir(),'po'),
+      'install': true,
+}
+
+#################
+#  Subprojects  #
+#################
+subproject('registrar', required: get_option('registrar'))
+subproject('jayatana', required: get_option('jayatana'))
+subproject('appmenu-gtk-module', required: get_option('appmenu-gtk-module'))
+
+subdir('lib')
+subdir('applets')
+subdir('data')
+subdir('po')
+
+install_data('README.md', install_dir : join_paths(get_option('datadir'), 'doc', meson.project_name()))
+install_data('LICENSE', install_dir : join_paths(get_option('datadir'), 'licenses', meson.project_name()))
+
+=== subprojects/vala-panel-appmenu/applets/xfce4-plugin-appmenu.vala ===
+/*
+ * vala-panel-appmenu
+ * Copyright (C) 2015 Konstantin Pugin <ria.freelander@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+using GLib;
+using Gtk;
+using Appmenu;
+using Xfce;
+
+public class AppmenuPlugin : Xfce.PanelPlugin {
+
+    public override void @construct() {
+        GLib.Intl.setlocale(LocaleCategory.CTYPE,"");
+        GLib.Intl.bindtextdomain(Config.GETTEXT_PACKAGE,Config.LOCALE_DIR);
+        GLib.Intl.bind_textdomain_codeset(Config.GETTEXT_PACKAGE,"UTF-8");
+        GLib.Intl.textdomain(Config.GETTEXT_PACKAGE);
+        var layout = new MenuWidget();
+        widget = layout;
+        add(widget);
+        add_action_widget(widget);
+        try{
+            Xfconf.init();
+            channel = this.get_channel();
+            Xfconf.Property.bind(channel,this.get_property_base()+"/"+Key.COMPACT_MODE,typeof(bool),widget,Key.COMPACT_MODE);
+            Xfconf.Property.bind(channel,this.get_property_base()+"/"+Key.BOLD_APPLICATION_NAME,typeof(bool),widget,Key.BOLD_APPLICATION_NAME);
+            Xfconf.Property.bind(channel,this.get_property_base()+"/"+"expand",typeof(bool),this,"expand");
+            this.menu_show_configure();
+        } catch (Xfconf.Error e) {
+            stderr.printf("Xfconf init failed. Configuration will not be saved.\n");
+        }
+        this.shrink = true;
+        this.set_expand(true);
+        widget.show();
+    }
+    public override void configure_plugin()
+    {
+... [showing first 50 lines] ...
+
+=== subprojects/vala-panel-appmenu/lib/appmenu-abstractions.vala ===
+/*
+ * vala-panel-appmenu
+ * Copyright (C) 2015 Konstantin Pugin <ria.freelander@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+using GLib;
+using Gtk;
+
+namespace Appmenu
 {
-    XfcePanelPlugin *plugin;
+    public enum ModelType
+    {
+        NONE,
+        STUB,
+        DESKTOP,
+        MENUMODEL,
+        DBUSMENU
+    }
+    internal abstract class Helper: Object
+    {
 
-    GtkWidget       *main_box;
-    GtkMenuButton   *newton_button;
-    GtkWidget       *newton_button_box;
-    GtkWidget       *newton_icon_image;
-    GtkWidget       *newton_label_widget;
-    GtkWidget       *static_newton_menu;
+    }
+    public abstract class Backend : Object
+    {
+        protected ModelType type = ModelType.NONE;
+        protected static DBusMenuRegistrarProxy proxy;
+        static construct
+        {
+            proxy = new DBusMenuRegistrarProxy();
+        }
+        construct
+        {
+            try
+            {
+                var con = Bus.get_sync(BusType.SESSION);
+                con.call.begin(
+                    "org.valapanel.AppMenu.Registrar",
+... [showing first 50 lines] ...
 
-    GtkWidget       *app_menu_bar_container;
-    GtkMenuButton   *app_name_button;
-    GtkWidget       *app_name_button_label;
-
-    GList           *dynamic_app_menu_buttons;
-
-    DbusmenuClient  *app_dbusmenu_client;
-    gulong          app_dbusmenu_client_root_changed_id;    // For DbusmenuClient "root-changed"
-    gulong          app_dbusmenu_client_layout_updated_id;  // For DbusmenuClient "layout-updated"
-
-    GDBusConnection *dbus_session_bus;
-    GDBusProxy      *appmenu_registrar_proxy;
-    guint           dbus_name_owner_id;                     // For g_bus_own_name
-
-    WnckScreen      *wnck_screen;
-    WnckWindow      *active_wnck_window;
-
-    gulong          wnck_active_window_changed_handler_id;
-    gulong          appmenu_registrar_registered_handler_id;
-    gulong          appmenu_registrar_unregistered_handler_id;
-
-    gboolean        display_icon_prop;
-    gchar          *icon_name_prop;
-    gchar          *label_text_prop;
-    
-    gboolean        hide_application_name_prop;
-    gchar          *global_menu_title_prop;
-
-    gboolean        show_app_name_button_prop;
-    gboolean        bold_app_name_prop;
-    
-    gboolean        confirm_logout_prop;
-    gboolean        confirm_restart_prop;
-    gboolean        confirm_shutdown_prop;
-    gboolean        confirm_force_quit_prop;
-    
-    GtkMenuButton   *currently_open_button;
-};
-
-void newtonmenu_save(XfcePanelPlugin *plugin, newtonmenuPlugin *newtonmenu);
-void newtonmenu_update_display(newtonmenuPlugin *newtonmenu);
-void newtonmenu_clear_dynamic_app_menus(newtonmenuPlugin *newtonmenu);
-
-void newtonmenu_menu_button_toggled(GtkMenuButton *button, newtonmenuPlugin *newtonmenu);
-gboolean on_menu_button_enter(GtkWidget *widget, GdkEventCrossing *event, gpointer user_data);
-
-void newtonmenu_configure (XfcePanelPlugin *plugin, newtonmenuPlugin *newtonmenu);
-void newtonmenu_about (XfcePanelPlugin *plugin);
-
-G_END_DECLS
-
-#endif /* !__NEWTONMENU_H__ */--- END OF FILE panel-plugin/newtonmenu.h ---
-
+=== GENERATION SUMMARY ===
+Generated: Wed May 28 10:45:34 PM CEST 2025
+Total files processed: 97
+Context complete.

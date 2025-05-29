@@ -1,0 +1,1691 @@
+Context dump for XFCE Newton Menu plugin
+Generated at 2025-05-29_02-17-52
+
+📁 Full directory tree:
+.
+├── AUTHORS
+├── autogen.sh
+├── breaking.txt
+├── builddir
+│   ├── meson-info
+│   │   └── meson-info.json
+│   ├── meson-logs
+│   │   └── meson-log.txt
+│   └── meson-private
+│       ├── meson.lock
+│       ├── sanitycheckc.c
+│       └── sanitycheckc.exe
+├── configure.ac
+├── context_doomp.sh
+├── context.txt
+├── continue.config.json
+├── COPYING
+├── COPYING.LIB
+├── icons
+│   ├── 256x256
+│   │   ├── Makefile.am
+│   │   └── xfce4-newtonmenu-plugin.png
+│   ├── Makefile.am
+│   ├── meson.build
+│   └── scalable
+│       ├── Makefile.am
+│       └── xfce4-newtonmenu-plugin.svg
+├── image.png
+├── Makefile.am
+├── meson.build
+├── NEWS
+├── panel-plugin
+│   ├── appmenu
+│   ├── Makefile.am
+│   ├── meson.build
+│   ├── newtonmenu-appmenu-bridge.vala
+│   ├── newtonmenu.c
+│   ├── newtonmenu.desktop.in
+│   ├── newtonmenu-dialogs.c
+│   ├── newtonmenu-dialogs.h
+│   ├── newtonmenu-dialog.ui
+│   ├── newtonmenu-force-quit-dialog.c
+│   ├── newtonmenu-force-quit-dialog.h
+│   ├── newtonmenu-force-quit-dialog.ui
+│   ├── newtonmenu.gresource.xml
+│   └── newtonmenu.h
+├── po
+│   ├── ar.po
+│   ├── ast.po
+│   ├── be.po
+│   ├── bg.po
+│   ├── ca.po
+│   ├── cs.po
+│   ├── da.po
+│   ├── de.po
+│   ├── el.po
+│   ├── en_AU.po
+│   ├── en_CA.po
+│   ├── en_GB.po
+│   ├── es.po
+│   ├── et.po
+│   ├── eu.po
+│   ├── fi.po
+│   ├── fr.po
+│   ├── ga.po
+│   ├── gl.po
+│   ├── he.po
+│   ├── hi.po
+│   ├── hr.po
+│   ├── hu.po
+│   ├── hy_AM.po
+│   ├── hye.po
+│   ├── id.po
+│   ├── ie.po
+│   ├── is.po
+│   ├── it.po
+│   ├── ja.po
+│   ├── ko.po
+│   ├── LINGUAS
+│   ├── lt.po
+│   ├── Makevars
+│   ├── meson.build
+│   ├── ms.po
+│   ├── nb.po
+│   ├── nl.po
+│   ├── pl.po
+│   ├── POTFILES.in
+│   ├── pt_BR.po
+│   ├── pt.po
+│   ├── ro.po
+│   ├── ru.po
+│   ├── sk.po
+│   ├── sl.po
+│   ├── sq.po
+│   ├── sr.po
+│   ├── sv.po
+│   ├── tr.po
+│   ├── uk.po
+│   ├── zh_CN.po
+│   └── zh_TW.po
+├── README.md
+├── subprojects
+│   ├── vala-panel-appmenu
+│   │   ├── applets
+│   │   │   ├── budgie-plugin-appmenu.vala
+│   │   │   ├── mate-plugin-appmenu.vala
+│   │   │   ├── meson.build
+│   │   │   ├── valapanel-plugin-appmenu.vala
+│   │   │   └── xfce4-plugin-appmenu.vala
+│   │   ├── data
+│   │   │   ├── appmenu-budgie.desktop.in
+│   │   │   ├── appmenu.desktop.in
+│   │   │   ├── appmenu-mate.plugin.desktop.in
+│   │   │   ├── appmenu.plugin.desktop.in
+│   │   │   ├── meson.build
+│   │   │   └── org.valapanel.appmenu.gschema.xml
+│   │   ├── lib
+│   │   │   ├── appmenu-abstractions.vala
+│   │   │   ├── appmenu.css
+│   │   │   ├── appmenu-wnck.vala
+│   │   │   ├── desktop-menus.ui
+│   │   │   ├── helper-dbusmenu.vala
+│   │   │   ├── helper-dbus.vala
+│   │   │   ├── helper-desktop.vala
+│   │   │   ├── helper-menumodel.vala
+│   │   │   ├── launcher.c
+│   │   │   ├── launcher.h
+│   │   │   ├── launcher.vapi
+│   │   │   ├── libappmenu.gresource.xml
+│   │   │   ├── libwnck-aux.c
+│   │   │   ├── libwnck-aux.h
+│   │   │   ├── matcher.c
+│   │   │   ├── matcher.h
+│   │   │   ├── matcher.vapi
+│   │   │   ├── menu-widget.vala
+│   │   │   ├── meson.build
+│   │   │   └── registrar.vala
+│   │   ├── LICENSE
+│   │   ├── meson.build
+│   │   ├── meson_options.txt
+│   │   ├── po
+│   │   │   ├── aa.po
+│   │   │   ├── ab.po
+│   │   │   ├── ae.po
+│   │   │   ├── af.po
+│   │   │   ├── ak.po
+│   │   │   ├── am.po
+│   │   │   ├── an.po
+│   │   │   ├── ar.po
+│   │   │   ├── as.po
+│   │   │   ├── ast.po
+│   │   │   ├── av.po
+│   │   │   ├── ay.po
+│   │   │   ├── az.po
+│   │   │   ├── ba.po
+│   │   │   ├── be.po
+│   │   │   ├── bg.po
+│   │   │   ├── bh.po
+│   │   │   ├── bi.po
+│   │   │   ├── bm.po
+│   │   │   ├── bn.po
+│   │   │   ├── bo.po
+│   │   │   ├── br.po
+│   │   │   ├── bs.po
+│   │   │   ├── ca.po
+│   │   │   ├── ce.po
+│   │   │   ├── ch.po
+│   │   │   ├── ckb.po
+│   │   │   ├── co.po
+│   │   │   ├── cr.po
+│   │   │   ├── cs.po
+│   │   │   ├── cu.po
+│   │   │   ├── cv.po
+│   │   │   ├── cy.po
+│   │   │   ├── da.po
+│   │   │   ├── de.po
+│   │   │   ├── dv.po
+│   │   │   ├── dz.po
+│   │   │   ├── ee.po
+│   │   │   ├── el.po
+│   │   │   ├── en_AU.po
+│   │   │   ├── en_CA.po
+│   │   │   ├── en_GB.po
+│   │   │   ├── eo.po
+│   │   │   ├── es.po
+│   │   │   ├── et.po
+│   │   │   ├── eu.po
+│   │   │   ├── fa.po
+│   │   │   ├── ff.po
+│   │   │   ├── fi.po
+│   │   │   ├── fj.po
+│   │   │   ├── fo.po
+│   │   │   ├── fr_CA.po
+│   │   │   ├── fr.po
+│   │   │   ├── fy.po
+│   │   │   ├── ga.po
+│   │   │   ├── gd.po
+│   │   │   ├── gl.po
+│   │   │   ├── gn.po
+│   │   │   ├── gu.po
+│   │   │   ├── gv.po
+│   │   │   ├── ha.po
+│   │   │   ├── he.po
+│   │   │   ├── hi.po
+│   │   │   ├── ho.po
+│   │   │   ├── hr.po
+│   │   │   ├── ht.po
+│   │   │   ├── hu.po
+│   │   │   ├── hy.po
+│   │   │   ├── hz.po
+│   │   │   ├── ia.po
+│   │   │   ├── id.po
+│   │   │   ├── ie.po
+│   │   │   ├── ig.po
+│   │   │   ├── ii.po
+│   │   │   ├── ik.po
+│   │   │   ├── io.po
+│   │   │   ├── is.po
+│   │   │   ├── it.po
+│   │   │   ├── iu.po
+│   │   │   ├── ja.po
+│   │   │   ├── jv.po
+│   │   │   ├── ka.po
+│   │   │   ├── kg.po
+│   │   │   ├── ki.po
+│   │   │   ├── kj.po
+│   │   │   ├── kk.po
+│   │   │   ├── kl.po
+│   │   │   ├── km.po
+│   │   │   ├── kn.po
+│   │   │   ├── ko.po
+│   │   │   ├── kr.po
+│   │   │   ├── ks.po
+│   │   │   ├── ku.po
+│   │   │   ├── kv.po
+│   │   │   ├── kw.po
+│   │   │   ├── ky.po
+│   │   │   ├── la.po
+│   │   │   ├── lb.po
+│   │   │   ├── lg.po
+│   │   │   ├── LINGUAS
+│   │   │   ├── LINGUAS.in
+│   │   │   ├── li.po
+│   │   │   ├── ln.po
+│   │   │   ├── lo.po
+│   │   │   ├── lt.po
+│   │   │   ├── lu.po
+│   │   │   ├── lv.po
+│   │   │   ├── meson.build
+│   │   │   ├── mg.po
+│   │   │   ├── mh.po
+│   │   │   ├── mi.po
+│   │   │   ├── mk.po
+│   │   │   ├── ml.po
+│   │   │   ├── mn.po
+│   │   │   ├── mo.po
+│   │   │   ├── mr.po
+│   │   │   ├── ms.po
+│   │   │   ├── mt.po
+│   │   │   ├── my.po
+│   │   │   ├── na.po
+│   │   │   ├── nb.po
+│   │   │   ├── nd.po
+│   │   │   ├── ne.po
+│   │   │   ├── ng.po
+│   │   │   ├── nl.po
+│   │   │   ├── nn.po
+│   │   │   ├── nr.po
+│   │   │   ├── nv.po
+│   │   │   ├── ny.po
+│   │   │   ├── oc.po
+│   │   │   ├── oj.po
+│   │   │   ├── om.po
+│   │   │   ├── or.po
+│   │   │   ├── os.po
+│   │   │   ├── pa.po
+│   │   │   ├── pi.po
+│   │   │   ├── pl.po
+│   │   │   ├── ps.po
+│   │   │   ├── pt_BR.po
+│   │   │   ├── pt.po
+│   │   │   ├── qu.po
+│   │   │   ├── rm.po
+│   │   │   ├── rn.po
+│   │   │   ├── ro.po
+│   │   │   ├── rue.po
+│   │   │   ├── ru.po
+│   │   │   ├── rw.po
+│   │   │   ├── sa.po
+│   │   │   ├── sc.po
+│   │   │   ├── sd.po
+│   │   │   ├── se.po
+│   │   │   ├── sg.po
+│   │   │   ├── si.po
+│   │   │   ├── sk.po
+│   │   │   ├── sl.po
+│   │   │   ├── sma.po
+│   │   │   ├── sm.po
+│   │   │   ├── sn.po
+│   │   │   ├── so.po
+│   │   │   ├── sq.po
+│   │   │   ├── sr.po
+│   │   │   ├── ss.po
+│   │   │   ├── stamp-it
+│   │   │   ├── st.po
+│   │   │   ├── su.po
+│   │   │   ├── sv.po
+│   │   │   ├── sw.po
+│   │   │   ├── ta.po
+│   │   │   ├── te.po
+│   │   │   ├── tg.po
+│   │   │   ├── th.po
+│   │   │   ├── ti.po
+│   │   │   ├── tk.po
+│   │   │   ├── tl.po
+│   │   │   ├── tn.po
+│   │   │   ├── to.po
+│   │   │   ├── tr.po
+│   │   │   ├── ts.po
+│   │   │   ├── tt.po
+│   │   │   ├── tw.po
+│   │   │   ├── ty.po
+│   │   │   ├── ug.po
+│   │   │   ├── uk.po
+│   │   │   ├── ur.po
+│   │   │   ├── uz.po
+│   │   │   ├── vala-panel-appmenu.pot
+│   │   │   ├── ve.po
+│   │   │   ├── vi.po
+│   │   │   ├── vo.po
+│   │   │   ├── wa.po
+│   │   │   ├── wo.po
+│   │   │   ├── xh.po
+│   │   │   ├── yi.po
+│   │   │   ├── yo.po
+│   │   │   ├── za.po
+│   │   │   ├── zh_CN.po
+│   │   │   ├── zh_HK.po
+│   │   │   ├── zh.po
+│   │   │   ├── zh_TW.po
+│   │   │   └── zu.po
+│   │   ├── README.md
+│   │   ├── subprojects
+│   │   │   ├── appmenu-glib-translator
+│   │   │   │   ├── com.canonical.dbusmenu.xml
+│   │   │   │   ├── debug.c
+│   │   │   │   ├── debug.h
+│   │   │   │   ├── definitions.h
+│   │   │   │   ├── importer.c
+│   │   │   │   ├── importer-enums.c.template
+│   │   │   │   ├── importer-enums.h.template
+│   │   │   │   ├── importer.h
+│   │   │   │   ├── item.c
+│   │   │   │   ├── item.h
+│   │   │   │   ├── item-pixbuf.c
+│   │   │   │   ├── meson.build
+│   │   │   │   ├── model.c
+│   │   │   │   ├── model.h
+│   │   │   │   ├── section.c
+│   │   │   │   ├── section.h
+│   │   │   │   ├── test.c
+│   │   │   │   ├── utils.c
+│   │   │   │   └── utils.h
+│   │   │   ├── appmenu-gtk-module
+│   │   │   │   ├── AUTHORS
+│   │   │   │   ├── data
+│   │   │   │   │   ├── appmenu-gtk2-parser.pc.in
+│   │   │   │   │   ├── appmenu-gtk3-parser.pc.in
+│   │   │   │   │   ├── appmenu-gtk-module.service.in
+│   │   │   │   │   ├── meson.build
+│   │   │   │   │   └── org.appmenu.gtk-module.gschema.xml
+│   │   │   │   ├── docs
+│   │   │   │   │   ├── appmenu-gtk-parser-docs.sgml
+│   │   │   │   │   ├── appmenu-gtk-parser-sections.txt
+│   │   │   │   │   ├── appmenu-gtk-parser.types
+│   │   │   │   │   ├── gtkdocentities.ent.in
+│   │   │   │   │   └── meson.build
+│   │   │   │   ├── lib
+│   │   │   │   │   ├── appmenu-gtk-action-group.h
+│   │   │   │   │   ├── appmenu-gtk-menu-shell.h
+│   │   │   │   │   ├── appmenu-gtk-parser.h
+│   │   │   │   │   ├── meson.build
+│   │   │   │   │   ├── unity-gtk-action.c
+│   │   │   │   │   ├── unity-gtk-action-group.c
+│   │   │   │   │   ├── unity-gtk-action-group-private.h
+│   │   │   │   │   ├── unity-gtk-action-private.h
+│   │   │   │   │   ├── unity-gtk-menu-item.c
+│   │   │   │   │   ├── unity-gtk-menu-item-private.h
+│   │   │   │   │   ├── unity-gtk-menu-section.c
+│   │   │   │   │   ├── unity-gtk-menu-section-private.h
+│   │   │   │   │   ├── unity-gtk-menu-shell.c
+│   │   │   │   │   └── unity-gtk-menu-shell-private.h
+│   │   │   │   ├── LICENSE
+│   │   │   │   ├── meson.build
+│   │   │   │   ├── meson_options.txt
+│   │   │   │   ├── README.md
+│   │   │   │   ├── src
+│   │   │   │   │   ├── appmenu-gtk-module.c
+│   │   │   │   │   ├── blacklist.c
+│   │   │   │   │   ├── blacklist.h
+│   │   │   │   │   ├── consts.h
+│   │   │   │   │   ├── datastructs.c
+│   │   │   │   │   ├── datastructs.h
+│   │   │   │   │   ├── datastructs-private.h
+│   │   │   │   │   ├── gtk-2.0
+│   │   │   │   │   │   └── meson.build
+│   │   │   │   │   ├── gtk-3.0
+│   │   │   │   │   │   └── meson.build
+│   │   │   │   │   ├── hijack.c
+│   │   │   │   │   ├── hijack.h
+│   │   │   │   │   ├── meson.build
+│   │   │   │   │   ├── platform.c
+│   │   │   │   │   ├── platform.h
+│   │   │   │   │   ├── support.c
+│   │   │   │   │   └── support.h
+│   │   │   │   ├── tests
+│   │   │   │   │   ├── autopilot
+│   │   │   │   │   │   ├── __init__.py
+│   │   │   │   │   │   ├── tests
+│   │   │   │   │   │   │   ├── __init__.py
+│   │   │   │   │   │   │   └── test_gedit.py
+│   │   │   │   │   │   └── test.sh
+│   │   │   │   │   ├── demos
+│   │   │   │   │   │   ├── altgrabber.c
+│   │   │   │   │   │   ├── altgrabber.h
+│   │   │   │   │   │   ├── altmonitor.c
+│   │   │   │   │   │   ├── altmonitor.h
+│   │   │   │   │   │   ├── black.vala
+│   │   │   │   │   │   ├── client.c
+│   │   │   │   │   │   ├── hello.c
+│   │   │   │   │   │   ├── menusource.c
+│   │   │   │   │   │   ├── menusource.h
+│   │   │   │   │   │   ├── test-radio.c
+│   │   │   │   │   │   └── unity-gtk-menu-tester.c
+│   │   │   │   │   └── meson.build
+│   │   │   │   └── TODO
+│   │   │   ├── jayatana
+│   │   │   │   ├── AUTHORS
+│   │   │   │   ├── java
+│   │   │   │   │   ├── com
+│   │   │   │   │   │   └── jarego
+│   │   │   │   │   │       └── jayatana
+│   │   │   │   │   │           ├── Agent.java.in
+│   │   │   │   │   │           ├── basic
+│   │   │   │   │   │           │   ├── GlobalMenuAdapter.java
+│   │   │   │   │   │           │   ├── GlobalMenu.java
+│   │   │   │   │   │           │   ├── GMainLoop.java
+│   │   │   │   │   │           │   ├── meson.build
+│   │   │   │   │   │           │   └── NativeLibraries.java.in
+│   │   │   │   │   │           ├── Feature.java
+│   │   │   │   │   │           ├── FeatureManager.java
+│   │   │   │   │   │           ├── FeatureWrapper.java
+│   │   │   │   │   │           ├── meson.build
+│   │   │   │   │   │           └── swing
+│   │   │   │   │   │               ├── SwingGlobalMenu.java
+│   │   │   │   │   │               ├── SwingGlobalMenuWindow.java
+│   │   │   │   │   │               ├── SwingGTKFixed.java
+│   │   │   │   │   │               └── SwingWMClass.java
+│   │   │   │   │   ├── MANIFEST.MF.in
+│   │   │   │   │   └── meson.build
+│   │   │   │   ├── lib
+│   │   │   │   │   ├── com_jarego_jayatana_Agent.c
+│   │   │   │   │   ├── com_jarego_jayatana_Agent.h
+│   │   │   │   │   ├── com_jarego_jayatana_basic_GlobalMenu.c
+│   │   │   │   │   ├── com_jarego_jayatana_basic_GMainLoop.c
+│   │   │   │   │   ├── com_jarego_jayatana_jkey2xkey.c
+│   │   │   │   │   ├── com_jarego_jayatana_jkey2xkey.h
+│   │   │   │   │   ├── com_jarego_jayatana_jni.c
+│   │   │   │   │   ├── com_jarego_jayatana_jni.h
+│   │   │   │   │   ├── config.h.in
+│   │   │   │   │   ├── dbusmenu-definitions.h
+│   │   │   │   │   ├── jayatana-window.c
+│   │   │   │   │   ├── jayatana-window.h
+│   │   │   │   │   └── meson.build
+│   │   │   │   ├── LICENSE
+│   │   │   │   ├── meson.build
+│   │   │   │   └── README.md
+│   │   │   └── registrar
+│   │   │       ├── config.h.in
+│   │   │       ├── data
+│   │   │       │   ├── appmenu-registrar.service.in
+│   │   │       │   ├── com.canonical.AppMenu.Registrar.xml
+│   │   │       │   └── org.valapanel.AppMenu.Registrar.xml
+│   │   │       ├── meson.build
+│   │   │       ├── registrar-dbusmenu.c
+│   │   │       ├── registrar-dbusmenu.h
+│   │   │       ├── registrar-main.c
+│   │   │       ├── registrar-main.h
+│   │   │       ├── registrar-marshal.list
+│   │   │       ├── registrar-xml.c.in
+│   │   │       └── version.h.in
+│   │   └── vapi
+│   │       ├── config.vala.in
+│   │       ├── libmatepanelapplet-4.0.vapi
+│   │       ├── libxfce4panel-2.0.vapi
+│   │       └── libxfconf-0.vapi
+│   ├── vala-panel-appmenu-20250526-010740_simple.txt
+│   ├── vala-panel-appmenu-20250526-010743_simple.txt
+│   └── vala-panel-appmenu-20250526-010752_simple.txt
+├── THANKS
+├── TODO
+├── xfce4-newtonmenu-dump-2025-05-29_02-16-25.txt
+├── xfce4-newtonmenu-dump-2025-05-29_02-17-52.txt
+├── xfce4-newtonmenu-plugin-20250526-011620_working.txt
+├── xfce4-newtonmenu-plugin-20250528-224534_working.txt
+└── xfce-revision.h.in
+
+41 directories, 466 files
+
+📄 Selected build files and plugin sources:
+File: ./icons/meson.build
+```
+install_data(
+  '256x256' / 'xfce4-newtonmenu-plugin.png',
+  install_dir: get_option('prefix') / get_option('datadir') / 'icons' / 'hicolor' / '256x256' / 'apps',
+)
+
+install_data(
+  'scalable' / 'xfce4-newtonmenu-plugin.svg',
+  install_dir: get_option('prefix') / get_option('datadir') / 'icons' / 'hicolor' / 'scalable' / 'apps',
+)
+```
+
+File: ./panel-plugin/newtonmenu.desktop.in
+```
+[Xfce Panel]
+Type=X-XFCE-PanelPlugin
+Encoding=UTF-8
+Name=newtonmenu Plugin
+Comment=newtonmenu plugin for the Xfce panel
+Icon=xfce4-newtonmenu-plugin
+X-XFCE-Module=newtonmenu
+X-XFCE-Internal=false
+X-XFCE-Unique=false
+X-XFCE-API=2.0
+```
+
+File: ./panel-plugin/meson.build
+```
+# Import necessary modules
+gnome = import('gnome')
+i18n = import('i18n')
+
+# Generate appmenu_config.vala from config.vala.in
+appmenu_config_data = configuration_data()
+appmenu_config_data.set('GETTEXT_PACKAGE', 'vala-panel-appmenu')
+appmenu_config_data.set('LOCALE_DIR', join_paths(get_option('prefix'), get_option('localedir')))
+
+appmenu_config_vala = configure_file(
+  input: '../subprojects/vala-panel-appmenu/vapi/config.vala.in',
+  output: 'appmenu_config.vala',
+  configuration: appmenu_config_data
+)
+
+# Define plugin sources
+plugin_sources = files(
+  'newtonmenu.c',
+  'newtonmenu-dialogs.c',
+  'newtonmenu-force-quit-dialog.c',
+  'newtonmenu-appmenu-bridge.vala',
+  appmenu_config_vala
+)
+
+# Compile GResource
+newtonmenu_gresource = gnome.compile_resources(
+  'newtonmenu-gresource',
+  'newtonmenu.gresource.xml',
+  source_dir: '.',
+  c_name: 'newtonmenu'
+)
+
+# Retrieve dependencies
+libxfce4panel = dependency('libxfce4panel-2.0')
+libxfce4ui = dependency('libxfce4ui-2')
+libxfce4util = dependency('libxfce4util')
+libwnck = dependency('libwnck-3.0')
+glib = dependency('glib-2.0')
+gtk = dependency('gtk+-3.0')
+
+# Retrieve subproject dependency
+valapanel_proj = subproject('vala-panel-appmenu')
+valapanel_dep = valapanel_proj.get_variable('appmenu_dep')
+
+# Additional optional dependencies
+libdbusmenu_gtk_dep = dependency('libdbusmenu-gtk3', required: false)
+exo_dep = dependency('exo-2', required: false)
+
+# Assemble plugin dependencies
+plugin_deps = [
+  glib,
+  gtk,
+  libxfce4panel,
+  libxfce4ui,
+  libxfce4util,
+  libwnck,
+  valapanel_dep
+]
+
+if libdbusmenu_gtk_dep.found()
+  plugin_deps += libdbusmenu_gtk_dep
+endif
+
+if exo_dep.found()
+  plugin_deps += exo_dep
+endif
+
+# Determine plugin installation directory
+plugin_install_dir = join_paths(get_option('prefix'), get_option('libdir'), 'xfce4', 'panel', 'plugins')
+message('Plugin will be installed to: ' + plugin_install_dir)
+
+# Build the shared module
+shared_module('newtonmenu',
+  sources: [plugin_sources, newtonmenu_gresource],
+  dependencies: plugin_deps,
+  install: true,
+  install_dir: plugin_install_dir
+)
+
+# Generate and install the desktop file
+desktop_file = i18n.merge_file(
+  input: 'newtonmenu.desktop.in',
+  output: 'newtonmenu.desktop',
+  type: 'desktop',
+  po_dir: '../po',
+  install: true,
+  install_dir: join_paths(get_option('datadir'), 'xfce4', 'panel', 'plugins')
+)
+```
+
+File: ./po/meson.build
+```
+i18n.gettext(
+  meson.project_name(),
+  preset: 'glib',
+)
+```
+
+File: ./subprojects/vala-panel-appmenu/applets/meson.build
+```
+if vala_panel_found
+    vp_applets_libdir = vp.get_variable(pkgconfig:'applets_dir')
+    vp_sources = files('valapanel-plugin-appmenu.vala')
+    vpp = shared_module('appmenu', vp_sources, libres,
+                    dependencies: [appmenu_dep, vp],
+                    install: true,
+                    install_dir: vp_applets_libdir
+                  )
+endif
+
+if mate_found
+    mate_applet_libdir = join_paths(mp.get_variable(pkgconfig:'libdir'),'mate-panel')
+    mp_sources = files('mate-plugin-appmenu.vala')
+    mpp = shared_module('appmenu-mate', mp_sources, libres,
+                    dependencies: [appmenu_dep, mp],
+                    install: true,
+                    install_dir: mate_applet_libdir
+                  )
+endif
+
+if xfce_found
+    xfce_applet_libdir = join_paths(xp.get_variable(pkgconfig:'libdir'),'xfce4','panel','plugins')
+    xp_sources = files('xfce4-plugin-appmenu.vala')
+    xpp = shared_module('appmenu-xfce', xp_sources, libres,
+                    dependencies: [appmenu_dep, xc,xp],
+                    install: true,
+                    install_dir: xfce_applet_libdir
+                  )
+endif
+
+if budgie_found
+    budgie_applet_libdir = join_paths(bp.get_variable(pkgconfig:'libdir'),'budgie-desktop','plugins','budgie-appmenu-plugin')
+    bp_sources = files('budgie-plugin-appmenu.vala')
+    bpp = shared_module('appmenu-budgie', bp_sources, libres,
+                    dependencies: [appmenu_dep, bp],
+                    install: true,
+                    install_dir: budgie_applet_libdir
+                  )
+endif
+```
+
+File: ./subprojects/vala-panel-appmenu/data/appmenu-budgie.desktop.in
+```
+[Plugin]
+Module=appmenu-budgie.so
+Name=Global Menu
+Description=Show menus from windows
+Authors=Konstantin Pugin
+Copyright=Copyright © 2016 Konstantin Pugin
+Website=https://github.com/rilian-la-te/vala-panel-appmenu
+Icon=view-grid-symbolic
+```
+
+File: ./subprojects/vala-panel-appmenu/data/appmenu-mate.plugin.desktop.in
+```
+[Applet Factory]
+Id=AppmenuAppletFactory
+Location=@CMAKE_INSTALL_FULL_LIBDIR@/mate-panel/libappmenu-mate.so
+Name=Appmenu applet factory
+InProcess=true
+
+[AppmenuApplet]
+Name=Global Application Menu
+Description=All menus will hosts here
+Icon=applications-system
+```
+
+File: ./subprojects/vala-panel-appmenu/data/appmenu.desktop.in
+```
+[Xfce Panel]
+Type=X-XFCE-PanelPlugin
+Encoding=UTF-8
+Name=AppMenu Plugin
+Comment=Display AppMenu (Global Menu)
+Icon=applications-system
+X-XFCE-Module=appmenu-xfce
+X-XFCE-API=2.0
+```
+
+File: ./subprojects/vala-panel-appmenu/data/appmenu.plugin.desktop.in
+```
+[Plugin]
+Module=appmenu
+Name=AppMenu Plugin
+Description=Display AppMenu (Global Menu)
+Icon=preferences-system-symbolic
+Website=https://gitlab.com/vala-panel-project/vala-panel-appmenu
+HelpURI=https://gitlab.com/vala-panel-project/vala-panel-appmenu
+License=lgpl
+X-ValaPanel-Expandable=true
+Expandable=true
+Version=@VERSION@
+```
+
+File: ./subprojects/vala-panel-appmenu/data/meson.build
+```
+cdata = configuration_data()
+cdata.set('CMAKE_INSTALL_FULL_LIBDIR', join_paths(prefix,get_option('libdir')))
+cdata.set('CMAKE_INSTALL_FULL_DATAROOTDIR', join_paths(prefix,datadir))
+
+if vala_panel_found
+    vp_applets_datadir = vp.get_variable(pkgconfig:'applets_data')
+    desktop = vcs_tag(
+	    command : ['git','describe','--tags'],
+	    input: 'appmenu.plugin.desktop.in',
+	    output: 'appmenu.plugin.in',
+	    replace_string: '@VERSION@',
+    )
+    i18n.merge_file(
+      input: desktop,
+      output: 'org.valapanel.appmenu.plugin',
+      kwargs: desktop_kwargs,
+      install_dir: vp_applets_datadir
+    )
+endif
+
+if mate_found
+    mate_applet_datadir = join_paths(mp.get_variable(pkgconfig:'prefix'),datadir,'mate-panel','applets')
+    mate_desktop = configure_file(input : 'appmenu-mate.plugin.desktop.in',
+               output : 'appmenu-mate.desktop.in',
+			   configuration : cdata)
+    i18n.merge_file(
+      input: mate_desktop,
+      output: 'org.vala-panel.appmenu.mate-panel-applet',
+      kwargs: desktop_kwargs,
+      install_dir: mate_applet_datadir
+    )
+endif
+
+if xfce_found
+    xfce_applet_datadir = join_paths(xp.get_variable(pkgconfig:'prefix'),datadir,'xfce4','panel','plugins')
+    i18n.merge_file(
+      input: 'appmenu.desktop.in',
+      output: 'appmenu.desktop',
+      kwargs: desktop_kwargs,
+      install_dir: xfce_applet_datadir
+    )
+endif
+
+if budgie_found
+    i18n.merge_file(
+      input: 'appmenu-budgie.desktop.in',
+      output: 'appmenu-budgie.plugin',
+      kwargs: desktop_kwargs,
+      install_dir: budgie_applet_libdir
+    )
+endif
+
+if mate_found or vala_panel_found or budgie_found
+    install_data([
+	    'org.valapanel.appmenu.gschema.xml'
+    ], install_dir: schema_dir)
+endif
+```
+
+File: ./subprojects/vala-panel-appmenu/lib/meson.build
+```
+sources = files(
+    'appmenu-abstractions.vala',
+    'registrar.vala',
+    'menu-widget.vala',
+    'helper-desktop.vala',
+    'helper-dbus.vala',
+    'helper-dbusmenu.vala',
+    'helper-menumodel.vala',
+    'launcher.vapi',
+    'launcher.c',
+    'launcher.h'
+)
+
+wnck_src = files(
+    'appmenu-wnck.vala',
+    'matcher.c',
+    'matcher.h',
+    'libwnck-aux.c',
+    'libwnck-aux.h',
+    'matcher.vapi'
+)
+
+libres = gnome.compile_resources(
+    'lib', 'libappmenu.gresource.xml',
+    source_dir: '.',
+    c_name: 'lib'
+)
+valac = meson.get_compiler('vala')
+posix_dep = valac.find_library('posix')
+
+importer_dep = dependency('appmenu-glib-translator', fallback : ['appmenu-glib-translator', 'importer_dep'])
+
+appmenu_deps = [giounix, gtk, importer_dep, posix_dep]
+appmenu_cflags = []
+if backend_wnck
+    sources += wnck_src
+    appmenu_deps += wnck
+    appmenu_cflags += ['-DWNCK_I_KNOW_THIS_IS_UNSTABLE']
+endif
+
+appmenu_lib = static_library('libappmenu',
+        sources, config,
+        dependencies: appmenu_deps,
+        c_args: appmenu_cflags,
+        pic: true
+    )
+appmenu_inc = include_directories('.')
+
+appmenu_dep = declare_dependency(
+    include_directories: appmenu_inc,
+    dependencies: [gtk, giounix],
+    link_whole: appmenu_lib
+)
+```
+
+File: ./subprojects/vala-panel-appmenu/meson_options.txt
+```
+option('wm_backend', type: 'combo', choices: ['auto','wnck'], value: 'auto', description: 'Backend for appmenu')
+
+option('valapanel', type: 'feature', value: 'auto', description: 'Vala Panel Integration - 0.5.x')
+option('xfce', type: 'feature', value: 'auto', description: 'Xfce Panel Integration')
+option('mate', type: 'feature', value: 'auto', description: 'MATE Panel Integration')
+option('budgie', type: 'feature', value: 'auto', description: 'Budgie Desktop Integration')
+
+option('registrar', type: 'feature', value: 'auto', description: 'DBusMenu registrar')
+option('appmenu-gtk-module', type: 'feature', value: 'auto', description: 'Gtk+ module for AppMenu')
+option('jayatana', type: 'feature', value: 'auto', description: 'Java support for global menus')
+```
+
+File: ./subprojects/vala-panel-appmenu/po/meson.build
+```
+i18n.gettext(meson.project_name(), preset: 'glib')
+```
+
+File: ./subprojects/vala-panel-appmenu/subprojects/appmenu-glib-translator/meson.build
+```
+project(
+  'appmenu-glib-translator',
+  'c',
+version : '25.04',
+meson_version : '>=0.61.0',
+license : 'LGPL-3.0-or-later',
+default_options : ['c_std=gnu11', 'buildtype=debugoptimized', 'warning_level=1']
+)
+
+gnome = import('gnome')
+pkgconfig = import('pkgconfig')
+
+glib_ver = '>=2.52.0'
+giounix = dependency('gio-unix-2.0', version: glib_ver)
+gdkpixbuf = dependency('gdk-pixbuf-2.0', required: false)
+
+imp_sources = files(
+    'definitions.h',
+    'debug.c',
+    'debug.h',
+    'item.c',
+    'item.h',
+    'importer.c',
+    'importer.h',
+    'model.h',
+    'model.c',
+    'section.c',
+    'section.h',
+    'utils.c',
+    'utils.h'
+    )
+imp_headers = files('definitions.h')
+enum = 'importer-enums'
+importer_enums_gen = gnome.mkenums(
+  enum,
+  sources: imp_headers,
+  c_template: enum + '.c.template',
+  h_template: enum + '.h.template',
+)
+imp_dbus = gnome.gdbus_codegen(
+    'dbusmenu-interface',
+    sources: 'com.canonical.dbusmenu.xml',
+    interface_prefix: 'com.canonical',
+    autocleanup: 'all',
+    namespace: 'DBusMenu'
+)
+
+importer_name = 'appmenu-glib-translator'
+
+importer_lib = library(importer_name, imp_sources, importer_enums_gen, imp_dbus,
+    dependencies: [giounix, gdkpixbuf],
+    version: meson.project_version(),
+    install: true,
+    soversion: 0,
+    pic : true
+)
+importer_inc = include_directories('.')
+imp_public = ['importer.h']
+install_headers(imp_public, subdir : importer_name)
+
+pkgconfig.generate(importer_lib,
+             name: importer_name,
+             description: 'A translator from DBusMenu to GMenuModel',
+             requires: [giounix, gdkpixbuf],
+             extra_cflags: ['-I${includedir}/'+importer_name]
+            )
+
+importer_gir = gnome.generate_gir(importer_lib,
+                    sources: imp_public,
+                    includes: ['GObject-2.0', 'Gio-2.0'],
+                    header: imp_public,
+                    namespace: 'AppmenuGLibTranslator',
+                    identifier_prefix: 'DBusMenu',
+                    symbol_prefix: 'dbus_menu',
+                    nsversion: meson.project_version(),
+                    install: true
+)
+
+importer_vapi = gnome.generate_vapi(importer_name,
+    sources: importer_gir[0],
+    packages: 'gio-2.0',
+    install: true,
+)
+
+importer_dep = declare_dependency(
+        include_directories: importer_inc,
+        dependencies: [importer_vapi, giounix, gdkpixbuf],
+        link_with: importer_lib
+)
+```
+
+File: ./subprojects/vala-panel-appmenu/subprojects/appmenu-gtk-module/data/meson.build
+```
+install_data([
+    'org.appmenu.gtk-module.gschema.xml'
+], install_dir: schema_dir)
+
+systemd = dependency('systemd', required: false)
+
+if systemd.found()
+    userunitdir = systemd.get_variable(pkgconfig:'systemduserunitdir')
+    configure_file(
+        input: 'appmenu-gtk-module.service.in',
+        output: 'appmenu-gtk-module.service',
+        install_dir: userunitdir,
+        configuration: {'CMAKE_INSTALL_FULL_BINDIR': join_paths(prefix,get_option('bindir'))}
+    )
+endif
+```
+
+File: ./subprojects/vala-panel-appmenu/subprojects/appmenu-gtk-module/docs/meson.build
+```
+ent_dict = {
+    'CMAKE_PROJECT_NAME' : meson.project_name(),
+    'PACKAGE_BUGREPORT': 'https://github.com/rilian-la-te/vala-panel-appmenu/issues',
+    'PACKAGE_STRING' : 'appmenu-gtk-parser',
+    'CPACK_SOURCE_PACKAGE_FILE_NAME': '@0@-@1@.tar.xz'.format(meson.project_name(),meson.project_version()),
+    'PACKAGE_URL' : 'https://github.com/rilian-la-te/vala-panel-appmenu',
+    'VERSION': meson.project_version(),
+    'PACKAGE_API_VERSION': meson.project_version()
+}
+ent = configure_file(
+    input: 'gtkdocentities.ent.in',
+    output: 'gtkdocentities.ent',
+    configuration: ent_dict
+)
+
+if get_option('gtk_doc')
+gnome.gtkdoc(
+    'appmenu-gtk-parser',
+    content_files: ent,
+    src_dir: parser_inc,
+    gobject_typesfile: 'appmenu-gtk-parser.types',
+    dependencies: gtk3_parser_dep,
+    ignore_headers: lib_private_headers,
+    install: true,
+    main_sgml: join_paths(meson.current_build_dir(),'appmenu-gtk-parser-docs.sgml')
+)
+
+endif
+```
+
+File: ./subprojects/vala-panel-appmenu/subprojects/appmenu-gtk-module/lib/meson.build
+```
+lib_sources = files(
+	'unity-gtk-action-group.c',
+	'unity-gtk-action.c',
+	'unity-gtk-menu-shell.c',
+	'unity-gtk-menu-section.c',
+	'unity-gtk-menu-item.c',
+)
+lib_private_headers = [
+	'unity-gtk-action-group-private.h',
+    'unity-gtk-action-private.h',
+    'unity-gtk-menu-shell-private.h',
+    'unity-gtk-menu-section-private.h',
+    'unity-gtk-menu-item-private.h',
+]
+lib_headers = files(
+	'appmenu-gtk-action-group.h',
+	'appmenu-gtk-menu-shell.h',
+	'appmenu-gtk-parser.h'
+)
+
+parser_inc = include_directories('.')
+parser_kwargs = {
+    'sources': lib_sources+lib_headers+lib_private_headers,
+    'install': true,
+    'version': meson.project_version(),
+    'soversion': '0'
+}
+pc_kwargs = {
+    'description': 'GtkMenuShell to GMenuModel parser',
+    'variables': ['exec_prefix=@0@'.format(join_paths(prefix,get_option('libexecdir')))],
+    'extra_cflags': ['-I${includedir}/appmenu-gtk-parser']
+}
+
+if build_gtk2
+    gtk2_parser_lib = shared_library(
+        'appmenu-gtk2-parser',
+        dependencies: gtk2,
+        c_args: '-Wno-deprecated-declarations',
+        kwargs: parser_kwargs
+    )
+    pkgconfig.generate(gtk2_parser_lib,
+        requires: gtk2,
+        kwargs: pc_kwargs
+    )
+    gtk2_parser_dep = declare_dependency(
+        include_directories: parser_inc,
+        link_with: gtk2_parser_lib,
+        dependencies: gtk2
+    )
+endif
+
+if build_gtk3
+    gtk3_parser_lib = shared_library(
+        'appmenu-gtk3-parser',
+        dependencies: gtk3,
+        kwargs: parser_kwargs
+    )
+    pkgconfig.generate(gtk3_parser_lib,
+        requires: gtk3,
+        kwargs: pc_kwargs
+    )
+    gtk3_parser_dep = declare_dependency(
+        include_directories: parser_inc,
+        link_with: gtk3_parser_lib,
+        dependencies: gtk3
+    )
+endif
+
+if build_gtk2 or build_gtk3
+    install_headers(lib_headers, subdir: 'appmenu-gtk-parser')
+endif
+```
+
+File: ./subprojects/vala-panel-appmenu/subprojects/appmenu-gtk-module/meson.build
+```
+project('appmenu-gtk-module', 'c',
+	meson_version: '>=0.61.0',
+	version: '25.04',
+	license: ['LGPL-3.0-or-later'],
+    default_options: [
+        'c_std=gnu11',
+        'buildtype=debugoptimized',
+        'warning_level=1'
+        ])
+
+##################
+# Module imports #
+##################
+
+gnome = import('gnome')
+i18n = import('i18n')
+pkgconfig = import('pkgconfig')
+
+###############
+# Directories #
+###############
+prefix = get_option('prefix')
+datadir = get_option('datadir')
+localedir = get_option('localedir')
+schema_dir = join_paths(get_option('datadir'), 'glib-2.0', 'schemas')
+docdir = join_paths(prefix,datadir, 'doc')
+
+################
+# Dependencies #
+################
+glib_ver = '>=2.52.0'
+giounix = dependency('gio-unix-2.0', version: glib_ver)
+
+gtk_versions = get_option('gtk')
+gtk2_requested = '2' in gtk_versions
+gtk3_requested = '3' in gtk_versions
+
+gtk2_ver = '>=2.24.0'
+gtk3_ver = '>=3.22.0'
+
+gtk2 = dependency('gtk+-2.0', version: gtk2_ver, required: gtk2_requested)
+gtk3 = dependency('gtk+-3.0', version: gtk3_ver, required: gtk3_requested)
+
+build_gtk2 = gtk2.found()
+build_gtk3 = gtk3.found()
+
+#################
+# Configuration #
+#################
+
+readmes = [
+    'README.md',
+    'TODO',
+    'AUTHORS'
+]
+install_data(readmes, install_dir : join_paths(get_option('datadir'), 'doc', meson.project_name()))
+install_data('LICENSE', install_dir : join_paths(get_option('datadir'), 'licenses', meson.project_name()))
+
+
+subdir('lib')
+subdir('src')
+subdir('data')
+subdir('docs')
+subdir('tests')
+```
+
+File: ./subprojects/vala-panel-appmenu/subprojects/appmenu-gtk-module/meson_options.txt
+```
+option('gtk', type: 'array', choices : ['2','3'],  value: ['2','3'], description: 'Supported GTK versions')
+option('tests', type : 'boolean', value : false, description: 'Parser tests')
+option('gtk_doc', type: 'boolean', value: false, description: 'Build API reference')
+```
+
+File: ./subprojects/vala-panel-appmenu/subprojects/appmenu-gtk-module/src/gtk-2.0/meson.build
+```
+gtk2_module = shared_module(
+    'appmenu-gtk-module', module_sources,
+    dependencies: gtk2_parser_dep,
+    c_args: '-Wno-deprecated-declarations',
+    install: true,
+    install_dir: join_paths(gtk2.get_variable(pkgconfig:'libdir'),'gtk-2.0','modules')
+)
+```
+
+File: ./subprojects/vala-panel-appmenu/subprojects/appmenu-gtk-module/src/gtk-3.0/meson.build
+```
+gtk3_module = shared_module(
+    'appmenu-gtk-module', module_sources,
+    dependencies: gtk3_parser_dep,
+    install: true,
+    install_dir: join_paths(gtk3.get_variable(pkgconfig:'libdir'),'gtk-3.0','modules')
+)
+```
+
+File: ./subprojects/vala-panel-appmenu/subprojects/appmenu-gtk-module/src/meson.build
+```
+module_sources = files(
+    'appmenu-gtk-module.c',
+    'datastructs.c',
+    'datastructs.h',
+    'datastructs-private.h',
+    'hijack.c',
+    'hijack.h',
+    'support.c',
+    'support.h',
+    'blacklist.c',
+    'blacklist.h',
+    'platform.c',
+    'platform.h',
+    'consts.h'
+)
+
+module_subdirs = ['gtk-2.0','gtk-3.0']
+
+if build_gtk2
+    subdir('gtk-2.0')
+endif
+
+if build_gtk3
+    subdir('gtk-3.0')
+endif
+```
+
+File: ./subprojects/vala-panel-appmenu/subprojects/appmenu-gtk-module/tests/meson.build
+```
+if build_gtk3 and get_option('tests')
+    client_sources = files (
+	    join_paths('demos','altgrabber.h'),
+	    join_paths('demos','altgrabber.c'),
+	    join_paths('demos','altmonitor.h'),
+	    join_paths('demos','altmonitor.c'),
+	    join_paths('demos','menusource.h'),
+	    join_paths('demos','menusource.c'),
+	    join_paths('demos','client.c'))
+
+    wnck_ver = '>=3.4.8'
+    wnck = dependency('libwnck-3.0',version: wnck_ver, required: false)
+    x11 = dependency('x11', required: false)
+    if(wnck.found() and x11.found())
+        client = executable('menumodel-client',client_sources,
+            dependencies: [gtk3_parser_dep, wnck, x11]
+        )
+#        test('client', client)
+    endif
+    tester = executable('tester',join_paths('demos','unity-gtk-menu-tester.c'), dependencies: gtk3)
+#    test('tester',tester)
+    radio = executable('radio',join_paths('demos','test-radio.c'), dependencies: gtk3)
+#    test('radio',radio)
+    hello = executable('hello',join_paths('demos','hello.c'), dependencies: gtk3)
+#    test('hello',hello)
+    vala_found = add_languages('vala', required: false)
+    if vala_found
+        black = executable('black',join_paths('demos','black.vala'), dependencies: gtk3)
+#        test('black',black)
+    endif
+endif
+
+#TODO: fix autopilot
+run_target('autopilot',
+        command: ['autopilot/test.sh'],
+    )
+```
+
+File: ./subprojects/vala-panel-appmenu/subprojects/jayatana/java/com/jarego/jayatana/basic/meson.build
+```
+native_libraries = configure_file(
+                input:  'NativeLibraries.java.in',
+                output: 'NativeLibraries.java',
+                configuration: data)```
+
+File: ./subprojects/vala-panel-appmenu/subprojects/jayatana/java/com/jarego/jayatana/meson.build
+```
+subdir('basic')
+
+agent = configure_file(
+                input: 'Agent.java.in',
+                output: 'Agent.java',
+                configuration: data)```
+
+File: ./subprojects/vala-panel-appmenu/subprojects/jayatana/java/meson.build
+```
+subdir('com/jarego/jayatana')
+
+jayatana_java_sources = files(
+  'com/jarego/jayatana/Feature.java',
+  'com/jarego/jayatana/FeatureManager.java',
+  'com/jarego/jayatana/FeatureWrapper.java',
+  'com/jarego/jayatana/basic/GMainLoop.java',
+  'com/jarego/jayatana/basic/GlobalMenuAdapter.java',
+  'com/jarego/jayatana/basic/GlobalMenu.java',
+  'com/jarego/jayatana/swing/SwingGlobalMenu.java',
+  'com/jarego/jayatana/swing/SwingGTKFixed.java',
+  'com/jarego/jayatana/swing/SwingWMClass.java',
+  'com/jarego/jayatana/swing/SwingGlobalMenuWindow.java'
+)
+jayatana_java_headers = files(
+  'com/jarego/jayatana/basic/GMainLoop.java',
+  'com/jarego/jayatana/basic/GlobalMenu.java',
+  'com/jarego/jayatana/Feature.java'
+)
+args = ['--add-exports', 'java.desktop/com.sun.java.swing.plaf.gtk=ALL-UNNAMED']
+java_install_path = join_paths(get_option('datadir'), 'java')
+
+jayatana_java = jar('jayatana', jayatana_java_sources, native_libraries,
+                        java_args : args,
+                        install: true,
+                        install_dir: java_install_path
+                       )
+
+jayatana_jni_hdr = java.native_headers(
+    jayatana_java_headers,
+    package: 'com.jarego.jayatana',
+    classes: ['GMainLoop', 'GlobalMenu']
+)
+
+jayatana_jni = declare_dependency(
+            sources: jayatana_jni_hdr
+)
+
+manifest = configure_file(
+                input: 'MANIFEST.MF.in',
+                output: 'MANIFEST.MF',
+                configuration: data)
+
+
+agent_java = jar('jayatanaag', agent,
+                        java_args : args,
+                        install: true,
+                        install_dir: java_install_path
+)
+
+# HACK: regenerate manifest after building a JAR file
+agent_manifest_patch = custom_target(
+                                  output: 'jayatanaag.timestamp',
+                                  command: ['jar', '-f', agent_java.full_path(), '-u', '-m', manifest, '-v'],
+                                  capture: true,
+                                  depends: agent_java,
+                                  build_by_default : true,
+                                  build_always_stale: true
+)```
+
+File: ./subprojects/vala-panel-appmenu/subprojects/jayatana/lib/meson.build
+```
+install_directory = join_paths(get_option('libdir') / 'jayatana')
+
+config = configure_file(input: 'config.h.in', output: 'config.h', configuration : data)
+agent_sources = files(
+  'com_jarego_jayatana_Agent.h',
+  'com_jarego_jayatana_Agent.c'
+)
+jayatanaag = shared_library('jayatanaag', agent_sources, config,
+          dependencies : [x11, jni],
+          install: true,
+          install_dir: install_directory
+)
+
+jayatana_sources = files(
+  'com_jarego_jayatana_basic_GlobalMenu.c',
+  'com_jarego_jayatana_basic_GMainLoop.c',
+  'com_jarego_jayatana_jkey2xkey.c',
+  'com_jarego_jayatana_jkey2xkey.h',
+  'com_jarego_jayatana_jni.c',
+  'com_jarego_jayatana_jni.h',
+  'jayatana-window.c',
+  'jayatana-window.h',
+  'dbusmenu-definitions.h'
+)
+
+jayatana = shared_library('jayatana', jayatana_sources,
+            dependencies: [x11, jni, xkbcommon, dbusmenu, jayatana_jni, glib],
+            install: true,
+            install_dir: install_directory
+)
+```
+
+File: ./subprojects/vala-panel-appmenu/subprojects/jayatana/meson.build
+```
+# cmake_policy(['VERSION', '3.6'])
+project('jayatana', 'java', 'c',
+        meson_version: '>=1.0.0',
+        version: '25.04',
+        license: ['MIT'],
+         default_options : ['c_std=gnu11', 'buildtype=debugoptimized'])
+
+x11 = dependency('x11', required: true)
+xkbcommon = dependency('xkbcommon', required : true)
+dbusmenu = dependency('dbusmenu-glib-0.4', version : '>=16.04.0')
+javac = meson.get_compiler('java')
+java = import('java')
+jni = dependency('jni', version: '>= 1.8.0', modules: ['jvm', 'awt'], required : true)
+glib = dependency('gio-2.0', required : true)
+
+java_ver = javac.version()
+version_array = java_ver.split('.')
+java_ver = version_array[0]
+if java_ver < '2.0'
+  java_ver = version_array[1]
+endif
+
+data= {
+  'CMAKE_INSTALL_FULL_LIBDIR' : join_paths(get_option('prefix'),get_option('libdir')),
+  'CMAKE_INSTALL_FULL_DATAROOTDIR' : join_paths(get_option('prefix'),get_option('datadir')),
+  'Java_VERSION_MINOR' : java_ver,
+  'Java_VERSION_STRING' : javac.version()
+}
+
+subdir('java')
+subdir('lib')
+
+```
+
+File: ./subprojects/vala-panel-appmenu/subprojects/registrar/meson.build
+```
+project('registrar', 'c',
+	meson_version: '>=0.61.0',
+    version: '25.04',
+	license: ['LGPL-3.0-or-later'],
+    default_options: [
+        'c_std=gnu11',
+        'buildtype=debugoptimized',
+        'warning_level=1'
+        ])
+
+##################
+# Module imports #
+##################
+
+gnome = import('gnome')
+i18n = import('i18n')
+pkgconfig = import('pkgconfig')
+
+###############
+# Directories #
+###############
+prefix = get_option('prefix')
+datadir = get_option('datadir')
+localedir = get_option('localedir')
+schema_dir = join_paths(get_option('datadir'), 'glib-2.0', 'schemas')
+libexecdir = get_option('libexecdir')
+installdir = join_paths(libexecdir, 'vala-panel')
+servicedir = join_paths(prefix,datadir, 'dbus-1','services')
+
+################
+# Dependencies #
+################
+glib_ver = '>=2.52.0'
+giounix = dependency('gio-unix-2.0', version: glib_ver)
+
+
+#################
+# Configuration #
+#################
+conf_data = configuration_data()
+conf_data.set('GETTEXT_PACKAGE', 'vala-panel-appmenu')
+conf_data.set('CMAKE_INSTALL_FULL_LOCALEDIR', join_paths(prefix,localedir))
+
+config = configure_file(input : 'config.h.in',
+               output : 'config.h',
+			   configuration : conf_data)
+
+version = vcs_tag(
+	command : ['git','describe','--tags'],
+	input: 'version.h.in',
+	output: 'version.h',
+	replace_string: '@VERSION@',
+)
+
+#################
+#     Build     #
+#################
+
+marshal = gnome.genmarshal('registrar-marshal', sources: 'registrar-marshal.list')
+intro_c = run_command(
+        'cat', join_paths('data','com.canonical.AppMenu.Registrar.xml'), check: true
+    ).stdout().strip().split('"')
+priv_c = run_command(
+        'cat', join_paths('data','org.valapanel.AppMenu.Registrar.xml'), check: true
+    ).stdout().strip().split('"')
+
+intro_xml = ''.join('\"'.join(intro_c).split('\n'))
+priv_xml = ''.join('\"'.join(priv_c).split('\n'))
+
+xml = configure_file(input : 'registrar-xml.c.in',
+               output : 'registrar-xml.c',
+			   configuration : {
+                    'XML_CONTENTS' : intro_xml,
+                    'PRIVATE_CONTENTS' : priv_xml
+			   })
+sources = files(
+    'registrar-main.c',
+    'registrar-main.h',
+    'registrar-dbusmenu.c',
+    'registrar-dbusmenu.h'
+)
+registrar = executable('appmenu-registrar',
+    config, xml, sources, marshal, version,
+    dependencies : giounix,
+    install : true,
+    install_dir : installdir
+)
+
+service = configure_file(input : join_paths('data', 'appmenu-registrar.service.in'),
+               output : 'com.canonical.AppMenu.Registrar.service',
+               install_dir: servicedir,
+			   configuration : {
+                    'CMAKE_INSTALL_FULL_LIBEXECDIR' : join_paths(prefix,libexecdir),
+			   })
+```
+
+File: ./subprojects/vala-panel-appmenu/meson.build
+```
+project(
+  'vala-panel-appmenu',
+  'vala',
+  'c',
+version : '25.04',
+meson_version : '>=0.51.0',
+license : 'LGPL-3.0-or-later',
+default_options : ['c_std=gnu11', 'buildtype=debugoptimized', 'warning_level=1']
+)
+
+am_cflags = [
+    '-fstack-protector',
+    '-DGETTEXT_PACKAGE="@0@"'.format(meson.project_name()),
+]
+add_project_arguments(am_cflags, language: 'c')
+
+vapi_dir = join_paths(meson.current_source_dir(), 'vapi')
+add_project_arguments(['--vapidir', vapi_dir], language: 'vala')
+
+##################
+# Module imports #
+##################
+
+gnome = import('gnome')
+i18n = import('i18n')
+
+###############
+# Directories #
+###############
+prefix = get_option('prefix')
+datadir = get_option('datadir')
+localedir = get_option('localedir')
+schema_dir = join_paths(get_option('datadir'), 'glib-2.0', 'schemas')
+
+
+################
+# Dependencies #
+################
+glib_ver = '>=2.52.0'
+giounix = dependency('gio-unix-2.0', version: glib_ver)
+
+gdkpixbuf = dependency('gdk-pixbuf-2.0', required: false)
+
+gtk_ver = '>=3.22.0'
+gtk = dependency('gtk+-3.0', version: gtk_ver)
+
+backend_opt = get_option('wm_backend')
+backend_wnck = false
+
+wnck_ver = '>=3.4.8'
+wnck = dependency('libwnck-3.0', version: wnck_ver, required: backend_opt == 'wnck')
+
+if(wnck.found() and (backend_opt == 'wnck' or backend_opt == 'auto'))
+    backend_wnck = true
+endif
+
+if(not (backend_wnck))
+    error('No backend available (libwnck3 required)')
+endif
+
+vp_ver = '>=24.03'
+vp = dependency('vala-panel', version:  vp_ver, required: get_option('valapanel'))
+vala_panel_found = vp.found()
+
+mp_ver = '>=1.20'
+mp = dependency('libmatepanelapplet-4.0', version: mp_ver, required: get_option('mate'))
+mate_found = mp.found()
+
+xp = dependency('libxfce4panel-2.0', required: get_option('xfce'))
+xc = dependency('libxfconf-0', required: get_option('xfce'))
+xfce_found = xp.found() and xc.found()
+
+bp = dependency('budgie-1.0', required: get_option('budgie'))
+budgie_found = bp.found()
+
+
+#################
+# Configuration #
+#################
+conf_data = configuration_data()
+conf_data.set('GETTEXT_PACKAGE', meson.project_name())
+conf_data.set('LOCALE_DIR', join_paths(prefix,localedir))
+conf_data.set('CMAKE_INSTALL_PREFIX', prefix)
+
+config = configure_file(input : join_paths('vapi','config.vala.in'),
+               output : 'config.vala',
+			   configuration : conf_data)
+
+desktop_kwargs = {
+      'type': 'desktop',
+      'args' : ['--keyword=Name','--keyword=Description','--keyword=Comment', '--keyword=Help'],
+      'po_dir': join_paths(meson.current_source_dir(),'po'),
+      'install': true,
+}
+
+#################
+#  Subprojects  #
+#################
+subproject('registrar', required: get_option('registrar'))
+subproject('jayatana', required: get_option('jayatana'))
+subproject('appmenu-gtk-module', required: get_option('appmenu-gtk-module'))
+
+subdir('lib')
+subdir('applets')
+subdir('data')
+subdir('po')
+
+install_data('README.md', install_dir : join_paths(get_option('datadir'), 'doc', meson.project_name()))
+install_data('LICENSE', install_dir : join_paths(get_option('datadir'), 'licenses', meson.project_name()))
+
+glib = dependency('glib-2.0', version: glib_ver)
+
+# AppMenu sources
+appmenu_sources = [
+  'lib/appmenu-abstractions.vala',
+  'lib/appmenu-wnck.vala',
+  'lib/helper-dbus.vala',
+  'lib/menu-widget.vala',
+  config
+]
+
+appmenu_static = static_library('appmenu_static',
+  sources: appmenu_sources,
+  dependencies: [glib, gtk, giounix, wnck],
+  vala_args: ['--vapidir=' + vapi_dir],
+  install: false
+)
+
+appmenu_dep = declare_dependency(
+  link_with: appmenu_static,
+  include_directories: include_directories('lib')
+)```
+
+File: ./meson.build
+```
+project('xfce4-newtonmenu-plugin', 'c', 'vala',
+  version: '1.0.0',
+  default_options: ['warning_level=1'])
+
+# Dependencies
+xfce_panel_dep = dependency('libxfce4panel-2.0', version: '>= 4.16')
+xfce_ui_dep    = dependency('libxfce4ui-2', version: '>= 4.16')
+xfce_util_dep  = dependency('libxfce4util-1.0', version: '>= 4.16')
+exo_dep        = dependency('exo-2', version: '>= 0.12')
+gtk_dep        = dependency('gtk+-3.0', version: '>= 3.24')
+glib_dep       = dependency('glib-2.0', version: '>= 2.66')
+wnck_dep       = dependency('libwnck-3.0', version: '>= 3.4.0')
+dbusmenu_dep   = dependency('dbusmenu-glib-0.4', required: true)
+
+# Plugin sources (C and Vala)
+sources_c = [
+  'src/newtonmenu.c',
+]
+sources_vala = [
+  'src/newtonmenu-dialog.vala',  # (example: maybe a settings dialog implemented in Vala)
+]
+
+# Compile Vala sources to C (if any)
+vala_features = [ '--target-glib=2.0' ]
+vala_c = vala.compile('newtonmenu_vala',
+  sources_vala,
+  dependencies: [gtk_dep, glib_dep, xfce_ui_dep, xfce_panel_dep],
+  args: vala_features,
+  install: false  # We compile into the .so, not a separate prog
+)
+
+# Combine generated C from Vala with hand-written C
+plugin_sources = sources_c + vala_c
+
+# Build the plugin as a shared object for Xfce panel
+plugin = shared_library(
+  'newtonmenu',
+  plugin_sources,
+  include_directories: include_directories('src'),
+  dependencies: [xfce_panel_dep, xfce_ui_dep, xfce_util_dep, exo_dep, gtk_dep, glib_dep, wnck_dep, dbusmenu_dep],
+  install: true,
+  install_dir: xfce_panel_dep.get_variable('plugindir')  # installs to XFCE's panel plugin directory
+)
+
+# Install the panel .desktop file for the plugin (to show in Add New Items dialog)
+install_data('panel-plugin/xfce4-newtonmenu-plugin.desktop',
+  install_dir: xfce_panel_dep.get_variable('datadir') + '/applications')
+```
+

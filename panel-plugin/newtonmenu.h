@@ -5,11 +5,15 @@
 #include <libxfce4panel/libxfce4panel.h>
 #include <libxfce4ui/libxfce4ui.h>
 #include <libxfce4util/libxfce4util.h>
-#include <libwnck/libwnck.h>
-#include <gio/gio.h>
-#include <libdbusmenu-glib/client.h>
+#include <libwnck/libwnck.h> // Wnck is still included, as MenuWidget might internally use it
+#include <gio/gio.h>       // GIO is still included, as MenuWidget will use it
 
 G_BEGIN_DECLS
+
+// Forward declarations for Vala-generated C functions
+GtkWidget* appmenu_menu_widget_new(void);
+void appmenu_menu_widget_set_compact_mode(GtkWidget* widget, gboolean compact_mode);
+void appmenu_menu_widget_set_bold_application_name(GtkWidget* widget, gboolean bold_application_name);
 
 typedef struct _newtonmenuPlugin newtonmenuPlugin;
 
@@ -25,35 +29,14 @@ struct _newtonmenuPlugin
     GtkWidget       *static_newton_menu;
 
     GtkWidget       *app_menu_bar_container;
-    GtkMenuButton   *app_name_button;
-    GtkWidget       *app_name_button_label;
-
-    GList           *dynamic_app_menu_buttons;
-
-    DbusmenuClient  *app_dbusmenu_client;
-    gulong          app_dbusmenu_client_root_changed_id;    // For DbusmenuClient "root-changed"
-    gulong          app_dbusmenu_client_layout_updated_id;  // For DbusmenuClient "layout-updated"
-
-    GDBusConnection *dbus_session_bus;
-    GDBusProxy      *appmenu_registrar_proxy;
-    guint           dbus_name_owner_id;                     // For g_bus_own_name
-
-    WnckScreen      *wnck_screen;
-    WnckWindow      *active_wnck_window;
-
-    gulong          wnck_active_window_changed_handler_id;
-    gulong          appmenu_registrar_registered_handler_id;
-    gulong          appmenu_registrar_unregistered_handler_id;
+    GtkWidget       *appmenu_widget; // NEW: Holds the Vala-generated Appmenu.MenuWidget
 
     gboolean        display_icon_prop;
     gchar          *icon_name_prop;
     gchar          *label_text_prop;
     
-    gboolean        hide_application_name_prop;
-    gchar          *global_menu_title_prop;
-
-    gboolean        show_app_name_button_prop;
-    gboolean        bold_app_name_prop;
+    gboolean        hide_application_name_prop; // This maps to MenuWidget's "compact-mode"
+    gboolean        bold_app_name_prop;       // This maps to MenuWidget's "bold-application-name"
     
     gboolean        confirm_logout_prop;
     gboolean        confirm_restart_prop;
@@ -65,7 +48,7 @@ struct _newtonmenuPlugin
 
 void newtonmenu_save(XfcePanelPlugin *plugin, newtonmenuPlugin *newtonmenu);
 void newtonmenu_update_display(newtonmenuPlugin *newtonmenu);
-void newtonmenu_clear_dynamic_app_menus(newtonmenuPlugin *newtonmenu);
+void newtonmenu_apply_appmenu_properties(newtonmenuPlugin *newtonmenu); // NEW
 
 void newtonmenu_menu_button_toggled(GtkMenuButton *button, newtonmenuPlugin *newtonmenu);
 gboolean on_menu_button_enter(GtkWidget *widget, GdkEventCrossing *event, gpointer user_data);

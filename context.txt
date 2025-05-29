@@ -1,0 +1,1759 @@
+=== XFCE4-NEWTONMENU-PLUGIN CONTEXT DUMP ===
+Generated: Wed May 28 11:55:36 PM CEST 2025
+Repository: git@github.com:cousteauche/xfce4-newtonmenu-plugin.git
+
+=== DIRECTORY STRUCTURE ===
+  .
+  ./builddir
+  ./builddir/meson-info
+  ./builddir/meson-logs
+  ./builddir/meson-private
+  ./builddir/meson-uninstalled
+  ./builddir/subprojects
+  ./builddir/subprojects/vala-panel-appmenu
+  ./builddir/subprojects/vala-panel-appmenu/applets
+  ./builddir/subprojects/vala-panel-appmenu/data
+  ./builddir/subprojects/vala-panel-appmenu/lib
+  ./builddir/subprojects/vala-panel-appmenu/po
+  ./builddir/subprojects/vala-panel-appmenu/subprojects
+  ./builddir/subprojects/vala-panel-appmenu/subprojects/appmenu-gtk-module
+  ./builddir/subprojects/vala-panel-appmenu/subprojects/appmenu-gtk-module/data
+  ./builddir/subprojects/vala-panel-appmenu/subprojects/appmenu-gtk-module/docs
+  ./builddir/subprojects/vala-panel-appmenu/subprojects/appmenu-gtk-module/lib
+  ./builddir/subprojects/vala-panel-appmenu/subprojects/appmenu-gtk-module/src
+  ./builddir/subprojects/vala-panel-appmenu/subprojects/appmenu-gtk-module/src/gtk-2.0
+  ./builddir/subprojects/vala-panel-appmenu/subprojects/appmenu-gtk-module/src/gtk-3.0
+  ./builddir/subprojects/vala-panel-appmenu/subprojects/appmenu-gtk-module/tests
+  ./builddir/subprojects/vala-panel-appmenu/subprojects/jayatana
+  ./builddir/subprojects/vala-panel-appmenu/subprojects/registrar
+  ./.continue
+  ./.continue/docs
+  ./.git
+  ./.git/hooks
+  ./.git/info
+  ./.git/logs
+  ./.git/logs/refs
+  ./.git/logs/refs/heads
+  ./.git/logs/refs/remotes
+  ./.git/logs/refs/remotes/origin
+  ./.git/modules
+  ./.git/modules/external
+  ./.git/modules/subprojects
+  ./.git/modules/subprojects/vala-panel-appmenu
+  ./.git/modules/subprojects/vala-panel-appmenu/hooks
+  ./.git/modules/subprojects/vala-panel-appmenu/info
+  ./.git/modules/subprojects/vala-panel-appmenu/logs
+  ./.git/modules/subprojects/vala-panel-appmenu/logs/refs
+  ./.git/modules/subprojects/vala-panel-appmenu/logs/refs/heads
+  ./.git/modules/subprojects/vala-panel-appmenu/logs/refs/remotes
+  ./.git/modules/subprojects/vala-panel-appmenu/logs/refs/remotes/origin
+  ./.git/modules/subprojects/vala-panel-appmenu/objects
+  ./.git/modules/subprojects/vala-panel-appmenu/objects/info
+  ./.git/modules/subprojects/vala-panel-appmenu/objects/pack
+  ./.git/modules/subprojects/vala-panel-appmenu/refs
+  ./.git/modules/subprojects/vala-panel-appmenu/refs/heads
+  ./.git/modules/subprojects/vala-panel-appmenu/refs/remotes
+  ./.git/modules/subprojects/vala-panel-appmenu/refs/remotes/origin
+  ./.git/modules/subprojects/vala-panel-appmenu/refs/tags
+  ./.git/objects
+  ./.git/objects/01
+  ./.git/objects/03
+  ./.git/objects/04
+  ./.git/objects/05
+  ./.git/objects/07
+  ./.git/objects/09
+  ./.git/objects/0b
+  ./.git/objects/0d
+  ./.git/objects/0e
+  ./.git/objects/0f
+  ./.git/objects/10
+  ./.git/objects/14
+  ./.git/objects/15
+  ./.git/objects/16
+  ./.git/objects/17
+  ./.git/objects/1b
+  ./.git/objects/1d
+  ./.git/objects/1e
+  ./.git/objects/1f
+  ./.git/objects/20
+  ./.git/objects/21
+  ./.git/objects/22
+  ./.git/objects/23
+  ./.git/objects/24
+  ./.git/objects/25
+  ./.git/objects/26
+  ./.git/objects/27
+  ./.git/objects/28
+  ./.git/objects/2b
+  ./.git/objects/2d
+  ./.git/objects/2f
+  ./.git/objects/31
+  ./.git/objects/33
+  ./.git/objects/36
+  ./.git/objects/39
+  ./.git/objects/3d
+  ./.git/objects/3e
+  ./.git/objects/40
+  ./.git/objects/41
+  ./.git/objects/42
+  ./.git/objects/43
+  ./.git/objects/44
+  ./.git/objects/47
+  ./.git/objects/48
+  ./.git/objects/49
+  ./.git/objects/4c
+  ./.git/objects/4d
+  ./.git/objects/4f
+  ./.git/objects/50
+  ./.git/objects/52
+  ./.git/objects/53
+  ./.git/objects/54
+  ./.git/objects/55
+  ./.git/objects/56
+  ./.git/objects/57
+  ./.git/objects/58
+  ./.git/objects/59
+  ./.git/objects/5b
+  ./.git/objects/5c
+  ./.git/objects/5e
+  ./.git/objects/5f
+  ./.git/objects/61
+  ./.git/objects/62
+  ./.git/objects/64
+  ./.git/objects/65
+  ./.git/objects/66
+  ./.git/objects/67
+  ./.git/objects/68
+  ./.git/objects/69
+  ./.git/objects/6d
+  ./.git/objects/6f
+  ./.git/objects/72
+  ./.git/objects/73
+  ./.git/objects/74
+  ./.git/objects/75
+  ./.git/objects/76
+  ./.git/objects/77
+  ./.git/objects/78
+  ./.git/objects/79
+  ./.git/objects/7a
+  ./.git/objects/7b
+  ./.git/objects/7c
+  ./.git/objects/7e
+  ./.git/objects/80
+  ./.git/objects/82
+  ./.git/objects/86
+  ./.git/objects/87
+  ./.git/objects/88
+  ./.git/objects/89
+  ./.git/objects/8c
+  ./.git/objects/90
+  ./.git/objects/92
+  ./.git/objects/94
+  ./.git/objects/95
+  ./.git/objects/99
+  ./.git/objects/9a
+  ./.git/objects/9b
+  ./.git/objects/9c
+  ./.git/objects/9e
+  ./.git/objects/a1
+  ./.git/objects/a2
+  ./.git/objects/a4
+  ./.git/objects/a5
+  ./.git/objects/a6
+  ./.git/objects/a7
+  ./.git/objects/a8
+  ./.git/objects/ad
+  ./.git/objects/b0
+  ./.git/objects/b2
+  ./.git/objects/b6
+  ./.git/objects/b7
+  ./.git/objects/b8
+  ./.git/objects/ba
+  ./.git/objects/bb
+  ./.git/objects/bd
+  ./.git/objects/be
+  ./.git/objects/bf
+  ./.git/objects/c3
+  ./.git/objects/c4
+  ./.git/objects/c5
+  ./.git/objects/c6
+  ./.git/objects/c8
+  ./.git/objects/ca
+  ./.git/objects/cb
+  ./.git/objects/cc
+  ./.git/objects/cd
+  ./.git/objects/cf
+  ./.git/objects/d2
+  ./.git/objects/d5
+  ./.git/objects/d8
+  ./.git/objects/d9
+  ./.git/objects/da
+  ./.git/objects/db
+  ./.git/objects/dc
+  ./.git/objects/de
+  ./.git/objects/df
+  ./.git/objects/e0
+  ./.git/objects/e2
+  ./.git/objects/e3
+  ./.git/objects/e5
+  ./.git/objects/e7
+  ./.git/objects/e8
+  ./.git/objects/e9
+  ./.git/objects/ea
+  ./.git/objects/ec
+  ./.git/objects/ee
+  ./.git/objects/ef
+  ./.git/objects/f0
+  ./.git/objects/f2
+  ./.git/objects/f3
+  ./.git/objects/f9
+  ./.git/objects/fc
+  ./.git/objects/info
+  ./.git/objects/pack
+  ./.git/refs
+  ./.git/refs/heads
+  ./.git/refs/remotes
+  ./.git/refs/remotes/origin
+  ./.git/refs/tags
+  ./icons
+  ./icons/256x256
+  ./icons/scalable
+  ./panel-plugin
+  ./panel-plugin/appmenu
+  ./po
+  ./subprojects
+  ./subprojects/vala-panel-appmenu
+  ./subprojects/vala-panel-appmenu/applets
+  ./subprojects/vala-panel-appmenu/data
+  ./subprojects/vala-panel-appmenu/lib
+  ./subprojects/vala-panel-appmenu/po
+  ./subprojects/vala-panel-appmenu/subprojects
+  ./subprojects/vala-panel-appmenu/subprojects/appmenu-glib-translator
+  ./subprojects/vala-panel-appmenu/subprojects/appmenu-gtk-module
+  ./subprojects/vala-panel-appmenu/subprojects/appmenu-gtk-module/data
+  ./subprojects/vala-panel-appmenu/subprojects/appmenu-gtk-module/docs
+  ./subprojects/vala-panel-appmenu/subprojects/appmenu-gtk-module/lib
+  ./subprojects/vala-panel-appmenu/subprojects/appmenu-gtk-module/src
+  ./subprojects/vala-panel-appmenu/subprojects/appmenu-gtk-module/src/gtk-2.0
+  ./subprojects/vala-panel-appmenu/subprojects/appmenu-gtk-module/src/gtk-3.0
+  ./subprojects/vala-panel-appmenu/subprojects/appmenu-gtk-module/tests
+  ./subprojects/vala-panel-appmenu/subprojects/appmenu-gtk-module/tests/autopilot
+  ./subprojects/vala-panel-appmenu/subprojects/appmenu-gtk-module/tests/autopilot/tests
+  ./subprojects/vala-panel-appmenu/subprojects/appmenu-gtk-module/tests/demos
+  ./subprojects/vala-panel-appmenu/subprojects/jayatana
+  ./subprojects/vala-panel-appmenu/subprojects/jayatana/java
+  ./subprojects/vala-panel-appmenu/subprojects/jayatana/java/com
+  ./subprojects/vala-panel-appmenu/subprojects/jayatana/java/com/jarego
+  ./subprojects/vala-panel-appmenu/subprojects/jayatana/java/com/jarego/jayatana
+  ./subprojects/vala-panel-appmenu/subprojects/jayatana/java/com/jarego/jayatana/basic
+  ./subprojects/vala-panel-appmenu/subprojects/jayatana/java/com/jarego/jayatana/swing
+  ./subprojects/vala-panel-appmenu/subprojects/jayatana/lib
+  ./subprojects/vala-panel-appmenu/subprojects/registrar
+  ./subprojects/vala-panel-appmenu/subprojects/registrar/data
+  ./subprojects/vala-panel-appmenu/vapi
+
+=== FILE LISTING ===
+
+=== KEY FILES CONTENT ===
+
+=== NEWTON MENU CORE FILES ===
+==== FILE: panel-plugin/newtonmenu.c ====
+Size: 15197 bytes, Lines: 351
+---
+/*
+ * Copyright (C) 2025 Adam
+ * Xfce4 Newton Menu Plugin - Configuration Dialogs
+ */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+#ifdef HAVE_XFCE_REVISION_H
+#include "xfce-revision.h"
+#endif
+
+#include <string.h>
+#include <gtk/gtk.h>
+
+#include <libxfce4ui/libxfce4ui.h>
+#include <libxfce4panel/libxfce4panel.h>
+#include <exo/exo.h>
+
+#include "newtonmenu.h"
+#include "newtonmenu-dialogs.h"
+
+#define PLUGIN_WEBSITE "https://gitlab.xfce.org/panel-plugins/xfce4-newtonmenu-plugin"
+
+// Forward declarations for dialog-specific callbacks
+static void on_display_icon_checkbutton_toggled(GtkToggleButton *togglebutton, gpointer user_data);
+static void on_icon_choose_button_clicked(GtkButton *button, gpointer user_data);
+static void dialog_save_settings_and_update(GtkDialog *dialog, newtonmenuPlugin *newtonmenu, GtkBuilder *builder);
+static void newtonmenu_configure_response_cb(GtkWidget *dialog_widget, gint response, newtonmenuPlugin *newtonmenu);
+static void generic_action_dialog_response_cb(GtkDialog *dialog, gint response_id, gpointer user_data);
+
+static void on_display_icon_checkbutton_toggled(GtkToggleButton *togglebutton, gpointer user_data)
+{
+    GtkBuilder *builder = GTK_BUILDER(user_data);
+    gboolean display_icon = gtk_toggle_button_get_active(togglebutton);
+    GtkWidget *icon_settings_box, *label_settings_box;
+
+    g_return_if_fail(builder != NULL);
+
+    icon_settings_box = GTK_WIDGET(gtk_builder_get_object(builder, "icon_settings_box"));
+    label_settings_box = GTK_WIDGET(gtk_builder_get_object(builder, "label_settings_box"));
+
+    if (icon_settings_box) gtk_widget_set_visible(icon_settings_box, display_icon);
+    if (label_settings_box) gtk_widget_set_visible(label_settings_box, !display_icon);
+}
+
+static void on_icon_choose_button_clicked(GtkButton *button, gpointer user_data)
+{
+    GtkWidget *parent_dialog = GTK_WIDGET(user_data);
+    GtkBuilder *builder = GTK_BUILDER(g_object_get_data(G_OBJECT(parent_dialog), "builder"));
+    GtkWidget *icon_chooser_dialog;
+    gchar *selected_icon_name = NULL;
+    GtkWindow *parent_window = GTK_WINDOW(parent_dialog);
+    GtkWidget *icon_name_entry_widget;
+
+    g_return_if_fail(builder != NULL);
+    icon_name_entry_widget = GTK_WIDGET(gtk_builder_get_object(builder, "icon_name_entry"));
+    g_return_if_fail(GTK_IS_ENTRY(icon_name_entry_widget));
+
+    icon_chooser_dialog = exo_icon_chooser_dialog_new(
+        _("Choose an Icon"),
+        parent_window,
+        _("_Cancel"), GTK_RESPONSE_CANCEL,
+        _("_OK"), GTK_RESPONSE_ACCEPT,
+        NULL);
+    
+    gtk_window_set_modal(GTK_WINDOW(icon_chooser_dialog), TRUE);
+    gtk_dialog_set_default_response(GTK_DIALOG(icon_chooser_dialog), GTK_RESPONSE_ACCEPT);
+
+    const gchar *current_icon = gtk_entry_get_text(GTK_ENTRY(icon_name_entry_widget));
+    if (current_icon && *current_icon) {
+        exo_icon_chooser_dialog_set_icon(EXO_ICON_CHOOSER_DIALOG(icon_chooser_dialog), current_icon);
+    }
+
+    if (gtk_dialog_run(GTK_DIALOG(icon_chooser_dialog)) == GTK_RESPONSE_ACCEPT) {
+        selected_icon_name = exo_icon_chooser_dialog_get_icon(EXO_ICON_CHOOSER_DIALOG(icon_chooser_dialog));
+        if (selected_icon_name) {
+            gtk_entry_set_text(GTK_ENTRY(icon_name_entry_widget), selected_icon_name);
+            g_free(selected_icon_name);
+        }
+    }
+    gtk_widget_destroy(icon_chooser_dialog);
+}
+
+static void dialog_save_settings_and_update(GtkDialog *dialog, newtonmenuPlugin *newtonmenu, GtkBuilder *builder)
+{
+    GtkWidget *widget;
+
+    g_return_if_fail(newtonmenu != NULL);
+    g_return_if_fail(builder != NULL);
+
+    // Save button appearance settings
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "display_icon_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        newtonmenu->display_icon_prop = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "icon_name_entry"));
+    if (GTK_IS_ENTRY(widget)) {
+        g_free(newtonmenu->icon_name_prop);
+        newtonmenu->icon_name_prop = g_strdup(gtk_entry_get_text(GTK_ENTRY(widget)));
+    }
+
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "label_text_entry"));
+    if (GTK_IS_ENTRY(widget)) {
+        g_free(newtonmenu->label_text_prop);
+        newtonmenu->label_text_prop = g_strdup(gtk_entry_get_text(GTK_ENTRY(widget)));
+    }
+
+    // Save global menu settings
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "hide_app_name_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        newtonmenu->hide_application_name_prop = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+
+    // Save and apply bold application name setting
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "bold_app_name_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        newtonmenu->bold_app_name_prop = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+
+    // Save confirmation settings
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "confirm_logout_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        newtonmenu->confirm_logout_prop = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "confirm_restart_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        newtonmenu->confirm_restart_prop = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+        
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "confirm_shutdown_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        newtonmenu->confirm_shutdown_prop = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "confirm_force_quit_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        newtonmenu->confirm_force_quit_prop = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    
+    // Save and update display
+    newtonmenu_save(newtonmenu->plugin, newtonmenu);
+    newtonmenu_update_display(newtonmenu);
+}
+
+static void newtonmenu_configure_response_cb(GtkWidget *dialog_widget, gint response, newtonmenuPlugin *newtonmenu)
+{
+    GtkBuilder *builder = GTK_BUILDER(g_object_get_data(G_OBJECT(dialog_widget), "builder"));
+
+    if (response == GTK_RESPONSE_HELP) {
+        gboolean result;
+        result = g_spawn_command_line_async("exo-open --launch WebBrowser " PLUGIN_WEBSITE, NULL);
+        if (G_UNLIKELY(result == FALSE))
+            g_warning(_("Unable to open the following url: %s"), PLUGIN_WEBSITE);
+        return; 
+    }
+  
+    if (response == GTK_RESPONSE_CLOSE || response == GTK_RESPONSE_DELETE_EVENT || response == GTK_RESPONSE_OK) {
+        if (builder && newtonmenu) {
+            dialog_save_settings_and_update(GTK_DIALOG(dialog_widget), newtonmenu, builder);
+        }
+    }
+
+    if (newtonmenu && newtonmenu->plugin) {
+        g_object_set_data(G_OBJECT(newtonmenu->plugin), "dialog", NULL);
+        xfce_panel_plugin_unblock_menu(newtonmenu->plugin);
+    }
+    if (builder) {
+        g_object_unref(builder);
+        g_object_set_data(G_OBJECT(dialog_widget), "builder", NULL);
+    }
+    gtk_widget_destroy(dialog_widget);
+}
+
+void newtonmenu_configure(XfcePanelPlugin *plugin, newtonmenuPlugin *newtonmenu)
+{
+    GtkBuilder *builder;
+    GObject *dialog_obj;
+    GtkWidget *dialog_widget;
+    GtkWidget *widget;
+
+    g_return_if_fail(plugin != NULL);
+    g_return_if_fail(newtonmenu != NULL);
+
+    if (g_object_get_data(G_OBJECT(plugin), "dialog") != NULL) {
+        gtk_window_present(GTK_WINDOW(g_object_get_data(G_OBJECT(plugin), "dialog")));
+        return;
+    }
+
+    xfce_panel_plugin_block_menu(plugin);
+
+    const gchar *ui_resource_path = "/org/xfce/panel/plugins/newtonmenu/newtonmenu-dialog.ui";
+    builder = gtk_builder_new_from_resource(ui_resource_path);
+
+    if (G_UNLIKELY(builder == NULL)) {
+        g_warning("Failed to load UI for newtonmenu plugin configuration from resource: %s", ui_resource_path);
+        xfce_panel_plugin_unblock_menu(plugin);
+        return;
+    }
+
+    dialog_obj = gtk_builder_get_object(builder, "newtonmenu_config_dialog");
+    if (G_UNLIKELY(dialog_obj == NULL || !GTK_IS_DIALOG(dialog_obj))) {
+        g_warning("UI loaded, but toplevel widget ('newtonmenu_config_dialog') is not a GtkDialog or has wrong ID.");
+        g_object_unref(builder);
+        xfce_panel_plugin_unblock_menu(plugin);
+        return;
+    }
+    
+    dialog_widget = GTK_WIDGET(dialog_obj);
+    gtk_window_set_transient_for(GTK_WINDOW(dialog_widget), GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(plugin))));
+    gtk_window_set_position(GTK_WINDOW(dialog_widget), GTK_WIN_POS_CENTER_ON_PARENT);
+
+    g_object_set_data(G_OBJECT(dialog_widget), "builder", builder);
+    g_object_set_data(G_OBJECT(dialog_widget), "plugin_data", newtonmenu);
+
+    // Setup button appearance controls
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "display_icon_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget)) {
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), newtonmenu->display_icon_prop);
+        on_display_icon_checkbutton_toggled(GTK_TOGGLE_BUTTON(widget), builder);
+        g_signal_connect(widget, "toggled", G_CALLBACK(on_display_icon_checkbutton_toggled), builder);
+    } else {
+        g_warning("Widget 'display_icon_checkbutton' not found or not a GtkToggleButton.");
+    }
+
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "icon_name_entry"));
+    if (GTK_IS_ENTRY(widget)) {
+        gtk_entry_set_text(GTK_ENTRY(widget), newtonmenu->icon_name_prop ? newtonmenu->icon_name_prop : "");
+    } else {
+        g_warning("Widget 'icon_name_entry' not found or not a GtkEntry.");
+    }
+
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "label_text_entry"));
+    if (GTK_IS_ENTRY(widget)) {
+        gtk_entry_set_text(GTK_ENTRY(widget), newtonmenu->label_text_prop ? newtonmenu->label_text_prop : "");
+    } else {
+        g_warning("Widget 'label_text_entry' not found or not a GtkEntry.");
+    }
+
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "icon_choose_button"));
+    if (GTK_IS_BUTTON(widget)) {
+        g_signal_connect(widget, "clicked", G_CALLBACK(on_icon_choose_button_clicked), dialog_widget);
+    } else {
+        g_warning("Widget 'icon_choose_button' not found or not a GtkButton.");
+    }
+
+    // Setup global menu appearance controls
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "hide_app_name_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget)) {
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), newtonmenu->hide_application_name_prop);
+    } else {
+        g_warning("Widget 'hide_app_name_checkbutton' not found or not a GtkToggleButton.");
+    }
+
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "bold_app_name_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), newtonmenu->bold_app_name_prop);
+    
+    // Setup confirmation controls
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "confirm_logout_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), newtonmenu->confirm_logout_prop);
+
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "confirm_restart_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), newtonmenu->confirm_restart_prop);
+        
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "confirm_shutdown_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), newtonmenu->confirm_shutdown_prop);
+
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "confirm_force_quit_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), newtonmenu->confirm_force_quit_prop);
+    
+    g_object_set_data(G_OBJECT(plugin), "dialog", dialog_widget);
+    g_signal_connect(G_OBJECT(dialog_widget), "response",
+                     G_CALLBACK(newtonmenu_configure_response_cb), newtonmenu);
+
+    gtk_widget_show_all(dialog_widget);
+}
+
+void newtonmenu_about(XfcePanelPlugin *plugin)
+{
+    const gchar *auth[] = {
+        "Adam",
+        "AI Assistant",
+        NULL
+    };
+
+    gtk_show_about_dialog(GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(plugin))),
+                         "logo-icon-name", "xfce4-newtonmenu-plugin",
+                         "license-type",   GTK_LICENSE_GPL_2_0,
+                         "version",        PACKAGE_VERSION,
+                         "program-name",   PACKAGE_NAME,
+                         "comments",       _("A macOS-like application and session menu button with global menu integration."),
+                         "website",        PLUGIN_WEBSITE,
+                         "copyright",      _("Copyright © 2024-2025 Adam"),
+                         "authors",        auth,
+                         NULL);
+}
+
+static void generic_action_dialog_response_cb(GtkDialog *dialog, gint response_id, gpointer command_to_run_gpointer)
+{
+    gchar *command_to_run = (gchar*)command_to_run_gpointer;
+
+    if (response_id == GTK_RESPONSE_YES) {
+        if (command_to_run && *command_to_run) {
+            GError *error = NULL;
+            if (!g_spawn_command_line_async(command_to_run, &error)) {
+                g_warning("Failed to execute command '%s': %s", command_to_run, error ? error->message : "Unknown error");
+                if (error) g_error_free(error);
+            }
+        }
+    }
+    if (command_to_run) g_free(command_to_run); 
+    gtk_widget_destroy(GTK_WIDGET(dialog));
+}
+
+void newtonmenu_show_generic_confirmation(GtkWindow *parent, 
+                                          const gchar *action_name_translated, 
+                                          const gchar *action_verb_translated, 
+                                          const gchar *command_to_run)
+{
+    GtkWidget *dialog;
+    gchar *primary_text;
+    gchar *secondary_text = NULL; 
+
+    primary_text = g_strdup_printf(_("Are you sure you want to %s?"), action_name_translated);
+
+    dialog = gtk_message_dialog_new(parent,
+                                   GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+                                   GTK_MESSAGE_QUESTION,
+                                   GTK_BUTTONS_NONE,
+                                   "%s", 
+                                   primary_text);
+    g_free(primary_text);
+
+    if (secondary_text) {
+        gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog), "%s", secondary_text);
+        g_free(secondary_text);
+    }
+    
+    gchar *action_button_label = g_strdup_printf("_%s", action_verb_translated);
+
+    gtk_dialog_add_buttons(GTK_DIALOG(dialog),
+                          _("_Cancel"), GTK_RESPONSE_CANCEL,
+                          action_button_label, GTK_RESPONSE_YES,
+                          NULL);
+    g_free(action_button_label);
+
+    gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_CANCEL);
+    
+    g_signal_connect(dialog, "response", G_CALLBACK(generic_action_dialog_response_cb), g_strdup(command_to_run));
+    gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER_ALWAYS); 
+    gtk_widget_show_all(dialog);
+}
+
+==== FILE: panel-plugin/newtonmenu.h ====
+Size: 2255 bytes, Lines: 60
+---
+#ifndef __NEWTONMENU_H__
+#define __NEWTONMENU_H__
+
+#include <gtk/gtk.h>
+#include <libxfce4panel/libxfce4panel.h>
+#include <libxfce4ui/libxfce4ui.h>
+#include <libxfce4util/libxfce4util.h>
+#include <libwnck/libwnck.h> // Wnck is still included, as MenuWidget might internally use it
+#include <gio/gio.h>       // GIO is still included, as MenuWidget will use it
+
+G_BEGIN_DECLS
+
+// Forward declarations for Vala-generated C functions
+GtkWidget* appmenu_menu_widget_new(void);
+void appmenu_menu_widget_set_compact_mode(GtkWidget* widget, gboolean compact_mode);
+void appmenu_menu_widget_set_bold_application_name(GtkWidget* widget, gboolean bold_application_name);
+
+typedef struct _newtonmenuPlugin newtonmenuPlugin;
+
+struct _newtonmenuPlugin
+{
+    XfcePanelPlugin *plugin;
+
+    GtkWidget       *main_box;
+    GtkMenuButton   *newton_button;
+    GtkWidget       *newton_button_box;
+    GtkWidget       *newton_icon_image;
+    GtkWidget       *newton_label_widget;
+    GtkWidget       *static_newton_menu;
+
+    GtkWidget       *app_menu_bar_container;
+    GtkWidget       *appmenu_widget; // NEW: Holds the Vala-generated Appmenu.MenuWidget
+
+    gboolean        display_icon_prop;
+    gchar          *icon_name_prop;
+    gchar          *label_text_prop;
+    
+    gboolean        hide_application_name_prop; // This maps to MenuWidget's "compact-mode"
+    gboolean        bold_app_name_prop;       // This maps to MenuWidget's "bold-application-name"
+    
+    gboolean        confirm_logout_prop;
+    gboolean        confirm_restart_prop;
+    gboolean        confirm_shutdown_prop;
+    gboolean        confirm_force_quit_prop;
+    
+    GtkMenuButton   *currently_open_button;
+};
+
+void newtonmenu_save(XfcePanelPlugin *plugin, newtonmenuPlugin *newtonmenu);
+void newtonmenu_update_display(newtonmenuPlugin *newtonmenu);
+void newtonmenu_apply_appmenu_properties(newtonmenuPlugin *newtonmenu); // NEW
+
+void newtonmenu_menu_button_toggled(GtkMenuButton *button, newtonmenuPlugin *newtonmenu);
+gboolean on_menu_button_enter(GtkWidget *widget, GdkEventCrossing *event, gpointer user_data);
+
+void newtonmenu_configure (XfcePanelPlugin *plugin, newtonmenuPlugin *newtonmenu);
+void newtonmenu_about (XfcePanelPlugin *plugin);
+
+G_END_DECLS
+
+#endif /* !__NEWTONMENU_H__ */
+
+=== BUILD CONFIGURATION ===
+==== FILE: meson.build ====
+Size: 5441 bytes, Lines: 130
+---
+project(
+  'xfce4-newtonmenu-plugin',
+  ['c', 'vala'],
+  version: '0.0.4-dev',
+  license: 'GPL-2.0-or-later',
+  meson_version: '>= 0.54.0',
+  default_options: [
+    'c_std=gnu11',
+    'buildtype=debugoptimized',
+    'warning_level=2',
+  ]
+)
+
+valapanel = subproject('vala-panel-appmenu',
+  default_options: [
+    'xfce=disabled',
+    'mate=disabled',
+    'budgie=disabled',
+    'tests=disabled',
+    'introspection=disabled',
+    'gtk_modules=disabled',
+    'buildtype=release'
+  ]
+)
+
+
+valapanel_dep = valapanel.get_variable('appmenu_export')
+
+project_namespace = 'panel-plugins'
+pkgdatadir = get_option('prefix') / get_option('datadir') / meson.project_name()
+copyright_year = '2025'
+
+cc = meson.get_compiler('c')
+pkgconfig = import('pkgconfig')
+gnome = import('gnome')
+i18n = import('i18n')
+
+dependency_versions = {
+  'glib': '>= 2.66.0',
+  'gtk': '>= 3.24.0',
+  'xfce4': '>= 4.16.0',
+  'libwnck': '>= 3.4.8',
+  'dbusmenu-glib': '>= 0.6.0',
+  'appmenu-glib-translator': '>=0.1.1',
+}
+
+glib = dependency('glib-2.0', version: dependency_versions['glib'])
+gtk = dependency('gtk+-3.0', version: dependency_versions['gtk'])
+libxfce4panel = dependency('libxfce4panel-2.0', version: dependency_versions['xfce4'])
+libxfce4ui = dependency('libxfce4ui-2', version: dependency_versions['xfce4'])
+libxfce4util = dependency('libxfce4util-1.0', version: dependency_versions['xfce4'])
+libwnck_dep = dependency('libwnck-3.0', version: dependency_versions['libwnck'])
+libdbusmenu_glib_dep = dependency('dbusmenu-glib-0.4', version: dependency_versions['dbusmenu-glib'])
+libdbusmenu_gtk_dep = dependency('dbusmenu-gtk3-0.4', required: false)
+exo_dep = dependency('exo-2', version: '>= 0.12.0', required: false)
+
+feature_cflags = []
+if cc.check_header('string.h')
+  feature_cflags += '-DHAVE_STRING_H=1'
+endif
+
+project_c_args = []
+extra_cflags_check = [
+  '-Wmissing-declarations', '-Wmissing-noreturn', '-Wold-style-definition',
+  '-Wredundant-decls', '-Wpointer-arith', '-Wcast-align', '-Winit-self',
+  '-Wshadow', '-Wmissing-include-dirs', '-Wundef', '-Wformat',
+  '-Wformat-security', '-Wnested-externs', '-Wno-unused-parameter',
+  '-Wno-declaration-after-statement', '-Wno-missing-field-initializers',
+  '-Werror=implicit-function-declaration', '-Wno-error=deprecated-declarations',
+]
+if cc.has_argument('-Wformat-y2k')
+  extra_cflags_check += '-Wformat-y2k'
+endif
+
+optimization = get_option('optimization')
+if get_option('debug') and optimization in ['0', 'g']
+  extra_cflags_check += '-fstack-protector-strong'
+  project_c_args += ['-DDEBUG=1', '-DDEBUG_TRACE=1', '-DG_ENABLE_DEBUG']
+elif optimization in ['3', 'minsize']
+  project_c_args += ['-DNDEBUG', '-DG_DISABLE_CAST_CHECKS', '-DG_DISABLE_ASSERT']
+endif
+
+if dependency_versions.has_key('glib')
+  glib_version_parts = dependency_versions['glib'].split(' ')
+  glib_min_version_parts = glib_version_parts[1].split('.')
+  glib_min_version_define = 'GLIB_VERSION_@0@_@1@'.format(glib_min_version_parts[0], glib_min_version_parts[1])
+  project_c_args += [
+    '-DGLIB_VERSION_MIN_REQUIRED=@0@'.format(glib_min_version_define),
+    '-DGLIB_VERSION_MAX_ALLOWED=@0@'.format(glib_min_version_define),
+    '-DG_LOG_USE_STRUCTURED=1',
+  ]
+endif
+
+version_parts = meson.project_version().split('-dev')[0].split('.')
+version_short = '@0@.@1@'.format(version_parts[0], version_parts[1])
+project_c_args += [
+  '-DPACKAGE="@0@"'.format(meson.project_name()),
+  '-DPACKAGE_NAME="@0@"'.format(meson.project_name()),
+  '-DPACKAGE_VERSION="@0@"'.format(meson.project_version()),
+  '-DVERSION="@0@"'.format(meson.project_version()),
+  '-DVERSION_SHORT="@0@"'.format(version_short),
+  '-DPACKAGE_STRING="@0@ @1@"'.format(meson.project_name(), meson.project_version()),
+  '-DPACKAGE_DATADIR="@0@"'.format(pkgdatadir),
+  '-DCOPYRIGHT_YEAR="@0@"'.format(copyright_year),
+  '-DPACKAGE_LOCALE_DIR="@0@"'.format(get_option('prefix') / get_option('localedir')),
+  '-DPACKAGE_URL="https://docs.xfce.org/@0@/@1@/start"'.format(project_namespace, meson.project_name()),
+  '-DPACKAGE_BUGREPORT="https://gitlab.xfce.org/@0@/@1@/-/issues"'.format(project_namespace, meson.project_name()),
+  '-DGETTEXT_PACKAGE="@0@"'.format(meson.project_name()),
+  '-DPREFIX="@0@"'.format(get_option('prefix')), '-DBINDIR="@0@"'.format(get_option('prefix') / get_option('bindir')),
+  '-DDATADIR="@0@"'.format(get_option('prefix') / get_option('datadir')),
+  '-DDOCDIR="@0@"'.format(get_option('prefix') / 'doc' / meson.project_name()),
+  '-DINCLUDEDIR="@0@"'.format(get_option('prefix') / get_option('includedir')),
+  '-DLIBDIR="@0@"'.format(get_option('prefix') / get_option('libdir')),
+  '-DLIBEXECDIR="@0@"'.format(get_option('prefix') / get_option('libexecdir')),
+  '-DLOCALEDIR="@0@"'.format(get_option('prefix') / get_option('localedir')),
+  '-DLOCALSTATEDIR="@0@"'.format(get_option('prefix') / get_option('localstatedir')),
+  '-DSBINDIR="@0@"'.format(get_option('prefix') / get_option('sbindir')),
+  '-DSYSCONFDIR="@0@"'.format(get_option('prefix') / get_option('sysconfdir')),
+  '-DHAVE_XFCE_REVISION_H=1',
+]
+add_project_arguments(cc.get_supported_arguments(extra_cflags_check), language: 'c')
+add_project_arguments(feature_cflags, language: 'c')
+add_project_arguments(project_c_args, language: 'c')
+
+xfce_revision_h = vcs_tag(
+  command: ['git', 'rev-parse', '--short', 'HEAD'],
+  fallback: 'UNKNOWN', input: 'xfce-revision.h.in', output: 'xfce-revision.h', replace_string: '@REVISION@')
+
+subdir('icons')
+subdir('panel-plugin')
+subdir('po')
+
+==== FILE: panel-plugin/meson.build ====
+Size: 3211 bytes, Lines: 105
+---
+# Vala sources for the integrated Appmenu widget
+appmenu_vala_sources = files(
+  'newtonmenu-appmenu-bridge.vala', # Our custom Vala file to expose MenuWidget to C
+
+  # Core Appmenu Vala sources from the subproject
+  # These files define the Appmenu.MenuWidget class and its dependencies
+  '../subprojects/vala-panel-appmenu/lib/backend.vala',
+  '../subprojects/vala-panel-appmenu/lib/backend-impl.vala',
+  '../subprojects/vala-panel-appmenu/lib/appmenu-dbus.vala',
+  '../subprojects/vala-panel-appmenu/lib/appmenu-util.vala',
+  '../subprojects/vala-panel-appmenu/lib/menu-widget.vala',
+)
+
+# Generate appmenu_config.vala, which defines the 'Config' namespace
+# required by vala-panel-appmenu's internal dgettext calls.
+# We explicitly set GETTEXT_PACKAGE to 'vala-panel-appmenu' so its strings are translated
+# under its own domain, not Newton Menu's.
+appmenu_config_data = configuration_data()
+appmenu_config_data.set('GETTEXT_PACKAGE', 'vala-panel-appmenu')
+appmenu_config_data.set('LOCALE_DIR', get_option('prefix') / get_option('localedir'))
+appmenu_config_vala = configure_file(
+    input: '../subprojects/vala-panel-appmenu/vapi/config.vala.in',
+    output: 'appmenu_config.vala',
+    configuration: appmenu_config_data
+)
+appmenu_vala_sources += appmenu_config_vala # Add the generated Vala file to sources
+
+plugin_sources = files(
+  'newtonmenu.c',
+  'newtonmenu-dialogs.c',
+  'newtonmenu-force-quit-dialog.c',
+)
+
+newtonmenu_gresource = gnome.compile_resources(
+  'newtonmenu-gresource',
+  'newtonmenu.gresource.xml',
+  source_dir: '.',
+  c_name: 'newtonmenu'
+)
+
+# ADD ALL VALA SOURCES TO PLUGIN_SOURCES
+plugin_sources = files(
+  'newtonmenu.c',
+  'newtonmenu-dialogs.c',
+  'newtonmenu-force-quit-dialog.c'
+)
+
+plugin_deps = [
+  glib,
+  gtk,
+  libxfce4panel,
+  libxfce4ui,
+  libxfce4util,
+  libwnck_dep,
+  valapanel_dep,  # to jest cały statyczny appmenu
+]
+
+if libdbusmenu_gtk_dep.found()
+  plugin_deps += libdbusmenu_gtk_dep
+endif
+
+if exo_dep.found()
+  plugin_deps += exo_dep
+endif
+
+# Determine the correct libdir based on the 'libdir' option from Meson
+# This will be 'lib' or 'lib64' etc. as determined by Meson for your system.
+plugin_install_dir = get_option('prefix') / get_option('libdir') / 'xfce4' / 'panel' / 'plugins'
+message('Plugin will be installed to: ' + plugin_install_dir) # For verification
+
+shared_module('newtonmenu',
+  sources: [plugin_sources, newtonmenu_gresource, xfce_revision_h],
+  dependencies: plugin_deps,
+  c_args: plugin_c_args,
+  include_directories: ['.'],
+  install: true,
+  install_dir: plugin_install_dir
+)
+
+desktop_file = i18n.merge_file(
+  input: 'newtonmenu.desktop.in',
+  output: 'newtonmenu.desktop',
+  type: 'desktop',
+  po_dir: '../po',
+  install: true,
+  install_dir: get_option('datadir') / 'xfce4' / 'panel' / 'plugins'
+)
+
+appmenu_sources = files(
+  'lib/appmenu-dbus.vala',
+  'lib/appmenu-util.vala',
+  'lib/menu-widget.vala',
+  config  # generated config.vala
+)
+
+appmenu_static = static_library('appmenu_static',
+  sources: appmenu_sources,
+  dependencies: [glib, gtk, giounix, wnck],
+  vala_args: ['--vapidir=vapi'],
+  install: false
+)
+
+appmenu_export = declare_dependency(
+  link_with: appmenu_static,
+  include_directories: include_directories('lib')
+)
+
+==== FILE: .gitmodules ====
+Size: 152 bytes, Lines: 3
+---
+[submodule "subprojects/vala-panel-appmenu"]
+	path = subprojects/vala-panel-appmenu
+	url = https://gitlab.com/vala-panel-project/vala-panel-appmenu.git
+
+
+=== DIALOG FILES ===
+==== FILE: panel-plugin/newtonmenu-dialogs.c ====
+Size: 16191 bytes, Lines: 372
+---
+/*
+ * Copyright (C) 2025 Adam
+ * Xfce4 Newton Menu Plugin - Configuration Dialogs
+ */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+#ifdef HAVE_XFCE_REVISION_H
+#include "xfce-revision.h"
+#endif
+
+#include <string.h>
+#include <gtk/gtk.h>
+
+#include <libxfce4ui/libxfce4ui.h>
+#include <libxfce4panel/libxfce4panel.h>
+#include <exo/exo.h>
+
+#include "newtonmenu.h"
+#include "newtonmenu-dialogs.h"
+
+#define PLUGIN_WEBSITE "https://gitlab.xfce.org/panel-plugins/xfce4-newtonmenu-plugin"
+
+// Forward declarations for dialog-specific callbacks
+static void on_display_icon_checkbutton_toggled(GtkToggleButton *togglebutton, gpointer user_data);
+static void on_hide_app_name_checkbutton_toggled(GtkToggleButton *togglebutton, gpointer user_data);
+static void on_icon_choose_button_clicked(GtkButton *button, gpointer user_data);
+static void dialog_save_settings_and_update(GtkDialog *dialog, newtonmenuPlugin *newtonmenu, GtkBuilder *builder);
+static void newtonmenu_configure_response_cb(GtkWidget *dialog_widget, gint response, newtonmenuPlugin *newtonmenu);
+static void generic_action_dialog_response_cb(GtkDialog *dialog, gint response_id, gpointer user_data);
+
+static void on_display_icon_checkbutton_toggled(GtkToggleButton *togglebutton, gpointer user_data)
+{
+    GtkBuilder *builder = GTK_BUILDER(user_data);
+    gboolean display_icon = gtk_toggle_button_get_active(togglebutton);
+    GtkWidget *icon_settings_box, *label_settings_box;
+
+    g_return_if_fail(builder != NULL);
+
+    icon_settings_box = GTK_WIDGET(gtk_builder_get_object(builder, "icon_settings_box"));
+    label_settings_box = GTK_WIDGET(gtk_builder_get_object(builder, "label_settings_box"));
+
+    if (icon_settings_box) gtk_widget_set_visible(icon_settings_box, display_icon);
+    if (label_settings_box) gtk_widget_set_visible(label_settings_box, !display_icon);
+}
+
+static void on_hide_app_name_checkbutton_toggled(GtkToggleButton *togglebutton, gpointer user_data)
+{
+    GtkBuilder *builder = GTK_BUILDER(user_data);
+    gboolean hide_app_name = gtk_toggle_button_get_active(togglebutton);
+    GtkWidget *global_menu_title_box;
+
+    g_return_if_fail(builder != NULL);
+
+    global_menu_title_box = GTK_WIDGET(gtk_builder_get_object(builder, "global_menu_title_box"));
+
+    if (global_menu_title_box) gtk_widget_set_visible(global_menu_title_box, hide_app_name);
+}
+
+static void on_icon_choose_button_clicked(GtkButton *button, gpointer user_data)
+{
+    GtkWidget *parent_dialog = GTK_WIDGET(user_data);
+    GtkBuilder *builder = GTK_BUILDER(g_object_get_data(G_OBJECT(parent_dialog), "builder"));
+    GtkWidget *icon_chooser_dialog;
+    gchar *selected_icon_name = NULL;
+    GtkWindow *parent_window = GTK_WINDOW(parent_dialog);
+    GtkWidget *icon_name_entry_widget;
+
+    g_return_if_fail(builder != NULL);
+    icon_name_entry_widget = GTK_WIDGET(gtk_builder_get_object(builder, "icon_name_entry"));
+    g_return_if_fail(GTK_IS_ENTRY(icon_name_entry_widget));
+
+    icon_chooser_dialog = exo_icon_chooser_dialog_new(
+        _("Choose an Icon"),
+        parent_window,
+        _("_Cancel"), GTK_RESPONSE_CANCEL,
+        _("_OK"), GTK_RESPONSE_ACCEPT,
+        NULL);
+    
+    gtk_window_set_modal(GTK_WINDOW(icon_chooser_dialog), TRUE);
+    gtk_dialog_set_default_response(GTK_DIALOG(icon_chooser_dialog), GTK_RESPONSE_ACCEPT);
+
+    const gchar *current_icon = gtk_entry_get_text(GTK_ENTRY(icon_name_entry_widget));
+    if (current_icon && *current_icon) {
+        exo_icon_chooser_dialog_set_icon(EXO_ICON_CHOOSER_DIALOG(icon_chooser_dialog), current_icon);
+    }
+
+    if (gtk_dialog_run(GTK_DIALOG(icon_chooser_dialog)) == GTK_RESPONSE_ACCEPT) {
+        selected_icon_name = exo_icon_chooser_dialog_get_icon(EXO_ICON_CHOOSER_DIALOG(icon_chooser_dialog));
+        if (selected_icon_name) {
+            gtk_entry_set_text(GTK_ENTRY(icon_name_entry_widget), selected_icon_name);
+            g_free(selected_icon_name);
+        }
+    }
+    gtk_widget_destroy(icon_chooser_dialog);
+}
+
+static void dialog_save_settings_and_update(GtkDialog *dialog, newtonmenuPlugin *newtonmenu, GtkBuilder *builder)
+{
+    GtkWidget *widget;
+
+    g_return_if_fail(newtonmenu != NULL);
+    g_return_if_fail(builder != NULL);
+
+    // Save button appearance settings
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "display_icon_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        newtonmenu->display_icon_prop = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "icon_name_entry"));
+    if (GTK_IS_ENTRY(widget)) {
+        g_free(newtonmenu->icon_name_prop);
+        newtonmenu->icon_name_prop = g_strdup(gtk_entry_get_text(GTK_ENTRY(widget)));
+    }
+
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "label_text_entry"));
+    if (GTK_IS_ENTRY(widget)) {
+        g_free(newtonmenu->label_text_prop);
+        newtonmenu->label_text_prop = g_strdup(gtk_entry_get_text(GTK_ENTRY(widget)));
+    }
+
+    // Save global menu settings
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "hide_app_name_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        newtonmenu->hide_application_name_prop = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "global_menu_title_entry"));
+    if (GTK_IS_ENTRY(widget)) {
+        g_free(newtonmenu->global_menu_title_prop);
+        newtonmenu->global_menu_title_prop = g_strdup(gtk_entry_get_text(GTK_ENTRY(widget)));
+    }
+    
+    // Save confirmation settings
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "confirm_logout_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        newtonmenu->confirm_logout_prop = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "confirm_restart_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        newtonmenu->confirm_restart_prop = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+        
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "confirm_shutdown_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        newtonmenu->confirm_shutdown_prop = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "confirm_force_quit_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        newtonmenu->confirm_force_quit_prop = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    
+    // Save and update display
+    newtonmenu_save(newtonmenu->plugin, newtonmenu);
+    newtonmenu_update_display(newtonmenu);
+    // REMOVED: newtonmenu_update_combined_menu(newtonmenu); - this function doesn't exist
+}
+
+static void newtonmenu_configure_response_cb(GtkWidget *dialog_widget, gint response, newtonmenuPlugin *newtonmenu)
+{
+    GtkBuilder *builder = GTK_BUILDER(g_object_get_data(G_OBJECT(dialog_widget), "builder"));
+
+    if (response == GTK_RESPONSE_HELP) {
+        gboolean result;
+        result = g_spawn_command_line_async("exo-open --launch WebBrowser " PLUGIN_WEBSITE, NULL);
+        if (G_UNLIKELY(result == FALSE))
+            g_warning(_("Unable to open the following url: %s"), PLUGIN_WEBSITE);
+        return; 
+    }
+  
+    if (response == GTK_RESPONSE_CLOSE || response == GTK_RESPONSE_DELETE_EVENT || response == GTK_RESPONSE_OK) {
+        if (builder && newtonmenu) {
+            dialog_save_settings_and_update(GTK_DIALOG(dialog_widget), newtonmenu, builder);
+        }
+    }
+
+    if (newtonmenu && newtonmenu->plugin) {
+        g_object_set_data(G_OBJECT(newtonmenu->plugin), "dialog", NULL);
+        xfce_panel_plugin_unblock_menu(newtonmenu->plugin);
+    }
+    if (builder) {
+        g_object_unref(builder);
+        g_object_set_data(G_OBJECT(dialog_widget), "builder", NULL);
+    }
+    gtk_widget_destroy(dialog_widget);
+}
+
+void newtonmenu_configure(XfcePanelPlugin *plugin, newtonmenuPlugin *newtonmenu)
+{
+    GtkBuilder *builder;
+    GObject *dialog_obj;
+    GtkWidget *dialog_widget;
+    GtkWidget *widget;
+
+    g_return_if_fail(plugin != NULL);
+    g_return_if_fail(newtonmenu != NULL);
+
+    if (g_object_get_data(G_OBJECT(plugin), "dialog") != NULL) {
+        gtk_window_present(GTK_WINDOW(g_object_get_data(G_OBJECT(plugin), "dialog")));
+        return;
+    }
+
+    xfce_panel_plugin_block_menu(plugin);
+
+    const gchar *ui_resource_path = "/org/xfce/panel/plugins/newtonmenu/newtonmenu-dialog.ui";
+    builder = gtk_builder_new_from_resource(ui_resource_path);
+
+    if (G_UNLIKELY(builder == NULL)) {
+        g_warning("Failed to load UI for newtonmenu plugin configuration from resource: %s", ui_resource_path);
+        xfce_panel_plugin_unblock_menu(plugin);
+        return;
+    }
+
+    dialog_obj = gtk_builder_get_object(builder, "newtonmenu_config_dialog");
+    if (G_UNLIKELY(dialog_obj == NULL || !GTK_IS_DIALOG(dialog_obj))) {
+        g_warning("UI loaded, but toplevel widget ('newtonmenu_config_dialog') is not a GtkDialog or has wrong ID.");
+        g_object_unref(builder);
+        xfce_panel_plugin_unblock_menu(plugin);
+        return;
+    }
+    
+    dialog_widget = GTK_WIDGET(dialog_obj);
+    gtk_window_set_transient_for(GTK_WINDOW(dialog_widget), GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(plugin))));
+    gtk_window_set_position(GTK_WINDOW(dialog_widget), GTK_WIN_POS_CENTER_ON_PARENT);
+
+    g_object_set_data(G_OBJECT(dialog_widget), "builder", builder);
+    g_object_set_data(G_OBJECT(dialog_widget), "plugin_data", newtonmenu);
+
+    // Setup button appearance controls
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "display_icon_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget)) {
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), newtonmenu->display_icon_prop);
+        on_display_icon_checkbutton_toggled(GTK_TOGGLE_BUTTON(widget), builder);
+        g_signal_connect(widget, "toggled", G_CALLBACK(on_display_icon_checkbutton_toggled), builder);
+    } else {
+        g_warning("Widget 'display_icon_checkbutton' not found or not a GtkToggleButton.");
+    }
+
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "icon_name_entry"));
+    if (GTK_IS_ENTRY(widget)) {
+        gtk_entry_set_text(GTK_ENTRY(widget), newtonmenu->icon_name_prop ? newtonmenu->icon_name_prop : "");
+    } else {
+        g_warning("Widget 'icon_name_entry' not found or not a GtkEntry.");
+    }
+
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "label_text_entry"));
+    if (GTK_IS_ENTRY(widget)) {
+        gtk_entry_set_text(GTK_ENTRY(widget), newtonmenu->label_text_prop ? newtonmenu->label_text_prop : "");
+    } else {
+        g_warning("Widget 'label_text_entry' not found or not a GtkEntry.");
+    }
+
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "icon_choose_button"));
+    if (GTK_IS_BUTTON(widget)) {
+        g_signal_connect(widget, "clicked", G_CALLBACK(on_icon_choose_button_clicked), dialog_widget);
+    } else {
+        g_warning("Widget 'icon_choose_button' not found or not a GtkButton.");
+    }
+
+    // Setup global menu appearance controls
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "hide_app_name_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget)) {
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), newtonmenu->hide_application_name_prop);
+        on_hide_app_name_checkbutton_toggled(GTK_TOGGLE_BUTTON(widget), builder);
+        g_signal_connect(widget, "toggled", G_CALLBACK(on_hide_app_name_checkbutton_toggled), builder);
+    } else {
+        g_warning("Widget 'hide_app_name_checkbutton' not found or not a GtkToggleButton.");
+    }
+
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "global_menu_title_entry"));
+    if (GTK_IS_ENTRY(widget)) {
+        gtk_entry_set_text(GTK_ENTRY(widget), newtonmenu->global_menu_title_prop ? newtonmenu->global_menu_title_prop : "");
+    } else {
+        g_warning("Widget 'global_menu_title_entry' not found or not a GtkEntry.");
+    }
+
+    // Setup confirmation controls
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "confirm_logout_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), newtonmenu->confirm_logout_prop);
+
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "confirm_restart_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), newtonmenu->confirm_restart_prop);
+        
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "confirm_shutdown_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), newtonmenu->confirm_shutdown_prop);
+
+    widget = GTK_WIDGET(gtk_builder_get_object(builder, "confirm_force_quit_checkbutton"));
+    if (GTK_IS_TOGGLE_BUTTON(widget))
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), newtonmenu->confirm_force_quit_prop);
+    
+    g_object_set_data(G_OBJECT(plugin), "dialog", dialog_widget);
+    g_signal_connect(G_OBJECT(dialog_widget), "response",
+                     G_CALLBACK(newtonmenu_configure_response_cb), newtonmenu);
+
+    gtk_widget_show_all(dialog_widget);
+}
+
+void newtonmenu_about(XfcePanelPlugin *plugin)
+{
+    const gchar *auth[] = {
+        "Adam",
+        "AI Assistant",
+        NULL
+    };
+
+    gtk_show_about_dialog(GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(plugin))),
+                         "logo-icon-name", "xfce4-newtonmenu-plugin",
+                         "license-type",   GTK_LICENSE_GPL_2_0,
+                         "version",        PACKAGE_VERSION,
+                         "program-name",   PACKAGE_NAME,
+                         "comments",       _("A macOS-like application and session menu button with global menu integration."),
+                         "website",        PLUGIN_WEBSITE,
+                         "copyright",      _("Copyright © 2024-2025 Adam"),
+                         "authors",        auth,
+                         NULL);
+}
+
+static void generic_action_dialog_response_cb(GtkDialog *dialog, gint response_id, gpointer command_to_run_gpointer)
+{
+    gchar *command_to_run = (gchar*)command_to_run_gpointer;
+
+    if (response_id == GTK_RESPONSE_YES) {
+        if (command_to_run && *command_to_run) {
+            GError *error = NULL;
+            if (!g_spawn_command_line_async(command_to_run, &error)) {
+                g_warning("Failed to execute command '%s': %s", command_to_run, error ? error->message : "Unknown error");
+                if (error) g_error_free(error);
+            }
+        }
+    }
+    if (command_to_run) g_free(command_to_run); 
+    gtk_widget_destroy(GTK_WIDGET(dialog));
+}
+
+void newtonmenu_show_generic_confirmation(GtkWindow *parent, 
+                                          const gchar *action_name_translated, 
+                                          const gchar *action_verb_translated, 
+                                          const gchar *command_to_run)
+{
+    GtkWidget *dialog;
+    gchar *primary_text;
+    gchar *secondary_text = NULL; 
+
+    primary_text = g_strdup_printf(_("Are you sure you want to %s?"), action_name_translated);
+
+    dialog = gtk_message_dialog_new(parent,
+                                   GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+                                   GTK_MESSAGE_QUESTION,
+                                   GTK_BUTTONS_NONE,
+                                   "%s", 
+                                   primary_text);
+    g_free(primary_text);
+
+    if (secondary_text) {
+        gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog), "%s", secondary_text);
+        g_free(secondary_text);
+    }
+    
+    gchar *action_button_label = g_strdup_printf("_%s", action_verb_translated);
+
+    gtk_dialog_add_buttons(GTK_DIALOG(dialog),
+                          _("_Cancel"), GTK_RESPONSE_CANCEL,
+                          action_button_label, GTK_RESPONSE_YES,
+                          NULL);
+    g_free(action_button_label);
+
+    gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_CANCEL);
+    
+    g_signal_connect(dialog, "response", G_CALLBACK(generic_action_dialog_response_cb), g_strdup(command_to_run));
+    gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER_ALWAYS); 
+    gtk_widget_show_all(dialog);
+}
+
+==== FILE: panel-plugin/newtonmenu-dialogs.h ====
+Size: 315 bytes, Lines: 12
+---
+#ifndef __newtonmenu_DIALOGS_H__
+#define __newtonmenu_DIALOGS_H__
+
+#include <gtk/gtk.h>
+#include "newtonmenu.h" 
+
+G_BEGIN_DECLS
+
+void newtonmenu_show_generic_confirmation (GtkWindow *parent, const gchar *action_name_translated, const gchar *action_verb_translated, const gchar *command_to_run);
+
+G_END_DECLS
+
+#endif
+
+=== VALA-PANEL-APPMENU KEY FILES ===
+==== FILE: subprojects/vala-panel-appmenu/meson.build ====
+Size: 3534 bytes, Lines: 127
+---
+project(
+  'vala-panel-appmenu',
+  'vala',
+  'c',
+version : '25.04',
+meson_version : '>=0.51.0',
+license : 'LGPL-3.0-or-later',
+default_options : ['c_std=gnu11', 'buildtype=debugoptimized', 'warning_level=1']
+)
+
+am_cflags = [
+    '-fstack-protector',
+    '-DGETTEXT_PACKAGE="@0@"'.format(meson.project_name()),
+]
+add_project_arguments(am_cflags, language: 'c')
+
+vapi_dir = join_paths(meson.current_source_dir(), 'vapi')
+add_project_arguments(['--vapidir', vapi_dir], language: 'vala')
+
+##################
+# Module imports #
+##################
+
+gnome = import('gnome')
+i18n = import('i18n')
+
+###############
+# Directories #
+###############
+prefix = get_option('prefix')
+datadir = get_option('datadir')
+localedir = get_option('localedir')
+schema_dir = join_paths(get_option('datadir'), 'glib-2.0', 'schemas')
+
+
+################
+# Dependencies #
+################
+glib_ver = '>=2.52.0'
+giounix = dependency('gio-unix-2.0', version: glib_ver)
+
+gdkpixbuf = dependency('gdk-pixbuf-2.0', required: false)
+
+gtk_ver = '>=3.22.0'
+gtk = dependency('gtk+-3.0', version: gtk_ver)
+
+backend_opt = get_option('wm_backend')
+backend_wnck = false
+
+wnck_ver = '>=3.4.8'
+wnck = dependency('libwnck-3.0', version: wnck_ver, required: backend_opt == 'wnck')
+
+if(wnck.found() and (backend_opt == 'wnck' or backend_opt == 'auto'))
+    backend_wnck = true
+endif
+
+if(not (backend_wnck))
+    error('No backend available (libwnck3 required)')
+endif
+
+vp_ver = '>=24.03'
+vp = dependency('vala-panel', version:  vp_ver, required: get_option('valapanel'))
+vala_panel_found = vp.found()
+
+mp_ver = '>=1.20'
+mp = dependency('libmatepanelapplet-4.0', version: mp_ver, required: get_option('mate'))
+mate_found = mp.found()
+
+xp = dependency('libxfce4panel-2.0', required: get_option('xfce'))
+xc = dependency('libxfconf-0', required: get_option('xfce'))
+xfce_found = xp.found() and xc.found()
+
+bp = dependency('budgie-1.0', required: get_option('budgie'))
+budgie_found = bp.found()
+
+
+#################
+# Configuration #
+#################
+conf_data = configuration_data()
+conf_data.set('GETTEXT_PACKAGE', meson.project_name())
+conf_data.set('LOCALE_DIR', join_paths(prefix,localedir))
+conf_data.set('CMAKE_INSTALL_PREFIX', prefix)
+
+config = configure_file(input : join_paths('vapi','config.vala.in'),
+               output : 'config.vala',
+			   configuration : conf_data)
+
+desktop_kwargs = {
+      'type': 'desktop',
+      'args' : ['--keyword=Name','--keyword=Description','--keyword=Comment', '--keyword=Help'],
+      'po_dir': join_paths(meson.current_source_dir(),'po'),
+      'install': true,
+}
+
+#################
+#  Subprojects  #
+#################
+subproject('registrar', required: get_option('registrar'))
+subproject('jayatana', required: get_option('jayatana'))
+subproject('appmenu-gtk-module', required: get_option('appmenu-gtk-module'))
+
+subdir('lib')
+subdir('applets')
+subdir('data')
+subdir('po')
+
+install_data('README.md', install_dir : join_paths(get_option('datadir'), 'doc', meson.project_name()))
+install_data('LICENSE', install_dir : join_paths(get_option('datadir'), 'licenses', meson.project_name()))
+
+appmenu_sources = [
+  'lib/appmenu-dbus.vala',
+  'lib/appmenu-util.vala',
+  'lib/menu-widget.vala',
+  config  # tu może zostać File, bo to już nie files()
+]
+
+appmenu_static = static_library('appmenu_static',
+  sources: appmenu_sources,
+  dependencies: [glib, gtk, giounix, wnck],
+  vala_args: ['--vapidir=vapi'],
+  install: false
+)
+
+appmenu_export = declare_dependency(
+  link_with: appmenu_static,
+  include_directories: include_directories('lib')
+)
+
+==== FILE: subprojects/vala-panel-appmenu/lib/menu-widget.vala ====
+Size: 7261 bytes, Lines: 186
+---
+/*
+ * vala-panel-appmenu
+ * Copyright (C) 2015 Konstantin Pugin <ria.freelander@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+using GLib;
+
+namespace Key
+{
+    public const string COMPACT_MODE = "compact-mode";
+    public const string BOLD_APPLICATION_NAME = "bold-application-name";
+}
+
+namespace Appmenu
+{
+    public class MenuWidget: Gtk.Bin
+    {
+        public bool compact_mode {get; set; default = false;}
+        public bool bold_application_name {get; set; default = false;}
+        private Gtk.Adjustment? scroll_adj = null;
+        private Gtk.ScrolledWindow? scroller = null;
+        private Gtk.CssProvider provider;
+        private GLib.MenuModel? appmenu = null;
+        private GLib.MenuModel? menubar = null;
+        private Backend backend = new BackendImpl();
+        private Gtk.MenuBar mwidget = new Gtk.MenuBar();
+        private ulong backend_connector = 0;
+        private ulong compact_connector = 0;
+        construct
+        {
+            provider = new Gtk.CssProvider();
+            provider.load_from_resource("/org/vala-panel/appmenu/appmenu.css");
+            unowned Gtk.StyleContext context = this.get_style_context();
+            context.add_class("-vala-panel-appmenu-core");
+            unowned Gtk.StyleContext mcontext = mwidget.get_style_context();
+            Signal.connect(this,"notify",(GLib.Callback)restock,null);
+            backend_connector = backend.active_model_changed.connect(()=>{
+                Timeout.add(50,()=>{
+                    backend.set_active_window_menu(this);
+                    return Source.REMOVE;
+                });
+            });
+            mcontext.add_class("-vala-panel-appmenu-private");
+            Gtk.StyleContext.add_provider_for_screen(this.get_screen(), provider,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+            //Setup menubar
+            scroll_adj = new Gtk.Adjustment(0, 0, 0, 20, 20, 0);
+            scroller = new Gtk.ScrolledWindow(scroll_adj, null);
+            scroller.set_hexpand(true);
+            scroller.set_policy(Gtk.PolicyType.EXTERNAL, Gtk.PolicyType.NEVER);
+            scroller.set_shadow_type(Gtk.ShadowType.NONE);
+            scroller.scroll_event.connect(on_scroll_event);
+            scroller.set_min_content_width(16);
+            scroller.set_min_content_height(16);
+            scroller.set_propagate_natural_height(true);
+            scroller.set_propagate_natural_width(true);
+            this.add(scroller);
+            scroller.add(mwidget);
+            mwidget.show();
+            scroller.show();
+            this.show();
+        }
+        public MenuWidget()
+        {
+            Object();
+        }
+        private void restock()
+        {
+            var menu = new GLib.Menu();
+            if (this.appmenu != null)
+                menu.append_section(null,this.appmenu);
+            if (this.menubar != null)
+                menu.append_section(null,this.menubar);
+
+            int items = -1;
+            if (this.menubar != null)
+                items = this.menubar.get_n_items();
+
+            if (this.compact_mode && items == 0)
+            {
+                compact_connector = this.menubar.items_changed.connect((a,b,c)=>{
+                    restock();
+                });
+            }
+            if (this.compact_mode && items > 0)
+            {
+                if(compact_connector > 0)
+                {
+                    this.menubar.disconnect(compact_connector);
+                    compact_connector = 0;
+                }
+                var compact = new GLib.Menu();
+                string? name = null;
+                if(this.appmenu != null)
+                    this.appmenu.get_item_attribute(0,"label","s",&name);
+                else
+                    name = GLib.dgettext(Config.GETTEXT_PACKAGE,"Compact Menu");
+                compact.append_submenu(name,menu);
+                mwidget.bind_model(compact,null,true);
+            }
+            else
+                mwidget.bind_model(menu,null,true);
+            unowned Gtk.StyleContext mcontext = mwidget.get_style_context();
+            if(bold_application_name)
+                mcontext.add_class("-vala-panel-appmenu-bold");
+            else
+                mcontext.remove_class("-vala-panel-appmenu-bold");
+        }
+        public void set_appmenu(GLib.MenuModel? appmenu_model)
+        {
+            this.appmenu = appmenu_model;
+            this.restock();
+        }
+        public void set_menubar(GLib.MenuModel? menubar_model)
+        {
+            this.menubar = menubar_model;
+            this.restock();
+        }
+        protected bool on_scroll_event(Gtk.Widget w, Gdk.EventScroll event)
+        {
+            var val = scroll_adj.get_value();
+            var incr = scroll_adj.get_step_increment();
+            if (event.direction == Gdk.ScrollDirection.UP)
+            {
+                scroll_adj.set_value(val - incr);
+                return true;
+            }
+            if (event.direction == Gdk.ScrollDirection.DOWN)
+            {
+                scroll_adj.set_value(val + incr);
+                return true;
+            }
+            if (event.direction == Gdk.ScrollDirection.LEFT)
+            {
+                scroll_adj.set_value(val - incr);
+                return true;
+            }
+            if (event.direction == Gdk.ScrollDirection.RIGHT)
+            {
+                scroll_adj.set_value(val + incr);
+                return true;
+            }
+            if (event.direction == Gdk.ScrollDirection.SMOOTH)
+            {
+                scroll_adj.set_value(val + incr * (event.delta_y + event.delta_x));
+                return true;
+            }
+            return false;
+        }
+        protected override void map()
+        {
+            base.map();
+            unowned Gtk.Settings gtksettings = this.get_settings();
+            gtksettings.gtk_shell_shows_app_menu = false;
+            gtksettings.gtk_shell_shows_menubar = false;
+        }
+        protected override void get_preferred_height(out int minimum_height, out int natural_height)
+        {
+            int min, nat;
+            scroller.get_preferred_height(out min, null);
+            mwidget.get_preferred_height(null, out nat);
+            minimum_height = int.min(min, nat);
+            natural_height = int.max(min, nat);
+        }
+        protected override void get_preferred_width(out int minimum_height, out int natural_height)
+        {
+            int min, nat;
+            scroller.get_preferred_width(out min, null);
+            mwidget.get_preferred_width(null, out nat);
+            minimum_height = int.min(min, nat);
+            natural_height = int.max(min, nat);
+        }
+    }
+}
+
+
+==== FILE: subprojects/vala-panel-appmenu/applets/xfce4-plugin-appmenu.vala ====
+Size: 4105 bytes, Lines: 100
+---
+/*
+ * vala-panel-appmenu
+ * Copyright (C) 2015 Konstantin Pugin <ria.freelander@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+using GLib;
+using Gtk;
+using Appmenu;
+using Xfce;
+
+public class AppmenuPlugin : Xfce.PanelPlugin {
+
+    public override void @construct() {
+        GLib.Intl.setlocale(LocaleCategory.CTYPE,"");
+        GLib.Intl.bindtextdomain(Config.GETTEXT_PACKAGE,Config.LOCALE_DIR);
+        GLib.Intl.bind_textdomain_codeset(Config.GETTEXT_PACKAGE,"UTF-8");
+        GLib.Intl.textdomain(Config.GETTEXT_PACKAGE);
+        var layout = new MenuWidget();
+        widget = layout;
+        add(widget);
+        add_action_widget(widget);
+        try{
+            Xfconf.init();
+            channel = this.get_channel();
+            Xfconf.Property.bind(channel,this.get_property_base()+"/"+Key.COMPACT_MODE,typeof(bool),widget,Key.COMPACT_MODE);
+            Xfconf.Property.bind(channel,this.get_property_base()+"/"+Key.BOLD_APPLICATION_NAME,typeof(bool),widget,Key.BOLD_APPLICATION_NAME);
+            Xfconf.Property.bind(channel,this.get_property_base()+"/"+"expand",typeof(bool),this,"expand");
+            this.menu_show_configure();
+        } catch (Xfconf.Error e) {
+            stderr.printf("Xfconf init failed. Configuration will not be saved.\n");
+        }
+        this.shrink = true;
+        this.set_expand(true);
+        widget.show();
+    }
+    public override void configure_plugin()
+    {
+        var dlg = new Gtk.Dialog.with_buttons( _("Configure AppMenu"), this.get_toplevel() as Window,
+                                              DialogFlags.DESTROY_WITH_PARENT,
+                                              null );
+        Gtk.Box dlg_vbox = dlg.get_content_area() as Gtk.Box;
+        var entry = new CheckButton.with_label(_("Use Compact mode (all menus in application menu)"));
+        widget.bind_property(Key.COMPACT_MODE, entry, "active", BindingFlags.BIDIRECTIONAL | BindingFlags.SYNC_CREATE);
+        dlg_vbox.pack_start(entry,false,false,2);
+        entry.show();
+        entry = new CheckButton.with_label(_("Use bold application name"));
+        widget.bind_property(Key.BOLD_APPLICATION_NAME, entry, "active", BindingFlags.BIDIRECTIONAL | BindingFlags.SYNC_CREATE);
+        dlg_vbox.pack_start(entry,false,false,2);
+        entry.show();
+        entry = new CheckButton.with_label(_("Expand plugin on panel"));
+        this.bind_property("expand", entry, "active", BindingFlags.BIDIRECTIONAL | BindingFlags.SYNC_CREATE);
+        dlg_vbox.pack_start(entry,false,false,2);
+        entry.show();
+        dlg.show();
+        dlg.present();
+        dlg.unmap.connect(()=>{
+            dlg.destroy();
+        });
+    }
+    protected override void get_preferred_height(out int minimum_height, out int natural_height)
+    {
+        widget.get_preferred_height(null, out minimum_height);
+        natural_height = minimum_height;
+    }
+    protected override void get_preferred_width(out int minimum_height, out int natural_height)
+    {
+        widget.get_preferred_width(null, out minimum_height);
+        natural_height = minimum_height;
+    }
+    private Xfconf.Channel channel;
+    private unowned MenuWidget widget;
+
+    ~AppmenuPlugin() {
+        Xfconf.Property.unbind_all(this);
+        Xfconf.shutdown();
+    }
+}
+
+[ModuleInit]
+public Type xfce_panel_module_init (TypeModule module) {
+    return typeof (AppmenuPlugin);
+}
+
+public bool xfce_panel_module_preinit (string[] args) {
+    Gdk.disable_multidevice();
+    return true;
+}
+
+
+=== END OF CONTEXT DUMP ===
